@@ -56,10 +56,10 @@ class GUI(QDialog):
         self.classComboBox = QComboBox()
         self.classComboBox.addItems(self.class_map)
         
-        setting = config_helper.read_config()
+        cfg = config_helper.read_config()
         class_name = 'None'
         for key in self.class_map:
-            if key == setting['class']:
+            if key == cfg['class']:
                 class_name = key
                 break
 

@@ -326,5 +326,5 @@ class SkillRotation:
                 self.use_skill('shift', '2')
 
 
-skillRota = SkillRotation
+skillRota = SkillRotation()
 

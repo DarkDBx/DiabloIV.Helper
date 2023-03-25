@@ -540,7 +540,7 @@ class mouse:
         for point in human_curve.points:
             moveRel(point[0], point[1], duration=delta)
 
-mo = mouse
+mo = mouse()
 
 # Ignored parameters: duration, tween, logScreenshot
 @_genericPyDirectInputChecks

@@ -83,5 +83,5 @@ class ImageHelper:
                 return 0
     
 
-imgHelp = ImageHelper
+imgHelp = ImageHelper()
 
