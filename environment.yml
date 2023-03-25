@@ -1,0 +1,12 @@
+# ENVIRONMENT NAME #############################################################
+name: LittleHelper
+
+# PYTHON PACKAGES ##############################################################
+dependencies:
+  - python=3.10
+  - pywin32
+  - opencv
+  - pyautogui
+  - pillow
+  - numpy
+  - pyaml
