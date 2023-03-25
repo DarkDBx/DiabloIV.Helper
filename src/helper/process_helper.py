@@ -1,7 +1,7 @@
 import win32gui, win32con
 
 
-WINDOW_SUBSTRING = 'EVE'
+WINDOW_SUBSTRING = 'Guild Wars 2'
 
 def get_hwnd(hwnd=None):
     if hwnd == None:

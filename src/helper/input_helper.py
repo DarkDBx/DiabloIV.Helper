@@ -3,7 +3,6 @@ import functools
 import inspect
 import time
 import win32api
-import msvcrt
 import pytweening
 import numpy as np
 import random
@@ -852,16 +851,4 @@ def typewrite(message, interval=0.05, logScreenshot=None, _pause=True):
 write = typewrite
 
 # Missing feature: hotkey functions
-
-# asks whether a key has been acquired
-# return: key pressed or False
-def kbfunc():
-    # this is boolean for whether the keyboard has been hit
-    x = msvcrt.kbhit()
-    if x:
-        # getch acquires the character encoded in binary ASCII
-        ret = msvcrt.getch()
-    else:
-        ret = False
-    return ret
 

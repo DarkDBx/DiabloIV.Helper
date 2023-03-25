@@ -1,6 +1,7 @@
 import yaml
 import sys
 import os
+import io
 
 
 """Finds filepath after compiling."""
@@ -13,19 +14,13 @@ def set_file_path():
         bundle_dir = os.path.dirname(bundle_dir)
     return bundle_dir + '\\config\\config.yaml'
 
-config_path = set_file_path()
+def save_config(data):
+    with io.open(set_file_path(), 'w', encoding='utf8') as outfile:
+        yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
 
-"""
-def save_config(var_dict):
-    with open(config_path, 'r') as configfile:
-        config = yaml.safe_load(configfile)
-    var = config.update(var_dict)
-    with open(config_path, 'w') as configfile:
-        yaml.dump(var, configfile)
-"""
 
 def read_config():
-    with open(config_path, 'r') as configfile:
-        config = yaml.safe_load(configfile)
+    with open(set_file_path(), 'r') as outfile:
+        config = yaml.safe_load(outfile)
     return config
 
