@@ -14,7 +14,9 @@ def set_file_path():
         bundle_dir = os.path.dirname(bundle_dir)
     return bundle_dir + '\\config\\config.yaml'
 
-def save_config(data):
+def save_config(item, value):
+    data = read_config()
+    data[item] = value
     with io.open(set_file_path(), 'w', encoding='utf8') as outfile:
         yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
 

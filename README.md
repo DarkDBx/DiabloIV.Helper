@@ -1,15 +1,17 @@
 # VERSION
-- Little Helper v0.7.1
+- LittleHelper v0.7.5
 
 # DESCRIPTION
-- Basic image/pixel recognition software for a game-skill-rotation bot
+- Basic image/pixel recognition software for a combat-rotation bot/toolbox
 
 # USAGE
 - Start the engine by pressing on the start button
-- Exit program with 'end' hotkey
-- Pause process with 'delete' hotkey
+- 'end' hotkey exit process
+- 'delete' hotkey pause process
+- 'home' hotkey gGet coordinates and rgb colors at mouse cursor
+- 'insert' hotkey save image per parameters at mouse cursor
 
 # CREDITS
 - Created by DarkDBx
-- Help from alot of Users, sharing there knowledge across the internet
+- Help from alot of users, sharing there knowledge across the internet
 - Written in CPython
