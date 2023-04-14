@@ -1,18 +1,19 @@
-import win32gui
 import math
 import logging
 import pyautogui
 
+from helper import input_helper
+
 
 def get_pixel_color_at_cursor():
     """Get the color of per cursor selected pixel"""
-    x, y = win32gui.GetCursorPos()
+    x, y = input_helper.position()
     r, g, b = pyautogui.screenshot().getpixel((x, y))
     return x, y, r, g, b
 
 def get_image_at_cursor(name='default.png', path='.\\assets\\', ix=25, iy=25):
     """Get the image of per cursor selected pixel"""
-    x, y = win32gui.GetCursorPos()
+    x, y = input_helper.position()
     img = pyautogui.screenshot(region=(x,y, ix, iy))
     img.save(path+name)
     return x, y
@@ -31,7 +32,7 @@ def calculate_distance():
         logging.debug('found '+dist+' at '+location)
         return dist
 
-def locate_needle(needle, haystack=0, conf=0.85, loctype='l', grayscale=True, region=(580, 880, 1333, 1066)):
+def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, region=(580, 880, 1333, 1066)):
     """Searches the haystack image for the needle image, returning a tuple
     of the needle's coordinates within the haystack. If a haystack image is
     not provided, searches the client window or the overview window,
@@ -42,7 +43,7 @@ def locate_needle(needle, haystack=0, conf=0.85, loctype='l', grayscale=True, re
                 causing the mlocate function to capture and search the client
                 window.
         conf: The confidence value required to match the image successfully.
-                By default this is 0.7.
+                By default this is 0.8.
         loctype: The method and/or haystack used to search for images. If a
                 haystack is provided, this parameter is not used.
             l: Search the client window. If the needle is found, return '1'.

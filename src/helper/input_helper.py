@@ -651,7 +651,14 @@ def detect_mouse_click(arg):
             if a < 0:
                 #print('Left Button Pressed')
                 coords = position()
-                return coords
+                return a, coords
+        b = win32api.GetKeyState(0x02)
+        if b != state_right:  # Button state changed
+            state_right = b
+            if b < 0:
+                #print('Right Button Pressed')
+                coords = position()
+                return b, coords
 
 
 # Missing feature: scroll functions

@@ -5,7 +5,7 @@ from sys import exit, argv
 import logging
 from PyQt5.QtWidgets import QApplication
 
-from helper import gui_helper
+from helper import gui_helper, config_helper
 
 
 def main():
@@ -13,8 +13,11 @@ def main():
     app = QApplication(argv)
     gui = gui_helper.GUI()
     gui.show()
-    logging.info(('====== %s %s ======') % ("LittleHelper", "v0.7.5"))
+
+    cfg = config_helper.read_config()
+    logging.info(('====== %s %s ======') % ("LittleHelper", "v0.7.10"))
     logging.info('Starting up bot engine...')
+    logging.info('Preset game: '+cfg['game']+', class: '+cfg['class']+' is initialized')
     exit(app.exec_())
     """except SystemExit:
         logging.error("Shutting down bot, caused by previous warning or fatal.\n")

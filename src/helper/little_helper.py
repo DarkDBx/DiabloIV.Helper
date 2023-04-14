@@ -1,5 +1,4 @@
 import threading
-import os
 import time
 import logging
 
@@ -8,7 +7,7 @@ from engine import skill_rotation
 
 
 class LittleHelper:
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = threading.Lock()
         self.pause_req = False
         self.cfg = config_helper.read_config()
@@ -29,21 +28,21 @@ class LittleHelper:
         while self.should_pause():
             time.sleep(0.25)
         if self.cfg['game'] == 'Guild Wars 2':
-            if self.cfg['class'] == 'Harbinger PvP':
-                skill_rotation.skillRota.necromant_pvp()
-            elif self.cfg['class'] == 'Willbender PvP':
-                skill_rotation.skillRota.guardian_pvp()
-            elif self.cfg['class'] == 'Vindicator PvP':
+            if self.cfg['class'] == 'Vindicator PvP':
                 skill_rotation.skillRota.revenant_pvp()
             elif self.cfg['class'] == 'Soulbeast PvP':
                 skill_rotation.skillRota.ranger_pvp()
             else:
-                logging.error('No vaible class preset set')
-        elif self.cfg['game'] == 'Elderscrolls Online':
-            if self.cfg['class'] == 'Nightblade':
-                skill_rotation.skillRota.nightblade()
+                logging.error('No vaible class preset')
+        elif self.cfg['game'] == 'Elder Scrolls Online':
+            if self.cfg['class'] == 'Nightblade PvE':
+                skill_rotation.nightblade_pve()
+            elif self.cfg['class'] == 'Nightblade PvP':
+                skill_rotation.nightblade_pvp()
             else:
-                logging.error('No vaible class preset set')
+                logging.error('No vaible class preset')
+        else:
+            logging.error('No vaible game preset')
 
     def get_color_from_pos(self):
         """debug function, print coordinates and rgb color at mouse position"""
