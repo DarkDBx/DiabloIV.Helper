@@ -15,7 +15,7 @@ def main():
     gui.show()
 
     cfg = config_helper.read_config()
-    logging.info(('====== %s %s ======') % ("LittleHelper", "v0.7.10"))
+    logging.info(('====== %s %s ======') % ("LittleHelper", "v0.7.13"))
     logging.info('Starting up bot engine...')
     logging.info('Preset game: '+cfg['game']+', class: '+cfg['class']+' is initialized')
     exit(app.exec_())

@@ -3,10 +3,12 @@ name: LittleHelper
 
 # PYTHON PACKAGES ##############################################################
 dependencies:
-  - python=3.10
-  - pywin32
-  - opencv
+  - python=3.9
   - pyautogui
-  - pillow
+  - pynput
+  - pywin32
   - numpy
   - pyaml
+  - opencv
+  - pillow
+  - wxpython

@@ -510,7 +510,7 @@ class mouse:
         else:
             moveTo(x + random.randrange(-7, +7), y + random.randrange(-7, +7))
 
-    def move(x, y, absolute: bool = True, randomize: int | tuple[int, int] = 7, delay_factor: tuple[float, float] = [0.4, 0.6]):
+    def move(x, y, absolute: bool = True, randomize = 7, delay_factor = [0.4, 0.6]):
         from_point = position()
         dist = math.dist((x, y), from_point)
         offsetBoundaryX = max(10, int(0.08 * dist))

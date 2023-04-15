@@ -41,6 +41,13 @@ class LittleHelper:
                 skill_rotation.nightblade_pvp()
             else:
                 logging.error('No vaible class preset')
+        elif self.cfg['game'] == 'Path of Exile':
+            if self.cfg['class'] == 'Ranger':
+                skill_rotation.skillRota.ranger()
+            elif self.cfg['class'] == 'Marauder':
+                skill_rotation.skillRota.marauder()
+            else:
+                logging.error('No vaible class preset')
         else:
             logging.error('No vaible game preset')
 

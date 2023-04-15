@@ -34,9 +34,10 @@ class SkillRotation:
         input_helper.press(key2)
         input_helper.keyUp(key1)
 
-    """
-    Guild Wars 2
-    """
+
+    """ASSISTANT"""
+
+    """Guild Wars 2"""
 
     """vindicator pvp"""
     # https://guildjen.com/shiro-vindicator-pvp-build/
@@ -152,9 +153,7 @@ class SkillRotation:
                 time.sleep(self.asleep+0.25)
 
 
-    """
-    Elder Scrolls Online
-    """
+    """Elder Scrolls Online"""
 
     """nightblade pve"""
     # https://alcasthq.com/eso-stamina-nightblade-bow-build-for-pve/
@@ -287,6 +286,33 @@ class SkillRotation:
                 self.maneuver.StartTimer(8)
                 input_helper.press('3')
                 time.sleep(self.asleep+0.15)"""
+
+
+    """BOT"""
+
+    """Path of Exile"""
+
+    """ranger"""
+    # https://www.
+    def ranger(self):
+        # target check
+        if image_helper.pixel_matches_color(958,101, 118,42,42) or image_helper.pixel_matches_color(958,103, 110,34,34):
+            # class skill checks
+            pass
+        else:
+            # move to next coord via path_recorder?!
+            pass
+
+    """marauder"""
+    # https://www.pathofexile.com/forum/view-thread/1729700
+    def marauder(self):
+        # target check
+        if image_helper.pixel_matches_color(958,101, 118,42,42) or image_helper.pixel_matches_color(958,103, 110,34,34):
+            # class skill checks
+            pass
+        else:
+            # move to next coord via path_recorder?!
+            pass
     
 
 skillRota = SkillRotation()

@@ -1,4 +1,5 @@
 from sys import exit
+import os
 from time import sleep
 import logging
 import keyboard
@@ -8,6 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QLineEdit, QComboBox,
         QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory, QVBoxLayout, QWidget)
 
 from helper import little_helper, config_helper, process_helper
+from engine import macro_recorder
 
 
 class Handler(QObject, logging.Handler):
@@ -56,7 +58,8 @@ class GUI(QDialog):
 
         self.game_map = {'None': ['=== Choose Game ==='],
                         'Guild Wars 2': ['Vindicator PvP', 'Soulbeast PvP'],
-                        'Elder Scrolls Online': ['Nightblade PvE', 'Nightblade PvP']}
+                        'Elder Scrolls Online': ['Nightblade PvE', 'Nightblade PvP'],
+                        'Path of Exile': ['Ranger', 'Marauder']}
         
         self.originalPalette = QApplication.palette()
 
@@ -90,6 +93,7 @@ class GUI(QDialog):
         self.classComboBox.setRootModelIndex(index_argument)
         self.classComboBox.setCurrentIndex(index_arg)
 
+    # dropdown menu
     def createTopLeftGroupBox(self):
         self.topLeftGroupBox = QGroupBox()
         layout = QHBoxLayout()
@@ -123,6 +127,7 @@ class GUI(QDialog):
         layout.addStretch(1)
         self.topLeftGroupBox.setLayout(layout)
 
+    # buttons
     def createTopRightGroupBox(self):
         self.topRightGroupBox = QGroupBox()
         layout = QVBoxLayout()
@@ -142,6 +147,7 @@ class GUI(QDialog):
         layout.addStretch(1)
         self.topRightGroupBox.setLayout(layout)
 
+    # logger console
     def createLoggerConsole(self):
         self.loggerConsole = QWidget()
         layout = QHBoxLayout()
@@ -174,8 +180,8 @@ class GUI(QDialog):
             little_helper.run_bot()
 
     def toolbox_run(self):
-        process_helper.set_foreground_window()
-        process_helper.set_window_pos()
+        #process_helper.set_foreground_window()
+        #process_helper.set_window_pos()
         logging.info('ToolBox started')
         toolBoxGui = ToolBoxGUI()
         toolBoxGui.show()
@@ -185,9 +191,9 @@ class ToolBoxGUI(QDialog):
     def __init__(self, parent=None):
         super(ToolBoxGUI, self).__init__(parent)
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
-        self.setGeometry(150, 150, 500, 250)
+        self.setGeometry(150, 150, 500, 450)
         self.setWindowTitle("LittleHelper - ToolBox")
-        self.setFixedSize(500, 250)
+        self.setFixedSize(500, 450)
         self.setWindowIcon(QIcon('.\\assets\\layout\\lilhelper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         self.label = QLabel(self)
@@ -199,21 +205,31 @@ class ToolBoxGUI(QDialog):
         self.image_path = '.\\assets\\'
         self.x_coord = 30
         self.y_coord = 30
+        self.file_name = 'default'
+        self.file_name_replay = 'default.txt'
+        self.recording = []
+        self.started = False
+        self.record = macro_recorder.Record()
         keyboard.add_hotkey('home', lambda: self.on_press('home'))
         keyboard.add_hotkey('insert', lambda: self.on_press('insert'))
         
         self.originalPalette = QApplication.palette()
         self.createImageCrop()
+        self.createRecordBox()
+        self.createReplayBox()
         self.createLoggerConsole()
         self.loggerConsole.setDisabled(False)
 
         mainLayout = QGridLayout()
         mainLayout.addWidget(self.imageCrop, 0, 0, 1, 2)
-        mainLayout.addWidget(self.loggerConsole, 1, 0, 1, 2)
+        mainLayout.addWidget(self.recordBox, 1, 0, 1, 2)
+        mainLayout.addWidget(self.replayBox, 2, 0, 1, 2)
+        mainLayout.addWidget(self.loggerConsole, 3, 0, 1, 2)
         mainLayout.setRowStretch(1, 1)
         mainLayout.setColumnStretch(1, 1)
         self.setLayout(mainLayout)
 
+    # prepare imageCrop
     def set_image_name(self):
         self.image_name = str(self.text_box1.text())
         self.text_box1.setText(str(self.image_name))
@@ -230,6 +246,58 @@ class ToolBoxGUI(QDialog):
         self.y_coord = int(self.text_box4.text())
         self.text_box4.setText(str(self.y_coord))
 
+    def set_file_name(self):
+        self.file_name = str(self.saveTextBox.text())
+
+    def set_file_name_replay(self, index):
+        self.file_name_replay = str(self.replayComboBox.itemText(index))
+
+    # prepare recordBox
+    def check_folder(self):
+        lt = []
+        for p in os.listdir("saved"):
+            if p[-3:] == "txt":
+                lt = QStandardItem(p)
+                self.model.appendRow(lt)
+        self.replayComboBox.setCurrentIndex(0)
+
+    def save_as(self):
+        if len(self.recording) != 0:
+            if os.path.exists(".\\saved\\" + self.file_name + ".txt"):
+                logging.error("Filename already taken")
+            else:
+                f = open(".\\saved\\" + self.file_name + ".txt", "x")
+                f.write(str(self.recording))
+                self.check_folder()
+                logging.info("Saved as: {0}".format(self.file_name + ".txt"))
+        else:
+            logging.error("Nothing recorded yet")
+
+    def start(self):
+        self.record.record_start()
+        logging.info("Recording...")
+        self.started = True
+
+    def stop(self):
+        if self.started:
+            self.recording = self.record.record_stop()
+            logging.info("Recording stopped")
+            self.started = False
+        else:
+            logging.error("Nothing to stop")
+
+    def replay(self):
+        try:
+            print(self.file_name_replay)
+            r = macro_recorder.Replay(".\\saved\\" + self.file_name_replay)
+            r.start()
+            logging.info("Replaying...")
+        except SyntaxError:
+            logging.error("Wrong file")
+        except FileNotFoundError:
+            logging.error("File not found")
+
+    # imageCrop
     def createImageCrop(self):
         self.imageCrop = QGroupBox()
         layout = QHBoxLayout()
@@ -269,6 +337,59 @@ class ToolBoxGUI(QDialog):
         layout.addWidget(self.imageLabel)
         self.imageCrop.setLayout(layout)
 
+    # recordBox
+    def createRecordBox(self):
+        self.recordBox = QGroupBox()
+        layout = QHBoxLayout()
+
+        toggleStartButton = QPushButton("Start")
+        toggleStartButton.setCheckable(False)
+        toggleStartButton.setChecked(False)
+        toggleStartButton.clicked.connect(self.start)
+
+        toggleStopButton = QPushButton("Stop")
+        toggleStopButton.setCheckable(False)
+        toggleStopButton.setChecked(False)
+        toggleStopButton.clicked.connect(self.stop)
+
+        self.saveTextBox = QLineEdit(str(self.file_name))
+        self.saveTextBox.setFixedSize(80, 20)
+        self.saveTextBox.textChanged.connect(self.set_file_name)
+        
+        toggleSaveButton = QPushButton("Save as")
+        toggleSaveButton.setCheckable(False)
+        toggleSaveButton.setChecked(False)
+        toggleSaveButton.clicked.connect(self.save_as)
+
+        layout.addWidget(toggleStartButton)
+        layout.addWidget(toggleStopButton)
+        layout.addWidget(self.saveTextBox)
+        layout.addWidget(toggleSaveButton)
+        layout.addStretch(1)
+        self.recordBox.setLayout(layout)
+
+    # recordBox
+    def createReplayBox(self):
+        self.replayBox = QGroupBox()
+        layout = QHBoxLayout()
+
+        self.model = QStandardItemModel()
+        self.replayComboBox = QComboBox()
+        self.replayComboBox.setModel(self.model)
+        self.check_folder()
+        self.replayComboBox.activated.connect(self.set_file_name_replay)
+
+        toggleReplayButton = QPushButton("Replay")
+        toggleReplayButton.setCheckable(False)
+        toggleReplayButton.setChecked(False)
+        toggleReplayButton.clicked.connect(self.replay)
+        
+        layout.addWidget(self.replayComboBox)
+        layout.addWidget(toggleReplayButton)
+        layout.addStretch(1)
+        self.replayBox.setLayout(layout)
+
+    # logger console
     def createLoggerConsole(self):
         self.loggerConsole = QWidget()
         layout = QHBoxLayout()
