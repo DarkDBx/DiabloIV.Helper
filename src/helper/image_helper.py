@@ -11,11 +11,11 @@ def get_pixel_color_at_cursor():
     r, g, b = pyautogui.screenshot().getpixel((x, y))
     return x, y, r, g, b
 
-def get_image_at_cursor(name='default.png', path='.\\assets\\', ix=25, iy=25):
+def get_image_at_cursor(name='default', path='.\\assets\\skills\\', ix=25, iy=25):
     """Get the image of per cursor selected pixel"""
     x, y = input_helper.position()
     img = pyautogui.screenshot(region=(x,y, ix, iy))
-    img.save(path+name)
+    img.save(path + name + ".png")
     return x, y
 
 def pixel_matches_color(x, y, exR, exG, exB, tolerance=25):
@@ -54,6 +54,7 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
                 searching by about 30%. Defaults to True.
         region: The region to search within.
                 By default this is about the region around the skill bar."""
+    
     # with haystack image, return coordinates
     if haystack != 0:
         locate_var = pyautogui.locate(needle, haystack, confidence=conf, grayscale=grayscale)
@@ -63,6 +64,7 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
         else:
             logging.debug('cant find needle  ' + (str(needle)) + ' in haystack' + (str(haystack)) + ', ' + (str(locate_var)) + ', conf=' + (str(conf)))
             return 0
+        
     # without haystack image, return 1 or 0
     elif loctype == 'l':  # 'l' for regular 'locate'
         locate_var = pyautogui.locateOnScreen(needle, confidence=conf, region=region, grayscale=grayscale)
@@ -73,6 +75,7 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
         elif locate_var is None:
             logging.debug('cannot find l image ' + (str(needle) + ' conf=' + (str(conf))))
             return 0
+        
     # without haystack image, return coordinates
     elif loctype == 'c':  # 'c' for 'center'
         locate_var = pyautogui.locateCenterOnScreen(needle, confidence=conf, region=region, grayscale=grayscale)

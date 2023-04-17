@@ -1,4 +1,5 @@
 import threading
+import logging
 import time
 from time import process_time_ns
 from pynput import mouse as mo
@@ -39,25 +40,25 @@ class Record:
         self.m_listener = mo.Listener(on_click=self.click, on_scroll=self.scroll)
 
     def click(self, x, y, button, pressed):
-        self.history.append((time.time_ns() - self.st_tm, "{0}".format(button), pressed, x, y))
+        self.history.append((time.time() - self.st_tm, "{0}".format(button), pressed, x, y))
 
     def scroll(self, x, y, dx, dy):
-        self.history.append((time.time_ns() - self.st_tm, "scroll", dy, x, y))
+        self.history.append((time.time() - self.st_tm, "scroll", dy, x, y))
 
     def press(self, key):
         try:
-            self.history.append((time.time_ns() - self.st_tm, "key", key.char, True, True))
+            self.history.append((time.time() - self.st_tm, "key", key.char, True, True))
         except AttributeError:
-            self.history.append((time.time_ns() - self.st_tm, "key", str(key), True, False))
+            self.history.append((time.time() - self.st_tm, "key", str(key), True, False))
 
     def release(self, key):
         try:
-            self.history.append((time.time_ns() - self.st_tm, "key", key.char, False, True))
+            self.history.append((time.time() - self.st_tm, "key", key.char, False, True))
         except AttributeError:
-            self.history.append((time.time_ns() - self.st_tm, "key", str(key), False, False))
+            self.history.append((time.time() - self.st_tm, "key", str(key), False, False))
 
     def record_start(self):
-        self.st_tm = time.time_ns()
+        self.st_tm = time.time()
         self.m_listener.start()
         self.k_listener.start()
 
@@ -93,35 +94,30 @@ class Replay(threading.Thread):
         self.mouse = Controller_m()
 
     def run(self):
-        st_tm = process_time_ns()
-
         for z in range(self.length):
             action = self.recording[z]
-
-            tm = st_tm + action[0]
+            tm = action[0]
             x = action[3]
             y = action[4]
 
-            while process_time_ns() < tm:
-                pass
-
             if action[1][:7] == "Button.":
-                self.mouse.position = (x, y)
+                input_helper.move_smooth(x, y, duration=tm)
+                #self.mouse.position = (x, y)
                 try:
                     if action[2]:
-                        input_helper.mo._move_to(x, y)
                         self.mouse.press(self.dic[action[1]])
                     else:
-                        input_helper.mo._move_to(x, y)
                         self.mouse.release(self.dic[action[1]])
                 except KeyError:
-                    print("ERROR: unknown key " + str(action[2]))
+                    logging.error("Unknown key " + str(action[2]))
 
             elif action[1] == "scroll":
-                self.mouse.position = (x, y)
+                input_helper.move_smooth(x, y, duration=tm)
+                #self.mouse.position = (x, y)
                 self.mouse.scroll(None, action[2])
-
+                
             elif action[1] == "key":
+                time.sleep(tm)
                 if action[3]:
                     try:
                         if action[4]:
@@ -129,8 +125,7 @@ class Replay(threading.Thread):
                         else:
                             self.keyboard.press(self.dic[action[2]])
                     except KeyError:
-                        print("ERROR: unknown key " + str(action[2]))
-
+                        logging.error("Unknown key " + str(action[2]))
                 else:
                     try:
                         if action[4]:
@@ -138,8 +133,7 @@ class Replay(threading.Thread):
                         else:
                             self.keyboard.release(self.dic[action[2]])
                     except KeyError:
-                        print("ERROR: unknown key " + str(action[2]))
-
+                        logging.error("Unknown key " + str(action[2]))
             else:
-                print("ERROR: unknown action")
+                logging.error("Unknown action")
 

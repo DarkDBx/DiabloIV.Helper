@@ -1,8 +1,9 @@
 # VERSION
-- LittleHelper v0.7.13
+- LittleHelper v0.7.16
 
 # DESCRIPTION
-- Basic pixel/image recognition software for a combat-rotation game bot/assistant with toolbox containing a mouse/key and pixel/image recorder.
+- Basic pixel/image recognition software for a combat-rotation game bot/assistant
+- Toolbox containing a mouse/key and pixel/image recorder.
 
 # USAGE
 - Start the engine by pressing on the start button
@@ -14,10 +15,9 @@
 - Use the gui for the macro recorder
 
 # TODO
-- rework recorder with combat/loot process
-- create new profile: games -> classes
-- create rotation designer: set statements by conditions
-- rework preview in toolbox to live screen
+- create new profile: games -> classes?
+- create rotation designer: set statements by conditions?
+- rework littlehelper and player to restart ability
 
 # CREDITS
 - Created by DarkDBx

@@ -466,81 +466,53 @@ class HumanCurve():
         return res
 
 
-class mouse:
-    @staticmethod
-    def sleep(duration, get_now=time.perf_counter):
-        time.sleep(duration)
-        # now = get_now()
-        # end = now + duration
-        # while now < end:
-        #     now = get_now()
+def move_smooth(x, y, absolute=True, duration=0, randomize=4, delay_factor=[0.4, 0.6]):
+    """
+    Moves the mouse. If `absolute`, to position (x, y), otherwise move relative
+    to the current position. If `duration` is non-zero, animates the movement.
+    """
+    x = int(x)
+    y = int(y)
+    from_point = position()
+    dist = math.dist((x, y), from_point)
+    offsetBoundaryX = max(10, int(0.08 * dist))
+    offsetBoundaryY = max(10, int(0.08 * dist))
+    targetPoints = min(6, max(3, int(0.004 * dist)))
 
-    @staticmethod
-    def _move_to(x, y, absolute=True, duration=0):
-        """
-        Moves the mouse. If `absolute`, to position (x, y), otherwise move relative
-        to the current position. If `duration` is non-zero, animates the movement.
-        """
-        x = int(x)
-        y = int(y)
+    if not absolute:
+        x = from_point[0] + x
+        y = from_point[1] + y
 
-        # Requires an extra system call on Linux, but `move_relative` is measured
-        # in millimiters so we would lose precision.
-        position_x, position_y = position()
+    if type(randomize) is int:
+        randomize = int(randomize)
+        if randomize > 0:
+            x = int(x) + random.randint(-randomize, +randomize)
+            y = int(y) + random.randint(-randomize, +randomize)
+    else:
+        randomize = (int(randomize[0]), int(randomize[1]))
+        if randomize[1] > 0 and randomize[0] > 0:
+            x = int(x) + random.randint(-randomize[0], +randomize[0])
+            y = int(y) + random.randint(-randomize[1], +randomize[1])
+            
+    human_curve = HumanCurve(from_point, (x, y), offsetBoundaryX=offsetBoundaryX, offsetBoundaryY=offsetBoundaryY, targetPoints=targetPoints)
+    #duration = min(0.5, max(0.05, dist * 0.0004) * random.uniform(delay_factor[0], delay_factor[1]))
+    delta = duration / len(human_curve.points)
 
-        if not absolute:
-            x = position_x + x
-            y = position_y + y
+    if duration:
+        start_x = from_point[0]
+        start_y = from_point[1]
+        dx = x - start_x
+        dy = y - start_y
 
-        if duration:
-            start_x = position_x
-            start_y = position_y
-            dx = x - start_x
-            dy = y - start_y
-
-            if dx == 0 and dy == 0:
-                mouse.sleep(duration)
-            else:
-                # 120 movements per second.
-                # Round and keep float to ensure float division in Python 2
-                steps = max(1.0, float(int(duration * 120.0)))
-                for i in range(int(steps)+1):
-                    mouse.move(start_x + dx*i/steps, start_y + dy*i/steps)
-                    mouse.sleep(duration/steps)
+        if dx == 0 and dy == 0:
+            time.sleep(duration)
         else:
-            moveTo(x + random.randrange(-7, +7), y + random.randrange(-7, +7))
-
-    def move(x, y, absolute: bool = True, randomize = 7, delay_factor = [0.4, 0.6]):
-        from_point = position()
-        dist = math.dist((x, y), from_point)
-        offsetBoundaryX = max(10, int(0.08 * dist))
-        offsetBoundaryY = max(10, int(0.08 * dist))
-        targetPoints = min(6, max(3, int(0.004 * dist)))
-        if not absolute:
-            x = from_point[0] + x
-            y = from_point[1] + y
-
-        if type(randomize) is int:
-            randomize = int(randomize)
-            if randomize > 0:
-                x = int(x) + random.randrange(-randomize, +randomize)
-                y = int(y) + random.randrange(-randomize, +randomize)
-        else:
-            randomize = (int(randomize[0]), int(randomize[1]))
-            if randomize[1] > 0 and randomize[0] > 0:
-                x = int(x) + random.randrange(-randomize[0], +randomize[0])
-                y = int(y) + random.randrange(-randomize[1], +randomize[1])
-
-
-        human_curve = HumanCurve(from_point, (x, y), offsetBoundaryX=offsetBoundaryX, offsetBoundaryY=offsetBoundaryY, targetPoints=targetPoints)
-
-        duration = min(0.5, max(0.05, dist * 0.0004) * random.uniform(delay_factor[0], delay_factor[1]))
-        delta = duration / len(human_curve.points)
-
+            for point in human_curve.points:
+                moveRel(int(point[0]), int(point[1]), duration=delta)
+    else:
         for point in human_curve.points:
-            moveRel(point[0], point[1], duration=delta)
+            moveTo(int(point[0]), int(point[1]), duration=delta)
 
-mo = mouse()
 
 # Ignored parameters: duration, tween, logScreenshot
 @_genericPyDirectInputChecks
@@ -679,9 +651,10 @@ def moveTo(x=None, y=None, duration=None, tween=None, logScreenshot=False, _paus
         ii_.mi = MouseInput(x, y, 0, (MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE), 0, ctypes.pointer(extra))
         command = Input(ctypes.c_ulong(0), ii_)
         SendInput(1, ctypes.pointer(command), ctypes.sizeof(command))
+        time.sleep(duration)
     else:
         currentX, currentY = position()
-        moveRel(x - currentX, y - currentY, relative=True)
+        moveRel(x - currentX, y - currentY, duration=duration)
 
 
 # Ignored parameters: duration, tween, logScreenshot
@@ -689,14 +662,14 @@ def moveTo(x=None, y=None, duration=None, tween=None, logScreenshot=False, _paus
 # Use the relative flag to do a raw win32 api relative movement call (no MOUSEEVENTF_ABSOLUTE flag), which may be more 
 # appropriate for some applications.
 @_genericPyDirectInputChecks
-def moveRel(xOffset=None, yOffset=None, duration=None, tween=None, logScreenshot=False, _pause=True, relative=False):
+def moveRel(xOffset=None, yOffset=None, duration=None, tween=None, logScreenshot=False, _pause=True, relative=True):
     if not relative:
         x, y = position()
         if xOffset is None:
             xOffset = 0
         if yOffset is None:
             yOffset = 0
-        moveTo(x + xOffset, y + yOffset)
+        moveTo(x + xOffset, y + yOffset, duration=duration)
     else:
         # When using MOUSEEVENTF_MOVE for relative movement the results may be inconsistent.
         # "Relative mouse motion is subject to the effects of the mouse speed and the two-mouse threshold values. A user
@@ -709,6 +682,7 @@ def moveRel(xOffset=None, yOffset=None, duration=None, tween=None, logScreenshot
         ii_.mi = MouseInput(xOffset, yOffset, 0, MOUSEEVENTF_MOVE, 0, ctypes.pointer(extra))
         command = Input(ctypes.c_ulong(0), ii_)
         SendInput(1, ctypes.pointer(command), ctypes.sizeof(command))
+        time.sleep(duration)
 
 
 move = moveRel

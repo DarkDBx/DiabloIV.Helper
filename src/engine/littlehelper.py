@@ -3,7 +3,7 @@ import time
 import logging
 
 from helper import config_helper, image_helper
-from engine import skill_rotation
+from engine import combat_rotation
 
 
 class LittleHelper:
@@ -29,23 +29,27 @@ class LittleHelper:
             time.sleep(0.25)
         if self.cfg['game'] == 'Guild Wars 2':
             if self.cfg['class'] == 'Vindicator PvP':
-                skill_rotation.skillRota.revenant_pvp()
+                combat_rotation.cr.revenant_pvp()
             elif self.cfg['class'] == 'Soulbeast PvP':
-                skill_rotation.skillRota.ranger_pvp()
+                combat_rotation.cr.ranger_pvp()
             else:
                 logging.error('No vaible class preset')
+
         elif self.cfg['game'] == 'Elder Scrolls Online':
             if self.cfg['class'] == 'Nightblade PvE':
-                skill_rotation.nightblade_pve()
+                combat_rotation.cr.nightblade_pve()
             elif self.cfg['class'] == 'Nightblade PvP':
-                skill_rotation.nightblade_pvp()
+                combat_rotation.cr.nightblade_pvp()
+            elif self.cfg['class'] == 'Dragonknight PvE':
+                combat_rotation.cr.dragonknight_pve()
             else:
                 logging.error('No vaible class preset')
+
         elif self.cfg['game'] == 'Path of Exile':
             if self.cfg['class'] == 'Ranger':
-                skill_rotation.skillRota.ranger()
+                combat_rotation.cr.ranger()
             elif self.cfg['class'] == 'Marauder':
-                skill_rotation.skillRota.marauder()
+                combat_rotation.cr.marauder()
             else:
                 logging.error('No vaible class preset')
         else:
@@ -54,12 +58,12 @@ class LittleHelper:
     def get_color_from_pos(self):
         """debug function, print coordinates and rgb color at mouse position"""
         x,y, r,g,b = image_helper.get_pixel_color_at_cursor()
-        logging.info("Mouse[x,y, r,g,b: %d,%d, %d,%d,%d]" % (x,y, r,g,b))
+        logging.info("Position at: x,y, r,g,b = %d,%d, %d,%d,%d" % (x,y, r,g,b))
 
     def get_image_from_pos(self, name, path, ix, iy):
         """debug function, print coordinates and save image at mouse position"""
         x,y = image_helper.get_image_at_cursor(name, path, ix, iy)
-        logging.info("Saved %s in %s at x=%d, y=%d, size=%d, %d" % (str(name),path,x,y,ix,iy))
+        logging.info("Saved %s in %s at: x=%d, y=%d, size=%d, %d" % (str(name+'.png'),path,x,y,ix,iy))
 
 
 lilHelp = LittleHelper()
