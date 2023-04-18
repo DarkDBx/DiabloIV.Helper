@@ -16,9 +16,9 @@ def main():
         gui.show()
 
         cfg = config_helper.read_config()
-        logging.info(('====== %s %s ======') % ("LittleHelper", "v0.7.16"))
+        logging.info(('====== %s %s ======') % ("LittleHelper", "v0.8.1"))
         logging.info('Starting up bot engine...')
-        logging.info('Preset game: '+cfg['game']+', class: '+cfg['class']+' is initialized')
+        logging.info('Preset file: '+cfg['file']+' is initialized')
         exit(app.exec_())
     except SystemExit:
         logging.error("Shutting down bot, caused by previous warning or fatal.\n")

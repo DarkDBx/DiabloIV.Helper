@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QLineEdit, QComboBox,
 from helper import logging_helper, recorder_helper
 from engine import littlehelper
 
+from easyedit import Editor
+
 
 class ToolBoxGUI(QDialog):
     def __init__(self, parent=None):
@@ -24,6 +26,9 @@ class ToolBoxGUI(QDialog):
         self.label.setPixmap(self.pixmap) 
         self.label.resize(self.pixmap.width(), self.pixmap.height())
         
+        keyboard.add_hotkey('insert', lambda: self.on_press('insert'))
+        keyboard.add_hotkey('home', lambda: self.on_press('home'))
+        
         self.image_name = 'default'
         self.image_path = '.\\assets\\skills\\'
         self.x_coord = 25
@@ -33,19 +38,19 @@ class ToolBoxGUI(QDialog):
         self.recording = []
         self.started = False
         self.record = recorder_helper.Record()
-        keyboard.add_hotkey('home', lambda: self.on_press('home'))
-        keyboard.add_hotkey('insert', lambda: self.on_press('insert'))
         
         self.createImageCrop()
         self.createRecordBox()
         self.createReplayBox()
+        self.createEasyEditBox()
         self.createLoggerConsole()
         self.loggerConsole.setDisabled(False)
 
         mainLayout = QGridLayout()
         mainLayout.addWidget(self.imageCrop, 0, 0, 1, 2)
         mainLayout.addWidget(self.recordBox, 1, 0, 1, 2)
-        mainLayout.addWidget(self.replayBox, 2, 0, 1, 2)
+        mainLayout.addWidget(self.replayBox, 2, 0)
+        mainLayout.addWidget(self.easyEditBox, 2, 1)
         mainLayout.addWidget(self.loggerConsole, 3, 0, 1, 2)
         mainLayout.setRowStretch(1, 1)
         mainLayout.setColumnStretch(1, 1)
@@ -68,13 +73,14 @@ class ToolBoxGUI(QDialog):
         self.y_coord = int(self.text_box4.text())
         self.text_box4.setText(str(self.y_coord))
 
+    # prepare recordBox
     def set_file_name(self):
         self.file_name = str(self.saveTextBox.text())
 
+    # prepare replayBox
     def set_file_name_replay(self, index):
         self.file_name_replay = str(self.replayComboBox.itemText(index))
 
-    # prepare recordBox
     def check_folder(self):
         lt = []
         for p in os.listdir("saved"):
@@ -118,9 +124,14 @@ class ToolBoxGUI(QDialog):
         except FileNotFoundError:
             logging.error("File not found")
 
+    # prepare easyEdit
+    def easyEdit(self):
+        Editor.Editor()
+
     # imageCrop
     def createImageCrop(self):
         self.imageCrop = QGroupBox('Image Crop')
+        self.imageCrop.setStyleSheet('QGroupBox:title {color: rgb(255,211,67);}')
         layout = QHBoxLayout()
 
         self.text_box1 = QLineEdit(str(self.image_name))
@@ -158,6 +169,7 @@ class ToolBoxGUI(QDialog):
     # recordBox
     def createRecordBox(self):
         self.recordBox = QGroupBox('Recorder')
+        self.recordBox.setStyleSheet('QGroupBox:title {color: rgb(255,211,67);}')
         layout = QHBoxLayout()
 
         toggleStartButton = QPushButton("Start")
@@ -186,9 +198,10 @@ class ToolBoxGUI(QDialog):
         layout.addStretch(1)
         self.recordBox.setLayout(layout)
 
-    # recordBox
+    # replayBox
     def createReplayBox(self):
         self.replayBox = QGroupBox('Player')
+        self.replayBox.setStyleSheet('QGroupBox:title {color: rgb(255,211,67);}')
         layout = QHBoxLayout()
 
         self.model = QStandardItemModel()
@@ -206,6 +219,21 @@ class ToolBoxGUI(QDialog):
         layout.addWidget(toggleReplayButton)
         layout.addStretch(1)
         self.replayBox.setLayout(layout)
+
+    # easyEditBox
+    def createEasyEditBox(self):
+        self.easyEditBox = QGroupBox('EasyEdit')
+        self.easyEditBox.setStyleSheet('QGroupBox:title {color: rgb(255,211,67);}')
+        layout = QHBoxLayout()
+
+        toggleEasyEditButton = QPushButton("EasyEdit")
+        toggleEasyEditButton.setCheckable(False)
+        toggleEasyEditButton.setChecked(False)
+        toggleEasyEditButton.clicked.connect(self.easyEdit)
+        
+        layout.addWidget(toggleEasyEditButton)
+        layout.addStretch(1)
+        self.easyEditBox.setLayout(layout)
 
     # logger console
     def createLoggerConsole(self):

@@ -1,0 +1,75 @@
+import random
+import time
+
+from helper import input_helper, image_helper, timer_helper
+from helper.timer_helper import TIMER_IDLE, TIMER_STOPPED
+
+
+SKILLPATH = ".\\assets\\skills\\"
+
+class CombatRotation:
+    def __init__(self) -> None:
+        self.asleep = 0.25
+        self.timer1 = timer_helper.TimerHelper('timer1')
+        self.timer2 = timer_helper.TimerHelper('timer2')
+        self.timer3 = timer_helper.TimerHelper('timer3')
+        self.timer4 = timer_helper.TimerHelper('timer4')
+        self.timer5 = timer_helper.TimerHelper('timer5')
+        self.timer6 = timer_helper.TimerHelper('timer6')
+        self.timer7 = timer_helper.TimerHelper('timer7')
+        self.timer8 = timer_helper.TimerHelper('timer8')
+        self.timer9 = timer_helper.TimerHelper('timer9')
+        self.timer10 = timer_helper.TimerHelper('timer10')
+        self.timer11 = timer_helper.TimerHelper('timer11')
+        self.timer12 = timer_helper.TimerHelper('timer12')
+
+    def press_combo(self, key1, key2):
+        input_helper.keyDown(key1)
+        input_helper.press(key2)
+        input_helper.keyUp(key1)
+
+    """dragonknight pve"""
+    # https://alcasthq.com/eso-stamina-dragonknight-tank-build-pve/
+    def default_combat(self):
+        # target check
+        if image_helper.pixel_matches_color(958,101, 118,42,42) or image_helper.pixel_matches_color(958,103, 110,34,34):
+            # weapon swap
+            if (self.timer1.GetTimerState() == TIMER_IDLE or self.timer1.GetTimerState() == TIMER_STOPPED):
+                self.timer1.StartTimer(4)
+                input_helper.press('tab')
+            # ultimate
+            elif (self.timer12.GetTimerState() == TIMER_IDLE or self.timer12.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\06.png', conf=0.98) == 1:
+                self.timer12.StartTimer(9)
+                input_helper.press('r')
+            # quickslot bar 1
+            elif (self.timer2.GetTimerState() == TIMER_IDLE or self.timer2.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\05.png'):
+                self.timer2.StartTimer(23)
+                input_helper.press('5')
+            elif (self.timer5.GetTimerState() == TIMER_IDLE or self.timer5.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\02.png'):
+                self.timer5.StartTimer(15)
+                input_helper.press('2')
+            elif (self.timer6.GetTimerState() == TIMER_IDLE or self.timer6.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\01.png'):
+                self.timer6.StartTimer(12)
+                input_helper.press('1')
+            elif (self.timer3.GetTimerState() == TIMER_IDLE or self.timer3.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\03.png'):
+                self.timer3.StartTimer(6)
+                input_helper.press('3')
+            # quickslot bar 2
+            elif (self.timer8.GetTimerState() == TIMER_IDLE or self.timer8.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\05-2.png'):
+                self.timer8.StartTimer(10)
+                input_helper.press('5')
+            elif (self.timer10.GetTimerState() == TIMER_IDLE or self.timer10.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\02-2.png'):
+                self.timer10.StartTimer(15)
+                input_helper.press('2')
+            elif (self.timer11.GetTimerState() == TIMER_IDLE or self.timer11.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\03-2.png'):
+                self.timer11.StartTimer(15)
+                input_helper.press('3')
+            elif (self.timer7.GetTimerState() == TIMER_IDLE or self.timer7.GetTimerState() == TIMER_STOPPED) and image_helper.locate_needle(SKILLPATH+'eso\\dragonknight\\tank_pve\\01-2.png'):
+                self.timer7.StartTimer(20)
+                input_helper.press('1')
+            else:
+                input_helper.rightClick()
+                
+            time.sleep(random.uniform(0.11, 0.15))
+            input_helper.leftClick()
+            time.sleep(self.asleep)

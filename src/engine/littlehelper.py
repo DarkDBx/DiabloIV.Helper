@@ -1,16 +1,17 @@
+import os
 import threading
 import time
 import logging
+import importlib
 
 from helper import config_helper, image_helper
-from engine import combat_rotation
 
 
 class LittleHelper:
     def __init__(self) -> None:
+        self.cfg = config_helper.read_config()
         self._lock = threading.Lock()
         self.pause_req = False
-        self.cfg = config_helper.read_config()
     
     def should_pause(self):
         self._lock.acquire()
@@ -22,38 +23,23 @@ class LittleHelper:
         self._lock.acquire()
         self.pause_req = pause
         self._lock.release()
+        
+    def set_import(self, lib):
+        mylib = importlib.import_module(lib)
+        cr = mylib.CombatRotation()
+        cr.default_combat()
 
     def get_combat_rotation(self):
         """set up the skill rotation for a specific class injected by the config file"""
         while self.should_pause():
             time.sleep(0.25)
-        if self.cfg['game'] == 'Guild Wars 2':
-            if self.cfg['class'] == 'Vindicator PvP':
-                combat_rotation.cr.revenant_pvp()
-            elif self.cfg['class'] == 'Soulbeast PvP':
-                combat_rotation.cr.ranger_pvp()
-            else:
-                logging.error('No vaible class preset')
+        get_file = self.cfg['file']
 
-        elif self.cfg['game'] == 'Elder Scrolls Online':
-            if self.cfg['class'] == 'Nightblade PvE':
-                combat_rotation.cr.nightblade_pve()
-            elif self.cfg['class'] == 'Nightblade PvP':
-                combat_rotation.cr.nightblade_pvp()
-            elif self.cfg['class'] == 'Dragonknight PvE':
-                combat_rotation.cr.dragonknight_pve()
-            else:
-                logging.error('No vaible class preset')
-
-        elif self.cfg['game'] == 'Path of Exile':
-            if self.cfg['class'] == 'Ranger':
-                combat_rotation.cr.ranger()
-            elif self.cfg['class'] == 'Marauder':
-                combat_rotation.cr.marauder()
-            else:
-                logging.error('No vaible class preset')
+        if get_file != None:
+            module_name, module_ext = os.path.splitext(get_file)
+            self.set_import(module_name)
         else:
-            logging.error('No vaible game preset')
+            logging.error('No vaible file preset')
 
     def get_color_from_pos(self):
         """debug function, print coordinates and rgb color at mouse position"""

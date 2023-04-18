@@ -1,3 +1,4 @@
+import os
 import logging
 import keyboard
 from PyQt5.QtCore import pyqtSlot
@@ -5,7 +6,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QComboBox, QDialog, QGridLayout,
         QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory, QVBoxLayout, QWidget)
 
-from helper import config_helper, process_helper, logging_helper
+from helper import config_helper, logging_helper
 from engine import littlehelper, toolbox_gui
 
 
@@ -22,15 +23,9 @@ class GUI(QDialog):
         self.pixmap = QPixmap('.\\assets\\layout\\lilhelperbp.png') 
         self.label.setPixmap(self.pixmap) 
         self.label.resize(self.pixmap.width(), self.pixmap.height())
-
+        
         keyboard.add_hotkey('end', lambda: self.on_press('end'))
         keyboard.add_hotkey('q', lambda: self.on_press('q'))
-        #logging.basicConfig(level=logging.INFO)
-
-        self.game_map = {'None': ['=== Choose Game ==='],
-                        'Guild Wars 2': ['Vindicator PvP', 'Soulbeast PvP'],
-                        'Elder Scrolls Online': ['Nightblade PvE', 'Nightblade PvP', 'Dragonknight PvE'],
-                        'Path of Exile': ['Ranger', 'Marauder']}
 
         self.createTopLeftGroupBox()
         self.createTopRightGroupBox()
@@ -49,17 +44,18 @@ class GUI(QDialog):
         logging.info('Preset '+item+': '+value)
         config_helper.save_config(item, value)
 
-    def passCurrentTextGame(self):
-        self.update_class('game', self.gameComboBox.currentText())
+    def passCurrentText(self):
+        self.update_class('file', self.ComboBox.currentText())
 
-    def passCurrentTextClass(self):
-        self.update_class('class', self.classComboBox.currentText())
-
-    @pyqtSlot(int)
-    def updateGameCombo(self, index_arg):
-        index_argument = self.model.index(index_arg, 0, self.gameComboBox.rootModelIndex())
-        self.classComboBox.setRootModelIndex(index_argument)
-        self.classComboBox.setCurrentIndex(index_arg)
+    def check_folder(self):
+        lt = []
+        for p in os.listdir('src'):
+            if p == 'main.py':
+                pass
+            elif p[-2:] == 'py':
+                lt = QStandardItem(p)
+                self.model.appendRow(lt)
+        self.ComboBox.setCurrentIndex(0)
 
     # dropdown menu
     def createTopLeftGroupBox(self):
@@ -67,31 +63,17 @@ class GUI(QDialog):
         layout = QHBoxLayout()
 
         self.model = QStandardItemModel()
-        self.gameComboBox = QComboBox()
-        self.gameComboBox.setModel(self.model)
-        self.classComboBox = QComboBox()
-        self.classComboBox.setModel(self.model)
-        styleLabelGame = QLabel("&Game:")
-        styleLabelGame.setBuddy(self.gameComboBox)
-        styleLabelClass = QLabel("&Class:")
-        styleLabelClass.setBuddy(self.classComboBox)
-
-        for k, v in self.game_map.items():
-            game_name = QStandardItem(k)
-            self.model.appendRow(game_name)
-            for value in v:
-                class_name = QStandardItem(value)
-                game_name.appendRow(class_name)
-
-        self.gameComboBox.currentIndexChanged.connect(self.updateGameCombo)
-        self.updateGameCombo(0)
-        self.gameComboBox.activated.connect(self.passCurrentTextGame)
-        self.classComboBox.activated.connect(self.passCurrentTextClass)
+        self.ComboBox = QComboBox()
+        self.ComboBox.setModel(self.model)
+        styleLabelGame = QLabel("&Combat Rotation:")
+        styleLabelGame.setStyleSheet("color: #ffd343")
+        styleLabelGame.setBuddy(self.ComboBox)
+        
+        self.check_folder()
+        self.ComboBox.activated.connect(self.passCurrentText)
 
         layout.addWidget(styleLabelGame)
-        layout.addWidget(self.gameComboBox)
-        layout.addWidget(styleLabelClass)
-        layout.addWidget(self.classComboBox)
+        layout.addWidget(self.ComboBox)
         layout.addStretch(1)
         self.topLeftGroupBox.setLayout(layout)
 
@@ -140,17 +122,17 @@ class GUI(QDialog):
             littlehelper.lilHelp.set_pause(not littlehelper.lilHelp.should_pause())
 
     def engine_run(self):
-        process_helper.set_foreground_window()
-        process_helper.set_window_pos()
+        #process_helper.set_foreground_window()
+        #process_helper.set_window_pos()
         logging.info('LittleHelper started')
         self.run = True
         while self.run == True:
             littlehelper.run_bot()
 
     def toolbox_run(self):
+        self.toolbox = toolbox_gui.ToolBoxGUI()
         #process_helper.set_foreground_window()
         #process_helper.set_window_pos()
         logging.info('ToolBox started')
-        toolBoxGui = toolbox_gui.ToolBoxGUI()
-        toolBoxGui.show()
+        self.toolbox.show()
 

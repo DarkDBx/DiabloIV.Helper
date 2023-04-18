@@ -27,7 +27,7 @@ def pixel_matches_color(x, y, exR, exG, exB, tolerance=25):
     
 def calculate_distance():
     location = locate_needle('.\\assets\\target.png', loctype='c')
-    if location != 0:
+    if location != False:
         dist = math.sqrt((location[1] - 960)**2 + (location[2] - 740)**2)
         logging.debug('found '+dist+' at '+location)
         return dist
@@ -63,7 +63,7 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
             return locate_var
         else:
             logging.debug('cant find needle  ' + (str(needle)) + ' in haystack' + (str(haystack)) + ', ' + (str(locate_var)) + ', conf=' + (str(conf)))
-            return 0
+            return False
         
     # without haystack image, return 1 or 0
     elif loctype == 'l':  # 'l' for regular 'locate'
@@ -71,10 +71,10 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
         if locate_var is not None:
             logging.debug('found l image ' + (str(needle)) + ', ' + (str(locate_var)))
             # If the center of the image is not needed, don't return any coordinates.
-            return 1
+            return True
         elif locate_var is None:
             logging.debug('cannot find l image ' + (str(needle) + ' conf=' + (str(conf))))
-            return 0
+            return False
         
     # without haystack image, return coordinates
     elif loctype == 'c':  # 'c' for 'center'
@@ -85,5 +85,5 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
             return locate_var
         elif locate_var is None:
             logging.debug('cannot find c image ' + (str(needle) + ', conf=' + (str(conf))))
-            return 0
+            return False
 

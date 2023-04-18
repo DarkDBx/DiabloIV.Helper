@@ -4,8 +4,6 @@ name: LittleHelper
 # PYTHON PACKAGES ##############################################################
 dependencies:
   - python=3.9
-  - pyautogui
-  - pynput
   - pywin32
   - numpy
   - pyaml

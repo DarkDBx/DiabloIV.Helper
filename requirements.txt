@@ -1,0 +1,5 @@
+
+pyautogui
+pynput
+qscintilla
+keyboard
