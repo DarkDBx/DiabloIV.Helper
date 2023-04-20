@@ -1,6 +1,7 @@
 import os
 import logging
 import keyboard
+import threading
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QComboBox, QDialog, QGridLayout,
@@ -52,7 +53,7 @@ class GUI(QDialog):
         for p in os.listdir('src'):
             if p == 'main.py':
                 pass
-            elif p[-2:] == 'py':
+            elif p[-3:] == '.py':
                 lt = QStandardItem(p)
                 self.model.appendRow(lt)
         self.ComboBox.setCurrentIndex(0)
@@ -85,7 +86,7 @@ class GUI(QDialog):
         toggleStartButton = QPushButton("LittleHelper")
         toggleStartButton.setCheckable(False)
         toggleStartButton.setChecked(False)
-        toggleStartButton.clicked.connect(self.engine_run)
+        toggleStartButton.clicked.connect(self.prepare_engine_run)
         
         toggleToolBoxButton = QPushButton("ToolBox")
         toggleToolBoxButton.setCheckable(False)
@@ -121,10 +122,21 @@ class GUI(QDialog):
             logging.info('Pause key pressed')
             littlehelper.lilHelp.set_pause(not littlehelper.lilHelp.should_pause())
 
-    def engine_run(self):
+    def prepare_engine_run(self):
+        running = threading.Event()
+        running.set()
+        thread = threading.Thread(target=self.engine_run, args=(running,))
+        thread.start()
+        logging.info('LittleHelper started')
+        if(self.run == False):
+            running.clear()
+            thread.join()
+            logging.info("LittleHelper stopped")
+
+
+    def engine_run(self, *args):
         #process_helper.set_foreground_window()
         #process_helper.set_window_pos()
-        logging.info('LittleHelper started')
         self.run = True
         while self.run == True:
             littlehelper.run_bot()

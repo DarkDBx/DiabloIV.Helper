@@ -81,19 +81,24 @@ class Record:
         return self.history
 
 
-class Replay(threading.Thread):
-    def __init__(self, path):
-        threading.Thread.__init__(self)
-
+class Replay:
+    def __init__(self, path) -> None:
         file = open(path, "r")
         self.recording = eval(file.read())
-
         self.length = len(self.recording)
         self.dic = dic
         self.keyboard = Controller_k()
         self.mouse = Controller_m()
+        
+        running = threading.Event()
+        running.set()
+        thread = threading.Thread(target=self.replay_run, args=(running,))
+        thread.start()
+        running.clear()
+        thread.join()
+        logging.info("Replay stopped")
 
-    def run(self):
+    def replay_run(self, *args):
         for z in range(self.length):
             action = self.recording[z]
             tm = action[0]

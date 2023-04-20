@@ -2,7 +2,6 @@ import ctypes
 import functools
 import inspect
 import time
-import win32api
 import pytweening
 import numpy as np
 import random
@@ -610,27 +609,6 @@ def doubleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=N
 
 def tripleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=None, logScreenshot=None, _pause=True):
     click(x, y, 3, interval, button, duration, tween, logScreenshot, _pause)
-
-# Code to check if left or right mouse buttons were pressed
-def detect_mouse_click(arg):
-    state_left = win32api.GetKeyState(0x01)  # Left button down = 0 or 1. Button up = -127 or -128
-    state_right = win32api.GetKeyState(0x02)  # Right button down = 0 or 1. Button up = -127 or -128
-
-    while True:
-        a = win32api.GetKeyState(0x01)
-        if a != state_left:  # Button state changed
-            state_left = a
-            if a < 0:
-                #print('Left Button Pressed')
-                coords = position()
-                return a, coords
-        b = win32api.GetKeyState(0x02)
-        if b != state_right:  # Button state changed
-            state_right = b
-            if b < 0:
-                #print('Right Button Pressed')
-                coords = position()
-                return b, coords
 
 
 # Missing feature: scroll functions

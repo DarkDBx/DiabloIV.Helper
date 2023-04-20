@@ -12,6 +12,7 @@ SKILLPATH = ".\\assets\\skills\\"
 
 class CombatRotation:
     def __init__(self) -> None:
+        """ADD TIMER IF NEEDED"""
         self.timer1 = timer_helper.TimerHelper('timer1')
         self.timer2 = timer_helper.TimerHelper('timer2')
         self.timer3 = timer_helper.TimerHelper('timer3')
@@ -33,9 +34,10 @@ class CombatRotation:
     def get_image(self, name):
         image_helper.locate_needle(SKILLPATH+name+'.png')
 
-    """example rotation with timer"""
+    """example rotation with timer(optional)"""
     # https://www.linktoyourbuild.com/
     def default_combat(self):
+        """EDIT BELOW THIS LINE"""
         # target check
         if self.get_color(784,95, 149,34,18) or self.get_color(784,98, 148,33,18):
             # health check
@@ -44,7 +46,7 @@ class CombatRotation:
                 self.press_key('h')
                 self.set_pause()
             # class skill checks
-            elif self.get_image(SKILLPATH+'game_name\\class_name\\01.png') and (self.timer2.GetTimerState() == TIMER_IDLE or self.timer2.GetTimerState() == TIMER_STOPPED):
+            elif self.get_image(SKILLPATH+'game_name\\class_name\\03.png') and (self.timer2.GetTimerState() == TIMER_IDLE or self.timer2.GetTimerState() == TIMER_STOPPED):
                 self.timer1.StartTimer(7)
                 self.press_key('3')
                 self.set_pause()

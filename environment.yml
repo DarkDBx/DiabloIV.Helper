@@ -4,7 +4,6 @@ name: LittleHelper
 # PYTHON PACKAGES ##############################################################
 dependencies:
   - python=3.9
-  - pywin32
   - numpy
   - pyaml
   - opencv

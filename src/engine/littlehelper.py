@@ -30,26 +30,27 @@ class LittleHelper:
         cr.default_combat()
 
     def get_combat_rotation(self):
-        """set up the skill rotation for a specific class injected by the config file"""
+        """set up the skill rotation for a specific file injected by the config"""
         while self.should_pause():
             time.sleep(0.25)
+
         get_file = self.cfg['file']
 
-        if get_file != None:
+        if get_file[-3:] == '.py':
             module_name, module_ext = os.path.splitext(get_file)
             self.set_import(module_name)
         else:
-            logging.error('No vaible file preset')
+            logging.error('No vaible file')
 
     def get_color_from_pos(self):
         """debug function, print coordinates and rgb color at mouse position"""
         x,y, r,g,b = image_helper.get_pixel_color_at_cursor()
-        logging.info("Position at: x,y, r,g,b = %d,%d, %d,%d,%d" % (x,y, r,g,b))
+        logging.info("Position and color: x,y, r,g,b=%d,%d, %d,%d,%d" % (x,y, r,g,b))
 
     def get_image_from_pos(self, name, path, ix, iy):
         """debug function, print coordinates and save image at mouse position"""
         x,y = image_helper.get_image_at_cursor(name, path, ix, iy)
-        logging.info("Saved %s in %s at: x=%d, y=%d, size=%d, %d" % (str(name+'.png'),path,x,y,ix,iy))
+        logging.info("File saved as: %s location: %s position: x=%d, y=%d, size=%d, %d" % (str(name+'.png'),path,x,y,ix,iy))
 
 
 lilHelp = LittleHelper()

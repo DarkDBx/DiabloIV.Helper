@@ -1,5 +1,5 @@
 from os.path import split
-
+import logging
 from PyQt5.QtCore import QSettings, QPoint, QSize, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QFontDialog, QMainWindow
 
@@ -204,6 +204,7 @@ class Editor(QMainWindow):
 
                 with open(fileName, 'w') as file:
                     file.write(text)
+                logging.info('File saved as: '+fileName)
 
             self.changeFont(self.font())
         else:

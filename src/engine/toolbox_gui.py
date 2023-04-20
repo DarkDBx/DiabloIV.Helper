@@ -83,7 +83,7 @@ class ToolBoxGUI(QDialog):
 
     def check_folder(self):
         lt = []
-        for p in os.listdir("saved"):
+        for p in os.listdir("record"):
             if p[-3:] == "txt":
                 lt = QStandardItem(p)
                 self.model.appendRow(lt)
@@ -91,13 +91,13 @@ class ToolBoxGUI(QDialog):
 
     def save_as(self):
         if len(self.recording) != 0:
-            if os.path.exists(".\\saved\\" + self.file_name + ".txt"):
+            if os.path.exists(".\\record\\" + self.file_name + ".txt"):
                 logging.error("Filename already taken")
             else:
-                f = open(".\\saved\\" + self.file_name + ".txt", "x")
+                f = open(".\\record\\" + self.file_name + ".txt", "x")
                 f.write(str(self.recording))
                 self.check_folder()
-                logging.info("Saved as: {0}".format(self.file_name + ".txt"))
+                logging.info("File saved as: {0}".format(self.file_name + ".txt"))
         else:
             logging.error("Nothing recorded yet")
 
@@ -116,9 +116,8 @@ class ToolBoxGUI(QDialog):
 
     def replay(self):
         try:
-            r = recorder_helper.Replay(".\\saved\\" + self.file_name_replay)
-            r.start()
             logging.info("Replaying...")
+            recorder_helper.Replay(".\\record\\" + self.file_name_replay)
         except SyntaxError:
             logging.error("Wrong file")
         except FileNotFoundError:
