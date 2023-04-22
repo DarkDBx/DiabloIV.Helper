@@ -90,12 +90,12 @@ class Replay:
         self.keyboard = Controller_k()
         self.mouse = Controller_m()
         
-        running = threading.Event()
-        running.set()
-        thread = threading.Thread(target=self.replay_run, args=(running,))
-        thread.start()
-        running.clear()
-        thread.join()
+        replay_running = threading.Event()
+        replay_running.set()
+        replay_thread = threading.Thread(target=self.replay_run, args=(replay_running,))
+        replay_thread.start()
+        replay_running.clear()
+        replay_thread.join()
         logging.info("Replay stopped")
 
     def replay_run(self, *args):

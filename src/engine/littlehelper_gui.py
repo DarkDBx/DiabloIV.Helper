@@ -1,8 +1,7 @@
 import logging
+import time
 import keyboard
 import threading
-import inspect
-import types
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QComboBox, QDialog, QGridLayout,
@@ -51,22 +50,15 @@ class GUI(QDialog):
         config_helper.save_config(item, value)
 
     def passCurrentText(self):
-        self.update_class('method', self.ComboBox.currentText())
+        self.update_class('func', self.ComboBox.currentText())
 
-    def get_local_methods(self, clss):
+    def get_func(self):
         result = []
-        for var in clss.__dict__:
-            val = clss.__dict__[var]
-            if inspect.isfunction(val):
-                if var == '__init__' or var == 'set_pause' or var == 'press_combo' or var == 'press_key' or var == 'get_color' or var == 'get_image' or var == 'mouse_click':
-                    pass
-                else:
-                    result = QStandardItem(var)
-                    self.model.appendRow(result)
+        func_array = ['default_combat', 'eso_dk_pve', 'eso_nb_pve', 'eso_nb_pvp', 'gw2_rev_pvp', 'gw2_sb_pvp']
+        for func in func_array:
+                result = QStandardItem(func)
+                self.model.appendRow(result)
         self.ComboBox.setCurrentIndex(0)
-    
-    def call_method(self, o, name):
-        return getattr(o, name)()
 
     # dropdown menu
     def createTopLeftGroupBox(self):
@@ -80,8 +72,8 @@ class GUI(QDialog):
         styleLabelGame.setStyleSheet("color: #ffd343")
         styleLabelGame.setBuddy(self.ComboBox)
         
-        cr = combat_rotation.CombatRotation
-        self.get_local_methods(cr)
+        cr = combat_rotation
+        self.get_func()
         self.ComboBox.activated.connect(self.passCurrentText)
 
         layout.addWidget(styleLabelGame)
@@ -140,30 +132,27 @@ class GUI(QDialog):
         if key == 'end':
             logging.info('Exit key pressed')
             self.run = False
+            return self.run
         elif key == 'del':
             logging.info('Pause key pressed')
             self.set_pause(not self.should_pause())
 
     def prepare_combat_rotation(self):
-        running = threading.Event()
-        running.set()
-        thread = threading.Thread(target=self.get_combat_rotation, args=(running,))
-        thread.start()
+        rotation_running = threading.Event()
+        rotation_running.set()
+        rotation_thread = threading.Thread(target=self.get_combat_rotation, args=(rotation_running,))
+        rotation_thread.start()
         logging.info('LittleHelper started')
-        if(self.run == False):
-            running.clear()
-            thread.join()
-            logging.info("LittleHelper stopped")
+        rotation_running.clear()
+        rotation_thread.join()
+        logging.info("LittleHelper stopped")
 
     def get_combat_rotation(self, *args):
-        """set up the skill rotation for a specific method injected by the config"""
-        method = self.cfg['method']
-        cr = combat_rotation.CombatRotation()
         self.run = True
-        while self.run == True:
+        while self.run:
             while self.should_pause():
-                pass
-            self.call_method(cr, method)
+                time.sleep(0.25)
+            combat_rotation.default_rotation()
 
     def toolbox_run(self):
         self.toolbox = toolbox_gui.ToolBoxGUI()
