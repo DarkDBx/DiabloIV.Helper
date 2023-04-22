@@ -4,7 +4,6 @@ import logging
 
 TIMER_RUNNING = 1
 TIMER_STOPPED = 0
-TIMER_IDLE = 2
 
 class TimerHelper:
     def __init__(self, ID):
@@ -13,7 +12,7 @@ class TimerHelper:
 
         """Initilialize the timer like below if any new timer to be added"""
         self.timerPool[self.timeID] = {}
-        self.timerPool[self.timeID]['state'] = TIMER_IDLE
+        self.timerPool[self.timeID]['state'] = TIMER_STOPPED
         self.timerPool[self.timeID]['start'] = 0
         self.timerPool[self.timeID]['duration'] = 0
         self.timerPool[self.timeID]['time'] = 0
@@ -22,7 +21,7 @@ class TimerHelper:
     def StartTimer(self, time):
         self.timerPool[self.timeID]['time'] = time
         self.timerPool[self.timeID]
-        if (self.timerPool[self.timeID]['state'] == TIMER_IDLE) or (self.timerPool[self.timeID]['state'] == TIMER_STOPPED):
+        if (self.timerPool[self.timeID]['state'] == TIMER_STOPPED):
             self.timerPool[self.timeID]['start'] = default_timer()
             self.timerPool[self.timeID]['state'] = TIMER_RUNNING
         return self.timerPool[self.timeID]['state']
@@ -36,10 +35,6 @@ class TimerHelper:
         time = self.timerPool[self.timeID]['time']
         if self.timerPool[self.timeID]['state'] == TIMER_RUNNING:
             self.timerPool[self.timeID]['duration'] = default_timer() - self.timerPool[self.timeID]['start']
-        else:
-            None
-        if self.timerPool[self.timeID]['state'] == TIMER_STOPPED:
-            self.timerPool[self.timeID]['state'] = TIMER_IDLE
 
         if  self.timerPool[self.timeID]['duration'] >= time:
             self.timerPool[self.timeID]['state'] = TIMER_STOPPED

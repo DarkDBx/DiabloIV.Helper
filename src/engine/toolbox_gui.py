@@ -6,10 +6,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem, QIntV
 from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QLineEdit, QComboBox, QDialog,
         QGridLayout, QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory, QWidget)
 
-from helper import logging_helper, recorder_helper
-from engine import littlehelper
-
-from easyedit import Editor
+from helper import logging_helper, recorder_helper, image_helper
 
 
 class ToolBoxGUI(QDialog):
@@ -42,15 +39,13 @@ class ToolBoxGUI(QDialog):
         self.createImageCrop()
         self.createRecordBox()
         self.createReplayBox()
-        self.createEasyEditBox()
         self.createLoggerConsole()
         self.loggerConsole.setDisabled(False)
 
         mainLayout = QGridLayout()
         mainLayout.addWidget(self.imageCrop, 0, 0, 1, 2)
         mainLayout.addWidget(self.recordBox, 1, 0, 1, 2)
-        mainLayout.addWidget(self.replayBox, 2, 0)
-        mainLayout.addWidget(self.easyEditBox, 2, 1)
+        mainLayout.addWidget(self.replayBox, 2, 0, 1, 2)
         mainLayout.addWidget(self.loggerConsole, 3, 0, 1, 2)
         mainLayout.setRowStretch(1, 1)
         mainLayout.setColumnStretch(1, 1)
@@ -84,7 +79,7 @@ class ToolBoxGUI(QDialog):
     def check_folder(self):
         lt = []
         for p in os.listdir("record"):
-            if p[-3:] == "txt":
+            if p[-4:] == ".txt":
                 lt = QStandardItem(p)
                 self.model.appendRow(lt)
         self.replayComboBox.setCurrentIndex(0)
@@ -122,10 +117,6 @@ class ToolBoxGUI(QDialog):
             logging.error("Wrong file")
         except FileNotFoundError:
             logging.error("File not found")
-
-    # prepare easyEdit
-    def easyEdit(self):
-        Editor.Editor()
 
     # imageCrop
     def createImageCrop(self):
@@ -219,21 +210,6 @@ class ToolBoxGUI(QDialog):
         layout.addStretch(1)
         self.replayBox.setLayout(layout)
 
-    # easyEditBox
-    def createEasyEditBox(self):
-        self.easyEditBox = QGroupBox('EasyEdit')
-        self.easyEditBox.setStyleSheet('QGroupBox:title {color: rgb(255,211,67);}')
-        layout = QHBoxLayout()
-
-        toggleEasyEditButton = QPushButton("EasyEdit")
-        toggleEasyEditButton.setCheckable(False)
-        toggleEasyEditButton.setChecked(False)
-        toggleEasyEditButton.clicked.connect(self.easyEdit)
-        
-        layout.addWidget(toggleEasyEditButton)
-        layout.addStretch(1)
-        self.easyEditBox.setLayout(layout)
-
     # logger console
     def createLoggerConsole(self):
         self.loggerConsole = QWidget()
@@ -252,22 +228,22 @@ class ToolBoxGUI(QDialog):
 
     def on_press(self, key): 
         if key == 'home':
-            self.toolbox_print()
+            self.get_color_from_pos()
         elif key == 'insert':
-            self.toolbox_save()
+            self.get_image_from_pos()
+            
+    def get_color_from_pos(self):
+        """debug function, print coordinates and rgb color at mouse position"""
+        x,y, r,g,b = image_helper.get_pixel_color_at_cursor()
+        logging.info("Position and color: x,y, r,g,b=%d,%d, %d,%d,%d" % (x,y, r,g,b))
 
-    def toolbox_print(self):
-        #process_helper.set_foreground_window()
-        #process_helper.set_window_pos()
-        littlehelper.toolbox_print_pos()
-
-    def toolbox_save(self):
-        #process_helper.set_foreground_window()
-        #process_helper.set_window_pos()
+    def get_image_from_pos(self, name, path, ix, iy):
+        """debug function, print coordinates and save image at mouse position"""
         if os.path.exists(self.image_path + self.image_name + ".png"):
             logging.error("Filename already taken")
         else:
-            littlehelper.toolbox_save_img(name=self.image_name, path=self.image_path, ix=self.x_coord, iy=self.y_coord)
+            x,y = image_helper.get_image_at_cursor(name, path, ix, iy)
+            logging.info("File saved as: %s location: %s position: x=%d, y=%d, size=%d, %d" % (str(name+'.png'),path,x,y,ix,iy))
             pixmap = QPixmap(self.image_path+self.image_name)
             self.imageLabel.setPixmap(pixmap)
             self.imageLabel.resize(pixmap.width(), pixmap.height())

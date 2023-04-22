@@ -10,20 +10,15 @@ from helper import config_helper
 
 
 def main():
-    try:
-        app = QApplication(argv)
-        gui = littlehelper_gui.GUI()
-        gui.show()
+    app = QApplication(argv)
+    gui = littlehelper_gui.GUI()
+    gui.show()
 
-        cfg = config_helper.read_config()
-        logging.info(('====== %s %s ======') % ("LittleHelper", "v0.8.4"))
-        logging.info('Starting up bot engine...')
-        logging.info('Preset file: '+cfg['file']+' is initialized')
-        exit(app.exec_())
-    except SystemExit:
-        logging.error("Shutting down bot, caused by previous warning or fatal.\n")
-    except Exception as e:
-        logging.error(f"Shutting down bot, error:\n{e}\n")
+    cfg = config_helper.read_config()
+    logging.info(('====== %s %s ======') % ("LittleHelper", "v0.8.5"))
+    logging.info('Starting up bot engine...')
+    logging.info('Preset file: '+cfg['method']+' is initialized')
+    exit(app.exec_())
 
 
 if __name__ == '__main__':

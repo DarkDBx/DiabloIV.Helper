@@ -1,20 +1,25 @@
-import os
 import logging
 import keyboard
 import threading
+import inspect
+import types
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QComboBox, QDialog, QGridLayout,
         QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory, QVBoxLayout, QWidget)
 
 from helper import config_helper, logging_helper
-from engine import littlehelper, toolbox_gui
+from engine import toolbox_gui, combat_rotation
 
 
 class GUI(QDialog):
     def __init__(self, parent=None):
         super(GUI, self).__init__(parent)
         self.run =  False
+        self.cfg = config_helper.read_config()
+        self._lock = threading.Lock()
+        self.pause_req = False
+
         self.setGeometry(150, 150, 500, 250)
         self.setWindowTitle("LittleHelper")
         self.setFixedSize(500, 250)
@@ -26,7 +31,7 @@ class GUI(QDialog):
         self.label.resize(self.pixmap.width(), self.pixmap.height())
         
         keyboard.add_hotkey('end', lambda: self.on_press('end'))
-        keyboard.add_hotkey('q', lambda: self.on_press('q'))
+        keyboard.add_hotkey('del', lambda: self.on_press('del'))
 
         self.createTopLeftGroupBox()
         self.createTopRightGroupBox()
@@ -46,17 +51,22 @@ class GUI(QDialog):
         config_helper.save_config(item, value)
 
     def passCurrentText(self):
-        self.update_class('file', self.ComboBox.currentText())
+        self.update_class('method', self.ComboBox.currentText())
 
-    def check_folder(self):
-        lt = []
-        for p in os.listdir('src'):
-            if p == 'main.py':
-                pass
-            elif p[-3:] == '.py':
-                lt = QStandardItem(p)
-                self.model.appendRow(lt)
+    def get_local_methods(self, clss):
+        result = []
+        for var in clss.__dict__:
+            val = clss.__dict__[var]
+            if inspect.isfunction(val):
+                if var == '__init__' or var == 'set_pause' or var == 'press_combo' or var == 'press_key' or var == 'get_color' or var == 'get_image' or var == 'mouse_click':
+                    pass
+                else:
+                    result = QStandardItem(var)
+                    self.model.appendRow(result)
         self.ComboBox.setCurrentIndex(0)
+    
+    def call_method(self, o, name):
+        return getattr(o, name)()
 
     # dropdown menu
     def createTopLeftGroupBox(self):
@@ -70,7 +80,8 @@ class GUI(QDialog):
         styleLabelGame.setStyleSheet("color: #ffd343")
         styleLabelGame.setBuddy(self.ComboBox)
         
-        self.check_folder()
+        cr = combat_rotation.CombatRotation
+        self.get_local_methods(cr)
         self.ComboBox.activated.connect(self.passCurrentText)
 
         layout.addWidget(styleLabelGame)
@@ -86,7 +97,7 @@ class GUI(QDialog):
         toggleStartButton = QPushButton("LittleHelper")
         toggleStartButton.setCheckable(False)
         toggleStartButton.setChecked(False)
-        toggleStartButton.clicked.connect(self.prepare_engine_run)
+        toggleStartButton.clicked.connect(self.prepare_combat_rotation)
         
         toggleToolBoxButton = QPushButton("ToolBox")
         toggleToolBoxButton.setCheckable(False)
@@ -113,19 +124,30 @@ class GUI(QDialog):
         
         layout.addWidget(log_text_box)
         self.loggerConsole.setLayout(layout)
+            
+    def should_pause(self):
+        self._lock.acquire()
+        pause_req = self.pause_req
+        self._lock.release()
+        return pause_req
+
+    def set_pause(self, pause):
+        self._lock.acquire()
+        self.pause_req = pause
+        self._lock.release()
 
     def on_press(self, key): 
         if key == 'end':
             logging.info('Exit key pressed')
             self.run = False
-        elif key == 'q':
+        elif key == 'del':
             logging.info('Pause key pressed')
-            littlehelper.lilHelp.set_pause(not littlehelper.lilHelp.should_pause())
+            self.set_pause(not self.should_pause())
 
-    def prepare_engine_run(self):
+    def prepare_combat_rotation(self):
         running = threading.Event()
         running.set()
-        thread = threading.Thread(target=self.engine_run, args=(running,))
+        thread = threading.Thread(target=self.get_combat_rotation, args=(running,))
         thread.start()
         logging.info('LittleHelper started')
         if(self.run == False):
@@ -133,18 +155,18 @@ class GUI(QDialog):
             thread.join()
             logging.info("LittleHelper stopped")
 
-
-    def engine_run(self, *args):
-        #process_helper.set_foreground_window()
-        #process_helper.set_window_pos()
+    def get_combat_rotation(self, *args):
+        """set up the skill rotation for a specific method injected by the config"""
+        method = self.cfg['method']
+        cr = combat_rotation.CombatRotation()
         self.run = True
         while self.run == True:
-            littlehelper.run_bot()
+            while self.should_pause():
+                pass
+            self.call_method(cr, method)
 
     def toolbox_run(self):
         self.toolbox = toolbox_gui.ToolBoxGUI()
-        #process_helper.set_foreground_window()
-        #process_helper.set_window_pos()
         logging.info('ToolBox started')
         self.toolbox.show()
 
