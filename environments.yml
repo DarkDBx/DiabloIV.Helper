@@ -1,0 +1,11 @@
+# ENVIRONMENT NAME #############################################################
+name: LittleHelper
+
+# PYTHON PACKAGES ##############################################################
+dependencies:
+  - python=3.9
+  - numpy
+  - pyaml
+  - opencv
+  - pillow
+  - matplotlib

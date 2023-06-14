@@ -5,6 +5,7 @@ import logging
 TIMER_RUNNING = 1
 TIMER_STOPPED = 0
 
+
 class TimerHelper:
     def __init__(self, ID):
         self.timerPool = {}
@@ -17,6 +18,7 @@ class TimerHelper:
         self.timerPool[self.timeID]['duration'] = 0
         self.timerPool[self.timeID]['time'] = 0
 
+
     """Interface to start the timer"""
     def StartTimer(self, time):
         self.timerPool[self.timeID]['time'] = time
@@ -25,6 +27,7 @@ class TimerHelper:
             self.timerPool[self.timeID]['start'] = default_timer()
             self.timerPool[self.timeID]['state'] = TIMER_RUNNING
         return self.timerPool[self.timeID]['state']
+
 
     """
     Interface to get the timer status.

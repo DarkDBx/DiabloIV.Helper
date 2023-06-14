@@ -1,11 +1,11 @@
 
-python==3.9
 numpy
 pyaml
-opencv
 pillow
 pyqt5
 pyautogui
 pynput
 qscintilla
 keyboard
+matplotlib
+pywin32

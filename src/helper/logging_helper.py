@@ -11,6 +11,7 @@ class Handler(QObject, logging.Handler):
         formatter = Formatter('[%(levelname)s] %(message)s')
         self.setFormatter(formatter)
 
+
     def emit(self, record):
         msg = self.format(record)
         # emit signal
@@ -21,6 +22,7 @@ class Formatter(logging.Formatter):
     def formatException(self, ei):
         result = super(Formatter, self).formatException(ei)
         return result
+
 
     def format(self, record):
         s = super(Formatter, self).format(record)

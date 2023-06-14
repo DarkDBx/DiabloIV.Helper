@@ -1,22 +1,25 @@
 # VERSION
-- LittleHelper v0.8.5
+- LittleHelper v0.9.7
+
 
 # DESCRIPTION
-- Pixel/image recognition software for a combat-rotation game bot/assistant.
-- Toolbox containing a mouse/key, a pixel/image recorder.
+- Diablo 4 pixel/image recognition bot/assistant.
+- Set up a waypoint on the map and let the robot do the combat and looting.
+- Set up a combat rotation and let the assistant do the combat.
+
 
 # USAGE
-- Edit your rotation in src\engine\combat_rotation.py
-- Start the toolbox by pressing on the toolbox button
-    - 'home' hotkey get coordinates and rgb colors at mouse cursor
-    - 'insert' hotkey save image per parameters from gui at mouse cursor
-- Start the engine by pressing on the start button
-    - 'end' hotkey exit process
-    - 'delete' hotkey pause process
-- Use the gui for the macro recorder/player by the gui, useful for minigames
+- Edit your rotation in src\engine\combat.py
+- 'home' hotkey get coordinates and rgb colors at mouse cursor
+- 'insert' hotkey save image per parameters from gui at mouse cursor
+- 'end' hotkey exit process
+- 'delete' hotkey pause process
+- Use the macro recorder/player to get a waypoint file, combat and looting is done after every action.
+
 
 # TODO
-- rewrite combat_rotation. read yaml config? make gui mask to setup new game/class?
+- rework, test, debug.
+
 
 # CREDITS
 - https://stackoverflow.com/

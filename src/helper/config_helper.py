@@ -14,6 +14,7 @@ def set_file_path():
         bundle_dir = os.path.dirname(bundle_dir)
     return bundle_dir + '\\config\\config.yaml'
 
+
 def save_config(item, value):
     data = read_config()
     data[item] = value

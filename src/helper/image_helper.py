@@ -1,6 +1,7 @@
-import math
 import logging
 import pyautogui
+import numpy as np
+import itertools
 
 from helper import input_helper
 
@@ -9,51 +10,74 @@ def get_pixel_color_at_cursor():
     """Get the color of per cursor selected pixel"""
     x, y = input_helper.position()
     r, g, b = pyautogui.screenshot().getpixel((x, y))
+
     return x, y, r, g, b
+
 
 def get_image_at_cursor(name='default', path='.\\assets\\skills\\', ix=25, iy=25):
     """Get the image of per cursor selected pixel"""
     x, y = input_helper.position()
     img = pyautogui.screenshot(region=(x,y, ix, iy))
     img.save(path + name + ".png")
+
     return x, y
 
+
 def pixel_matches_color(x, y, exR, exG, exB, tolerance=25):
+    """Get rgb color at coordinate"""
     r, g, b = pyautogui.screenshot().getpixel((x, y))
     if (abs(r - exR) <= tolerance) and (abs(g - exG) <= tolerance) and (abs(b - exB) <= tolerance):
-        #logging.debug('found '+r, g, b+' at '+ x, y)
         return True
     return False
-    
-def calculate_distance():
-    location = locate_needle('.\\assets\\target.png', loctype='c')
-    if location != False:
-        dist = math.sqrt((location[1] - 960)**2 + (location[2] - 740)**2)
-        logging.debug('found '+dist+' at '+location)
-        return dist
 
-def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, region=(580, 880, 1333, 1066)):
+
+def create_circular_mask(w, h, center=None, radius=None):
+    if center is None: # use the middle of the image
+        center = (int(w/2), int(h/2))
+    if radius is None: # use the smallest distance between the center and image walls
+        radius = min(center[0], center[1], w-center[0], h-center[1])
+
+    x, y = np.ogrid[:w, :h]
+    dist_from_center = np.sqrt((x - center[0])**2 + (y-center[1])**2)
+    mask = dist_from_center <= radius
+
+    return mask
+
+
+def coord_matches_color_rect():
+    """Get a set rgb color at a rectangle around the minimap player position"""
+    points_x = np.linspace(1720,1780,40, dtype=int)
+    points_y = np.linspace(120,180,40, dtype=int)
+    grid_x, grid_y = np.meshgrid(points_x, points_y, copy=False, sparse=True)
+    positions = np.vstack([grid_x.ravel(), grid_y.ravel()])
+
+    for x, y in itertools.product(positions[0], positions[1]):
+        if (x == np.min(points_x)) | (x == np.max(points_x)) | \
+                (y == np.min(points_y)) | (y == np.max(points_y)):
+            if pyautogui.pixelMatchesColor(x.item(), y.item(), (104,74,56), tolerance=5):
+                return x, y
+    return -1, -1
+    
+
+def mob_detection():
+    """Get mob type/position and move mouse"""
+    x1, y1 = locate_needle('.\\assets\\target\\elite.png', conf=0.97, loctype='c', region=(200,50,1575,900))
+    x2, y2 = locate_needle('.\\assets\\target\\normal.png', conf=0.97, loctype='c', region=(200,50,1575,900))
+
+    if (x1, y1) != (-1, -1):
+        input_helper.move(x1+30, y1-30)
+        return True
+    elif (x2, y2) != (-1, -1):
+        input_helper.move(x2+30, y2-30)
+        return True
+    return False
+
+
+def locate_needle(needle, haystack=0, conf=0.8, loctype='l', grayscale=True, region=(525,875,1380,1050)):
     """Searches the haystack image for the needle image, returning a tuple
     of the needle's coordinates within the haystack. If a haystack image is
     not provided, searches the client window or the overview window,
-    as specified by the loctype parameter.
-    parameters:
-        needle: The image to search for. Must be a PIL image object.
-        haystack: The image to search within. By default this is not set,
-                causing the mlocate function to capture and search the client
-                window.
-        conf: The confidence value required to match the image successfully.
-                By default this is 0.8.
-        loctype: The method and/or haystack used to search for images. If a
-                haystack is provided, this parameter is not used.
-            l: Search the client window. If the needle is found, return '1'.
-            c: Search the client window for the needle and obtain its xy center
-                coordinates. If the needle is found, return the coordinates of its
-                center, relative to the coordinate plane of the haystack's resolution.
-        grayscale: Convert the haystack to grayscale before searching within it. Speeds up
-                searching by about 30%. Defaults to True.
-        region: The region to search within.
-                By default this is about the region around the skill bar."""
+    as specified by the loctype parameter."""
     
     # with haystack image, return coordinates
     if haystack != 0:
@@ -63,7 +87,7 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
             return locate_var
         else:
             logging.debug('cant find needle  ' + (str(needle)) + ' in haystack' + (str(haystack)) + ', ' + (str(locate_var)) + ', conf=' + (str(conf)))
-            return False
+            return -1, -1
         
     # without haystack image, return 1 or 0
     elif loctype == 'l':  # 'l' for regular 'locate'
@@ -85,5 +109,5 @@ def locate_needle(needle, haystack=0, conf=0.7, loctype='l', grayscale=True, reg
             return locate_var
         elif locate_var is None:
             logging.debug('cannot find c image ' + (str(needle) + ', conf=' + (str(conf))))
-            return False
+            return -1, -1
 

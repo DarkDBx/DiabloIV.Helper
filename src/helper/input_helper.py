@@ -7,13 +7,16 @@ import numpy as np
 import random
 import math
 
+
 SendInput = ctypes.windll.user32.SendInput
 MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
+
 
 # Constants for failsafe check and pause
 FAILSAFE = True
 FAILSAFE_POINTS = [(0, 0)]
 PAUSE = 0.1  # Tenth-second pause by default.
+
 
 # Constants for the mouse button names
 LEFT = "left"
@@ -21,6 +24,7 @@ MIDDLE = "middle"
 RIGHT = "right"
 PRIMARY = "primary"
 SECONDARY = "secondary"
+
 
 # Mouse Scan Code Mappings
 MOUSEEVENTF_MOVE = 0x0001
@@ -35,17 +39,20 @@ MOUSEEVENTF_MIDDLEDOWN = 0x0020
 MOUSEEVENTF_MIDDLEUP = 0x0040
 MOUSEEVENTF_MIDDLECLICK = MOUSEEVENTF_MIDDLEDOWN + MOUSEEVENTF_MIDDLEUP
 
+
 # KeyBdInput Flags
 KEYEVENTF_EXTENDEDKEY = 0x0001
 KEYEVENTF_KEYUP = 0x0002
 KEYEVENTF_SCANCODE = 0x0008
 KEYEVENTF_UNICODE = 0x0004
 
+
 # MapVirtualKey Map Types
 MAPVK_VK_TO_CHAR = 2
 MAPVK_VK_TO_VSC = 0
 MAPVK_VSC_TO_VK = 1
 MAPVK_VSC_TO_VK_EX = 3
+
 
 # Keyboard Scan Code Mappings
 KEYBOARD_MAPPING = {
@@ -183,6 +190,7 @@ KEYBOARD_MAPPING = {
     'OEM_7':0xDE  # Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the 'single-quote/double-quote' key
 }
 
+
 # C struct redefinitions
 
 PUL = ctypes.POINTER(ctypes.c_ulong)
@@ -295,6 +303,7 @@ def size():
 def isNumeric(val):
     return isinstance(val, (float, int, np.int32, np.int64, np.float32, np.float64))
 
+
 def isListOfPoints(l):
     if not isinstance(l, list):
         return False
@@ -304,16 +313,19 @@ def isListOfPoints(l):
     except (KeyError, TypeError) as e:
         return False
 
+
 class BezierCurve():
     @staticmethod
     def binomial(n, k):
         """Returns the binomial coefficient "n choose k" """
         return math.factorial(n) / float(math.factorial(k) * math.factorial(n - k))
 
+
     @staticmethod
     def bernsteinPolynomialPoint(x, i, n):
         """Calculate the i-th component of a bernstein polynomial of degree n"""
         return BezierCurve.binomial(n, i) * (x ** i) * ((1 - x) ** (n - i))
+
 
     @staticmethod
     def bernsteinPolynomial(points):
@@ -330,6 +342,7 @@ class BezierCurve():
                 y += point[1] * bern
             return x, y
         return bern
+
 
     @staticmethod
     def curvePoints(n, points):
@@ -350,11 +363,11 @@ class HumanCurve():
     Generates a human-like mouse curve starting at given source point,
     and finishing in a given destination point
     """
-
     def __init__(self, fromPoint, toPoint, **kwargs):
         self.fromPoint = fromPoint
         self.toPoint = toPoint
         self.points = self.generateCurve(**kwargs)
+
 
     def generateCurve(self, **kwargs):
         """
@@ -382,6 +395,7 @@ class HumanCurve():
         points = self.tweenPoints(points, tween, targetPoints)
         return points
 
+
     def generateInternalKnots(self, \
         leftBoundary, rightBoundary, \
         downBoundary, upBoundary,\
@@ -407,6 +421,7 @@ class HumanCurve():
         knots = list(zip(knotsX, knotsY))
         return knots
 
+
     def generatePoints(self, knots):
         """
         Generates bezier curve points on a curve, according to the internal
@@ -421,6 +436,7 @@ class HumanCurve():
             2)
         knots = [self.fromPoint] + knots + [self.toPoint]
         return BezierCurve.curvePoints(midPtsCnt, knots)
+
 
     def distortPoints(self, points, distortionMean, distortionStdev, distortionFrequency):
         """
@@ -445,6 +461,7 @@ class HumanCurve():
             distorted += (x,y+delta),
         distorted = [points[0]] + distorted + [points[-1]]
         return distorted
+
 
     def tweenPoints(self, points, tween, targetPoints):
         """
@@ -620,7 +637,7 @@ def tripleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=N
 # Use the relative flag to do a raw win32 api relative movement call (no MOUSEEVENTF_ABSOLUTE flag), which may be more 
 # appropriate for some applications. Note that this may produce inexact results depending on mouse movement speed.
 @_genericPyDirectInputChecks
-def moveTo(x=None, y=None, duration=None, tween=None, logScreenshot=False, _pause=True, relative=False):
+def moveTo(x=None, y=None, duration=0.5, tween=None, logScreenshot=False, _pause=True, relative=False):
     if not relative:
         x, y = position(x, y)  # if only x or y is provided, will keep the current position for the other axis
         x, y = _to_windows_coordinates(x, y)
@@ -640,7 +657,7 @@ def moveTo(x=None, y=None, duration=None, tween=None, logScreenshot=False, _paus
 # Use the relative flag to do a raw win32 api relative movement call (no MOUSEEVENTF_ABSOLUTE flag), which may be more 
 # appropriate for some applications.
 @_genericPyDirectInputChecks
-def moveRel(xOffset=None, yOffset=None, duration=None, tween=None, logScreenshot=False, _pause=True, relative=True):
+def moveRel(xOffset=None, yOffset=None, duration=0.5, tween=None, logScreenshot=False, _pause=True, relative=True):
     if not relative:
         x, y = position()
         if xOffset is None:
