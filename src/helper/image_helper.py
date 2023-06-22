@@ -31,19 +31,6 @@ def pixel_matches_color(x, y, exR, exG, exB, tolerance=25):
     return False
 
 
-def create_circular_mask(w, h, center=None, radius=None):
-    if center is None: # use the middle of the image
-        center = (int(w/2), int(h/2))
-    if radius is None: # use the smallest distance between the center and image walls
-        radius = min(center[0], center[1], w-center[0], h-center[1])
-
-    x, y = np.ogrid[:w, :h]
-    dist_from_center = np.sqrt((x - center[0])**2 + (y-center[1])**2)
-    mask = dist_from_center <= radius
-
-    return mask
-
-
 def coord_matches_color_rect():
     """Get a set rgb color at a rectangle around the minimap player position"""
     points_x = np.linspace(1720,1780,40, dtype=int)
@@ -61,14 +48,12 @@ def coord_matches_color_rect():
 
 def mob_detection():
     """Get mob type/position and move mouse"""
-    x1, y1 = locate_needle('.\\assets\\target\\elite.png', conf=0.97, loctype='c', region=(200,50,1575,900))
-    x2, y2 = locate_needle('.\\assets\\target\\normal.png', conf=0.97, loctype='c', region=(200,50,1575,900))
+    x1, y1 = locate_needle('.\\assets\\target\\elite.png', conf=0.97, loctype='c', region=(440,220,1480,840))
+    x2, y2 = locate_needle('.\\assets\\target\\normal.png', conf=0.97, loctype='c', region=(440,220,1480,840))
+    x3, y3 = locate_needle('.\\assets\\target\\normal_shield.png', conf=0.97, loctype='c', region=(440,220,1480,840))
 
-    if (x1, y1) != (-1, -1):
-        input_helper.move(x1+30, y1-30)
-        return True
-    elif (x2, y2) != (-1, -1):
-        input_helper.move(x2+30, y2-30)
+    if (((x1, y1) != (-1, -1)) or ((x2, y2) != (-1, -1)) or ((x3, y3) != (-1, -1))):
+        #input_helper.move(x1+30, y1-30)
         return True
     return False
 
@@ -83,10 +68,10 @@ def locate_needle(needle, haystack=0, conf=0.8, loctype='l', grayscale=True, reg
     if haystack != 0:
         locate_var = pyautogui.locate(needle, haystack, confidence=conf, grayscale=grayscale)
         if locate_var is not None:
-            logging.debug('found needle  ' + (str(needle)) + ' in haystack' + (str(haystack)) + ', ' + (str(locate_var)))
+            logging.debug('found needle ' + (str(needle)) + ' in haystack' + (str(haystack)) + ', ' + (str(locate_var)))
             return locate_var
         else:
-            logging.debug('cant find needle  ' + (str(needle)) + ' in haystack' + (str(haystack)) + ', ' + (str(locate_var)) + ', conf=' + (str(conf)))
+            logging.debug('cant find needle ' + (str(needle)) + ' in haystack' + (str(haystack)) + ', ' + (str(locate_var)) + ', conf=' + (str(conf)))
             return -1, -1
         
     # without haystack image, return 1 or 0

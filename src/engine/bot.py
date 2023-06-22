@@ -44,11 +44,9 @@ class Bot:
         self.ph = process_helper.ProcessHelper()
     
 
-    """
     def set_window_pos(self):
         '''Move the window to 0, 0 and put it on top'''
         self.ph.set_window_pos()
-    """
 
 
     def set_foreground(self):
@@ -82,6 +80,7 @@ class Bot:
 
     def click_is_death_ok(self):
         self.left_click(904,924)
+        time.sleep(.5)
 
 
     def left_click(self, x=None, y=None, a=-5,b=35,c=-5,d=5):
@@ -115,9 +114,9 @@ class Bot:
                 x, y = self.get_ref_location('target\\path03.png', conf=0.97, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
                 if x == -1 and y == -1:
                     x, y = self.get_ref_location('target\\path04.png', conf=0.97, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
-                    if x == -1 and y == -1:
+                    """if x == -1 and y == -1:
                         n = 30
-                        x, y = image_helper.coord_matches_color_rect()
+                        x, y = image_helper.coord_matches_color_rect()"""
         if x == -1 and y == -1:
             logging.debug("Referenceobject not found: %d, %d" % (x, y))
             return -1, -1
@@ -143,7 +142,7 @@ class Bot:
         while abs(tx) > 1080 or abs(ty) > 360:
             tx = int(tx/1.5)
             ty = int(ty/1.5)
-        logging.debug("Relative coords: %d, %d, distance: %d, screen click: %d, %d, got distance: %s" %
+        logging.debug("Relative coords %d, %d, distance %d, absolute coords %d, %d, get distance %s" %
             (dx, dy, distance, PLAYER_X-tx, PLAYER_Y-ty, distance > 10))
         if distance < 10:
             return False
@@ -196,13 +195,11 @@ class Bot:
         if self.is_death():
             logging.info('Death handling')
             self.click_is_death_ok()
-            time.sleep(.5)
         elif self.is_in_game():
             logging.info('Game handling')
-            if self.move_to_ref_location():
-                mob_det = image_helper.mob_detection()
-                while mob_det != False:
-                    combat.rotation()
-                if mob_det != False:
-                    self.loot_process()
+            self.move_to_ref_location()
+            mob_det = image_helper.mob_detection()
+            while mob_det != False:
+                combat.rotation()
+            self.loot_process()
                 

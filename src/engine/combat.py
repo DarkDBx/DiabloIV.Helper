@@ -39,39 +39,52 @@ def rotation():
         logging.error('No vaible class')
 
 
-"""Storm druid"""
-# https://maxroll.gg/d4/build-guides/tornado-druid-leveling-guide
+"""Pulverize druid"""
+# https://maxroll.gg/d4/build-guides/pulverize-druid-guide
 def druid():
     # target check
-    if image_helper.pixel_matches_color(801,45, 107,2,1, 30) or image_helper.pixel_matches_color(710,45, 162,4,4, 30):
+    if image_helper.pixel_matches_color(801,45, 107,2,1, 15) or image_helper.pixel_matches_color(801,45, 156,65,93, 15) or \
+                image_helper.pixel_matches_color(801,45, 231,13,9, 15) or image_helper.pixel_matches_color(710,45, 162,4,4, 15) or \
+                image_helper.pixel_matches_color(710,45, 124,71,98, 15) or image_helper.mob_detection():
         # health check
-        if not image_helper.pixel_matches_color(606,983, 82,7,11, 45) and not image_helper.pixel_matches_color(606,995, 138,6,18, 45):
-            if image_helper.locate_needle(SKILLPATH+'pot.png', conf=0.7) and timer1.GetTimerState() == TIMER_STOPPED:
-                timer1.StartTimer(3) # set timer to 5 seconds
+        if not image_helper.pixel_matches_color(608,980, 95,10,15, 45) and not image_helper.pixel_matches_color(608,972, 148,14,24, 45) and \
+                    not image_helper.pixel_matches_color(607,978, 97,29,82, 45):
+            if (image_helper.locate_needle(SKILLPATH+'pot30.png', conf=0.7) or image_helper.locate_needle(SKILLPATH+'pot45.png', conf=0.7) or \
+                        image_helper.locate_needle(SKILLPATH+'pot60.png', conf=0.7) or image_helper.locate_needle(SKILLPATH+'pot70.png', conf=0.7)) and \
+                        timer1.GetTimerState() == TIMER_STOPPED:
+                timer1.StartTimer(3)
                 input_helper.press('f')
-                time.sleep(random.uniform(0.21, 0.26))
-            """if image_helper.locate_needle(SKILLPATH+'evade.png') and timer2.GetTimerState() == TIMER_STOPPED:
-                timer2.StartTimer(6) # set timer to 5 seconds
+                logging.info('Use potion')
+                time.sleep(random.uniform(0.11, 0.13))
+            if image_helper.locate_needle(SKILLPATH+'evade.png', conf=0.7) and timer2.GetTimerState() == TIMER_STOPPED:
+                timer2.StartTimer(6)
                 input_helper.press('space')
-                time.sleep(random.uniform(0.21, 0.26))"""
-        # class skill checks
-        if image_helper.locate_needle(SKILLPATH+'druid\\01.png'):
+                logging.info('Use evade')
+                time.sleep(random.uniform(0.11, 0.13))
+        # class skill check
+        if image_helper.locate_needle(SKILLPATH+'druid\\01.png', conf=0.6):
             input_helper.press('q')
-            time.sleep(random.uniform(0.21, 0.26))
-        elif image_helper.locate_needle(SKILLPATH+'druid\\02.png'):
+            logging.info('Use skill 1')
+            time.sleep(random.uniform(0.11, 0.13))
+        elif image_helper.locate_needle(SKILLPATH+'druid\\02.png', conf=0.6):
             input_helper.press('w')
-            time.sleep(random.uniform(0.21, 0.26))
-        elif image_helper.locate_needle(SKILLPATH+'druid\\03.png'):
+            logging.info('Use skill 2')
+            time.sleep(random.uniform(0.11, 0.13))
+        elif image_helper.locate_needle(SKILLPATH+'druid\\03.png', conf=0.6):
             input_helper.press('e')
-            time.sleep(random.uniform(0.21, 0.26))
-        elif image_helper.locate_needle(SKILLPATH+'druid\\04.png'):
+            logging.info('Use skill 3')
+            time.sleep(random.uniform(0.11, 0.13))
+        elif image_helper.locate_needle(SKILLPATH+'druid\\04.png', conf=0.5):
             input_helper.press('r')
-            time.sleep(random.uniform(0.21, 0.26))
-        elif image_helper.locate_needle(SKILLPATH+'druid\\05.png', conf=0.963):
+            logging.info('Use skill 4')
+            time.sleep(random.uniform(0.11, 0.13))
+        if image_helper.locate_needle(SKILLPATH+'druid\\05.png', conf=0.97):
             input_helper.rightClick()
-            time.sleep(random.uniform(0.21, 0.26))
+            logging.info('Use skill right mouse')
+            time.sleep(random.uniform(0.11, 0.13))
         """else:
-            logging.debug('cannot find images, left click')
+            logging.debug('cannot find images, do left click')
             input_helper.leftClick()
-            time.sleep(random.uniform(0.21, 0.26))"""
+            logging.info('Use skill left mouse')
+            time.sleep(random.uniform(0.11, 0.13))"""
 

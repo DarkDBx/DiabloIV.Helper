@@ -1,25 +1,21 @@
 import logging
 import os
 import keyboard
-import threading
-import time
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem, QIntValidator
-from PyQt5.QtWidgets import (QApplication, QPlainTextEdit, QComboBox, QDialog, QGridLayout, QLineEdit,
-                            QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory, QWidget)
+from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog, QGridLayout, QLineEdit,
+                            QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory)
 
-from helper import config_helper, logging_helper, recorder_helper, image_helper
-from engine import bot, combat
+from helper import recorder_helper, image_helper
 
 
-class GUI(QDialog):
+class Toolbox(QDialog):
     def __init__(self, parent=None):
-        super(GUI, self).__init__(parent)
-        #self.setWindowFlag(Qt.WindowStaysOnTopHint)
-        self.setGeometry(400, 200, 600, 300)
-        self.setWindowTitle("LittleHelper")
-        self.setFixedSize(600, 300)
+        super(Toolbox, self).__init__(parent)
         self.setWindowIcon(QIcon('.\\assets\\layout\\lilhelper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
+        self.setWindowTitle("LittleHelper - Toolbox")
+        self.setGeometry(700, 300, 600, 250)
+        self.setFixedSize(600, 250)
         self.label = QLabel(self)
         self.pixmap = QPixmap('.\\assets\\layout\\lilhelperbp.png') 
         self.label.setPixmap(self.pixmap) 
@@ -27,14 +23,7 @@ class GUI(QDialog):
 
         keyboard.add_hotkey('insert', lambda: self.on_press('insert'))
         keyboard.add_hotkey('home', lambda: self.on_press('home'))
-        keyboard.add_hotkey('end', lambda: self.on_press('end'))
-        keyboard.add_hotkey('del', lambda: self.on_press('del'))
-        
-        self.running = False
-        self._lock = threading.Lock()
-        self.pause_req = False
-        self.cfg = config_helper.read_config()
-        self.robot = bot.Bot()
+
         self.image_name = 'default'
         self.image_path = '.\\assets\\skills\\'
         self.x_coord = 25
@@ -48,40 +37,14 @@ class GUI(QDialog):
         self.createImageCrop()
         self.createRecordBox()
         self.createReplayBox()
-        self.createDropdownBox()
-        self.createStartBox()
-        #self.createLoggerConsole()
-        #self.loggerConsole.setDisabled(False)
 
         mainLayout = QGridLayout()
         mainLayout.addWidget(self.imageCrop, 0, 0, 1, 2)
         mainLayout.addWidget(self.recordBox, 1, 0, 1, 2)
         mainLayout.addWidget(self.replayBox, 2, 0, 1, 2)
-        mainLayout.addWidget(self.dropdownBox, 3, 0)
-        mainLayout.addWidget(self.startBox, 3, 1)
-        #mainLayout.addWidget(self.loggerConsole, 4, 0, 1, 2)
         mainLayout.setRowStretch(1, 1)
         mainLayout.setColumnStretch(1, 1)
         self.setLayout(mainLayout)
-
-
-    # prepare dropdownBox
-    def update_class(self, item, value=None):
-        logging.info('Preset '+item+': '+value)
-        config_helper.save_config(item, value)
-
-
-    def passCurrentText(self):
-        self.update_class('class', self.ComboBox.currentText())
-            
-
-    def get_class(self):
-        result = []
-        class_array = ['Druid', 'Barb', 'Necro', 'Sorc', 'Rogue']
-        for class_var in class_array:
-            result = QStandardItem(class_var)
-            self.model.appendRow(result)
-        self.ComboBox.setCurrentIndex(0)
 
 
     # prepare imageCrop
@@ -169,24 +132,24 @@ class GUI(QDialog):
         layout = QHBoxLayout()
 
         self.text_box1 = QLineEdit(str(self.image_name))
-        self.text_box1.setStyleSheet('background:rgb(255,255,224);')
+        self.text_box1.setStyleSheet('background:rgb(204,153,51);')
         self.text_box1.setFixedSize(80, 20)
         self.text_box1.textChanged.connect(self.set_image_name)
 
         self.text_box2 = QLineEdit(str(self.image_path))
-        self.text_box2.setStyleSheet('background:rgb(255,255,224);')
+        self.text_box2.setStyleSheet('background:rgb(204,153,51);')
         self.text_box2.setFixedSize(240, 20)
         self.text_box2.textChanged.connect(self.set_image_path)
 
         self.text_box3 = QLineEdit(str(self.x_coord))
-        self.text_box3.setStyleSheet('background:rgb(255,255,224);')
+        self.text_box3.setStyleSheet('background:rgb(204,153,51);')
         self.text_box3.setFixedSize(25, 20)
         self.text_box3.setValidator(QIntValidator())
         self.text_box3.setMaxLength(2)
         self.text_box3.textChanged.connect(self.set_x_coord)
 
         self.text_box4 = QLineEdit(str(self.y_coord))
-        self.text_box4.setStyleSheet('background:rgb(255,255,224);')
+        self.text_box4.setStyleSheet('background:rgb(204,153,51);')
         self.text_box4.setFixedSize(25, 20)
         self.text_box4.setValidator(QIntValidator())
         self.text_box4.setMaxLength(2)
@@ -204,7 +167,7 @@ class GUI(QDialog):
         layout.addWidget(self.text_box3)
         layout.addStretch(1)
         layout.addWidget(self.text_box4)
-        layout.addStretch(1)
+        layout.addStretch(3)
         layout.addWidget(self.imageLabel)
         layout.addStretch(5)
         self.imageCrop.setLayout(layout)
@@ -227,7 +190,7 @@ class GUI(QDialog):
         toggleStopButton.clicked.connect(self.stop)
 
         self.saveTextBox = QLineEdit(str(self.file_name))
-        self.saveTextBox.setStyleSheet('background:rgb(255,255,224);')
+        self.saveTextBox.setStyleSheet('background:rgb(204,153,51);')
         self.saveTextBox.setFixedSize(80, 20)
         self.saveTextBox.textChanged.connect(self.set_file_name)
         
@@ -239,11 +202,11 @@ class GUI(QDialog):
         layout.addWidget(toggleStartButton)
         layout.addStretch(1)
         layout.addWidget(toggleStopButton)
-        layout.addStretch(1)
+        layout.addStretch(7)
         layout.addWidget(self.saveTextBox)
         layout.addStretch(1)
         layout.addWidget(toggleSaveButton)
-        layout.addStretch(10)
+        layout.addStretch(1)
         self.recordBox.setLayout(layout)
 
 
@@ -271,76 +234,11 @@ class GUI(QDialog):
         self.replayBox.setLayout(layout)
 
 
-    # dropdownBox
-    def createDropdownBox(self):
-        self.dropdownBox = QGroupBox('Class')
-        self.dropdownBox.setStyleSheet('QGroupBox:title {color: rgb(255,255,0);}')
-        layout = QHBoxLayout()
-
-        self.model = QStandardItemModel()
-        self.ComboBox = QComboBox()
-        self.ComboBox.setModel(self.model)
-        
-        self.get_class()
-        self.ComboBox.activated.connect(self.passCurrentText)
-
-        layout.addWidget(self.ComboBox)
-        layout.addStretch(1)
-        self.dropdownBox.setLayout(layout)
-
-
-    # startBox
-    def createStartBox(self):
-        self.startBox = QGroupBox()
-        layout = QHBoxLayout()
-
-        toggleStartButton = QPushButton("ROBOT")
-        toggleStartButton.setCheckable(False)
-        toggleStartButton.setChecked(False)
-        toggleStartButton.clicked.connect(self.get_combat_rotation)
-
-        toggleAssistButton = QPushButton("ASSISTANT")
-        toggleAssistButton.setCheckable(False)
-        toggleAssistButton.setChecked(False)
-        toggleAssistButton.clicked.connect(self.get_assist_rotation)
-
-        layout.addStretch(10)
-        layout.addWidget(toggleStartButton)
-        layout.addStretch(1)
-        layout.addWidget(toggleAssistButton)
-        layout.addStretch(1)
-        self.startBox.setLayout(layout)
-
-
-    # loggerConsole
-    def createLoggerConsole(self):
-        self.loggerConsole = QWidget()
-        layout = QHBoxLayout()
-
-        handler = logging_helper.Handler(self)
-        log_text_box = QPlainTextEdit(self)
-        log_text_box.setReadOnly(True)
-        logging.getLogger().addHandler(handler)
-        #logging.getLogger().setLevel(logging.DEBUG)
-        # connect QPlainTextEdit.appendPlainText slot
-        handler.new_record.connect(log_text_box.appendPlainText)
-        
-        layout.addWidget(log_text_box)
-        self.loggerConsole.setLayout(layout)
-
-
     def on_press(self, key): 
         if key == 'home':
             self.get_color_from_pos()
         elif key == 'insert':
             self.get_image_from_pos()
-        elif key == 'end':
-            logging.info('Exit key pressed')
-            self.running = False
-            return self.running
-        elif key == 'del':
-            logging.info('Pause key pressed')
-            self.set_pause(not self.should_pause())
             
 
     def get_color_from_pos(self):
@@ -359,39 +257,4 @@ class GUI(QDialog):
             pixmap = QPixmap(self.image_path+self.image_name)
             self.imageLabel.setPixmap(pixmap)
             self.imageLabel.resize(pixmap.width(), pixmap.height())
-            
-
-    def should_pause(self):
-        self._lock.acquire()
-        pause_req = self.pause_req
-        self._lock.release()
-        return pause_req
-
-
-    def set_pause(self, pause):
-        self._lock.acquire()
-        self.pause_req = pause
-        self._lock.release()
-
-
-    def get_combat_rotation(self):
-        logging.info('LittleHelper started')
-        self.robot.set_foreground()
-        self.running = True
-        while self.running:
-            while self.should_pause():
-                time.sleep(0.25)
-            self.robot.game_manager()
-        logging.info("LittleHelper stopped")
-
-
-    def get_assist_rotation(self):
-        logging.info('LittleHelper started')
-        self.robot.set_foreground()
-        self.running = True
-        while self.running:
-            while self.should_pause():
-                time.sleep(0.25)
-            combat.rotation()
-        logging.info("LittleHelper stopped")
 

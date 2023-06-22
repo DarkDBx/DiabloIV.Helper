@@ -28,6 +28,5 @@ class Formatter(logging.Formatter):
         s = super(Formatter, self).format(record)
         if record.exc_text:
             s = s.replace('\n', '')
-        return s
-    
-    
+        return s 
+

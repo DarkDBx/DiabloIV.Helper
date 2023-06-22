@@ -1,5 +1,5 @@
 # VERSION
-- LittleHelper v0.9.7
+- LittleHelper v0.9.10
 
 
 # DESCRIPTION
@@ -18,10 +18,11 @@
 
 
 # TODO
-- rework, test, debug.
+- rework, test, debug
 
 
 # CREDITS
 - https://stackoverflow.com/
 - https://github.com/
 - Written in Python by DarkDBx
+
