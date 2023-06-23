@@ -2,6 +2,7 @@ import logging
 import keyboard
 import threading
 import time
+from sys import exit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QComboBox, QPlainTextEdit, QMainWindow, QGridLayout,
@@ -78,7 +79,7 @@ class Overlay(QMainWindow):
 
         handler = logging_helper.Handler(self)
         log_text_box = QPlainTextEdit(self)
-        log_text_box.setStyleSheet('background:rgb(204,153,51);')
+        log_text_box.setStyleSheet('background-color: rgba(255,255,255, 0); color: white')
         log_text_box.setReadOnly(True)
         logging.getLogger().addHandler(handler)
         #logging.getLogger().setLevel(logging.DEBUG)
@@ -88,11 +89,11 @@ class Overlay(QMainWindow):
         self.loggerConsole.setLayout(layout)
         
     
-    def closeEvent(self, event):
+    def closeEvent(self):
         root_logger = logging.getLogger()
         handler = logging_helper.Handler(self)
         root_logger.removeHandler(handler)
-        super().closeEvent(event)
+        exit(0)
 
 
     # dropdownBox
@@ -151,13 +152,13 @@ class Overlay(QMainWindow):
         self.toolBox.setLayout(layout)
 
 
-    def on_press(self, key): 
+    def on_press(self, key):
         if key == 'end':
             logging.info('_EXIT')
-            self.rotation_thread.join()
-            self.closeEvent()
-            self.running = False
-            return self.running
+            if self.running:
+                self.running = False
+                self.rotation_thread.join()
+                self.closeEvent()
         elif key == 'del':
             self.set_pause(not self.should_pause())
             if self.pause == False:

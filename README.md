@@ -1,11 +1,14 @@
-# VERSION
-- LittleHelper v0.9.10
-
-
 # DESCRIPTION
 - Diablo 4 pixel/image recognition bot/assistant.
-- Set up a waypoint on the map and let the robot do the combat and looting.
-- Set up a combat rotation and let the assistant do the combat.
+- Use the macro recorder/player to get a waypoint file and let the robot do the combat/looting. 80% accurate
+- Set up a waypoint on the map and let the robot do the combat/looting. 50% accurate
+- Set up a combat rotation and let the assistant do the combat. 95% accurate
+
+
+# PARAMETER
+- Window fullscreen 1920x1080 resolution
+- English language required for pickit
+- Python 3.9 interpreter, see requirements.txt
 
 
 # USAGE
@@ -14,7 +17,6 @@
 - 'insert' hotkey save image per parameters from gui at mouse cursor
 - 'end' hotkey exit process
 - 'delete' hotkey pause process
-- Use the macro recorder/player to get a waypoint file, combat and looting is done after every action.
 
 
 # TODO

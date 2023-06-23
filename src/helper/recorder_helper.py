@@ -8,7 +8,7 @@ from pynput.keyboard import Controller as Controller_k, Key
 from pynput.mouse import Controller as Controller_m, Button
 
 from helper import process_helper, image_helper
-from engine import bot, combat
+from engine import bot
 
 
 dic = {
@@ -107,11 +107,9 @@ class Replay:
         self.keyboard = Controller_k()
         self.mouse = Controller_m()
         self.robot = bot.Bot()
-        
-        replay_thread = threading.Thread(target=self.replay_run)
-        replay_thread.start()
-        replay_thread.join()
-        logging.info("Replay stopped")
+        self._lock = threading.Lock()
+        self.pause_req = False
+        self.running = False
 
 
     def replay_run(self):
@@ -162,5 +160,26 @@ class Replay:
             else:
                 logging.error("Unknown action")
 
-            self.robot.game_manager()
+            self.get_combat_rotation()
+
+
+    def get_combat_rotation(self):
+        mob_det = image_helper.mob_detection()
+        while mob_det != False:
+            while self.should_pause():
+                time.sleep(0.25)
+            self.robot.game_manager_macro()
+            
+
+    def should_pause(self):
+        self._lock.acquire()
+        pause_req = self.pause_req
+        self._lock.release()
+        return pause_req
+
+
+    def set_pause(self, pause):
+        self._lock.acquire()
+        self.pause_req = pause
+        self._lock.release()
 

@@ -1,4 +1,5 @@
 import logging
+import threading
 import os
 import keyboard
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem, QIntValidator
@@ -23,6 +24,13 @@ class Toolbox(QDialog):
 
         keyboard.add_hotkey('insert', lambda: self.on_press('insert'))
         keyboard.add_hotkey('home', lambda: self.on_press('home'))
+        keyboard.add_hotkey('end', lambda: self.on_press('end'))
+        keyboard.add_hotkey('del', lambda: self.on_press('del'))
+        
+        self.running = False
+        self.pause = False
+        self._lock = threading.Lock()
+        self.pause_req = False
 
         self.image_name = 'default'
         self.image_path = '.\\assets\\skills\\'
@@ -118,7 +126,27 @@ class Toolbox(QDialog):
     def replay(self):
         try:
             logging.info("Replaying...")
-            recorder_helper.Replay(".\\record\\" + self.file_name_replay)
+            rh = recorder_helper.Replay(".\\record\\" + self.file_name_replay)
+            replay_thread = threading.Thread(target=rh.replay_run)
+
+            replay_thread.start()
+            replay_thread.join()
+            logging.info("Replay stopped")
+        except SyntaxError:
+            logging.error("Wrong file")
+        except FileNotFoundError:
+            logging.error("File not found")
+
+
+    def replay_loop(self):
+        try:
+            logging.info("Replaying infinite...")
+            self.running = True
+            rh = recorder_helper.Replay(".\\record\\" + self.file_name_replay)
+            self.replay_thread = threading.Thread(target=rh.replay_run)
+
+            while self.running:
+                self.replay_thread.start()
         except SyntaxError:
             logging.error("Wrong file")
         except FileNotFoundError:
@@ -226,12 +254,32 @@ class Toolbox(QDialog):
         toggleReplayButton.setCheckable(False)
         toggleReplayButton.setChecked(False)
         toggleReplayButton.clicked.connect(self.replay)
+
+        toggleReplayLoopButton = QPushButton("Replay loop")
+        toggleReplayLoopButton.setCheckable(False)
+        toggleReplayLoopButton.setChecked(False)
+        toggleReplayLoopButton.clicked.connect(self.replay_loop)
         
         layout.addWidget(self.replayComboBox)
         layout.addStretch(1)
         layout.addWidget(toggleReplayButton)
+        layout.addStretch(1)
+        layout.addWidget(toggleReplayLoopButton)
         layout.addStretch(20)
         self.replayBox.setLayout(layout)
+            
+
+    def should_pause(self):
+        self._lock.acquire()
+        pause_req = self.pause_req
+        self._lock.release()
+        return pause_req
+
+
+    def set_pause(self, pause):
+        self._lock.acquire()
+        self.pause_req = pause
+        self._lock.release()
 
 
     def on_press(self, key): 
@@ -239,6 +287,12 @@ class Toolbox(QDialog):
             self.get_color_from_pos()
         elif key == 'insert':
             self.get_image_from_pos()
+        elif key == 'end':
+            logging.info('_EXIT')
+            if self.running:
+                self.running = False
+                self.replay_thread.join()
+                logging.info('Replay stopped')
             
 
     def get_color_from_pos(self):

@@ -47,14 +47,16 @@ def coord_matches_color_rect():
     
 
 def mob_detection():
-    """Get mob type/position and move mouse"""
-    x1, y1 = locate_needle('.\\assets\\target\\elite.png', conf=0.97, loctype='c', region=(440,220,1480,840))
-    x2, y2 = locate_needle('.\\assets\\target\\normal.png', conf=0.97, loctype='c', region=(440,220,1480,840))
-    x3, y3 = locate_needle('.\\assets\\target\\normal_shield.png', conf=0.97, loctype='c', region=(440,220,1480,840))
-
-    if (((x1, y1) != (-1, -1)) or ((x2, y2) != (-1, -1)) or ((x3, y3) != (-1, -1))):
-        #input_helper.move(x1+30, y1-30)
-        return True
+    """Get mob type and position"""
+    x, y = locate_needle('.\\assets\\target\\elite.png', conf=0.97, loctype='c', region=(400,140,1500,870))
+    if x != -1 and y != -1:
+        return x, y
+    x, y = locate_needle('.\\assets\\target\\normal.png', conf=0.97, loctype='c', region=(400,140,1500,870))
+    if x != -1 and y != -1:
+        return x, y
+    x, y = locate_needle('.\\assets\\target\\normal_shield.png', conf=0.97, loctype='c', region=(400,140,1500,870))
+    if x != -1 and y != -1:
+        return x, y
     return False
 
 

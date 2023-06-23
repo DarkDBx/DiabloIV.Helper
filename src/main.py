@@ -10,6 +10,10 @@ from engine import overlay
 from helper import config_helper
 
 
+APPNAME = 'LittleHelper'
+APPVERSION = 'v0.9.11'
+
+
 def main():
     app = QApplication(argv)
     app_gui = overlay.Overlay()
@@ -18,9 +22,9 @@ def main():
     cfg = config_helper.read_config()
     logging.getLogger().setLevel(logging.INFO)
 
-    logging.info(('====== %s %s ======') % ("LittleHelper", "v0.9.10"))
+    logging.info(('====== %s %s ======') % (APPNAME, APPVERSION))
     logging.info('Starting up bot engine...')
-    logging.info('Preset class: '+cfg['class']+' is initialized')
+    logging.info('Preset class ' + cfg['class'] + ' is initialized')
     
     exit(app.exec_())
 
@@ -29,5 +33,5 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        logging.error("Unexpected exception! %s",e)
+        logging.error("Unexpected exception! %s", e)
 

@@ -10,7 +10,7 @@ from engine import combat
 # region constant
 IMAGE_DIR = ".\\assets\\"
 PLAYER_X = 960 # Center of the screen coordinate X
-PLAYER_Y = 530 # Center of the screen coordinate Y
+PLAYER_Y = 520 # Center of the screen coordinate Y
 MAP_X = 1690
 MAP_Y = 90
 MAP_X_MAX = 1810
@@ -79,6 +79,7 @@ class Bot:
 
 
     def click_is_death_ok(self):
+        time.sleep(3)
         self.left_click(904,924)
         time.sleep(.5)
 
@@ -107,13 +108,13 @@ class Bot:
     def get_player_ref_location(self, trans=False):
         '''Detect path on minimap and calculate player position'''
         n = 60
-        x, y = self.get_ref_location('target\\path01.png', conf=0.97, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
+        x, y = self.get_ref_location('target\\path01.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
         if x == -1 and y == -1:
-            x, y = self.get_ref_location('target\\path02.png', conf=0.97, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
+            x, y = self.get_ref_location('target\\path02.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
             if x == -1 and y == -1:
-                x, y = self.get_ref_location('target\\path03.png', conf=0.97, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
+                x, y = self.get_ref_location('target\\path03.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
                 if x == -1 and y == -1:
-                    x, y = self.get_ref_location('target\\path04.png', conf=0.97, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
+                    x, y = self.get_ref_location('target\\path04.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
                     """if x == -1 and y == -1:
                         n = 30
                         x, y = image_helper.coord_matches_color_rect()"""
@@ -147,11 +148,12 @@ class Bot:
         if distance < 10:
             return False
         if not stuck:
-            logging.debug("moving to %d,%d" % (PLAYER_X-tx, PLAYER_Y-ty))
             self.left_click(PLAYER_X-tx, PLAYER_Y-ty, 0,0,0,0)
+            logging.info("Moving to %d,%d" % (PLAYER_X-tx, PLAYER_Y-ty))
+            return True
         else:
-            self.left_click(PLAYER_X+random.randint(-10, 10), PLAYER_Y+random.randint(-10, 10), 0,0,0,0)
-        return True
+            logging.info("Got stuck")
+            return False
 
 
     def find_drops(self):
@@ -193,13 +195,32 @@ class Bot:
     def game_manager(self):
         '''Game handling routine'''
         if self.is_death():
-            logging.info('Death handling')
+            logging.info('Death state')
             self.click_is_death_ok()
         elif self.is_in_game():
-            logging.info('Game handling')
-            self.move_to_ref_location()
+            logging.info('Game state')
+            if self.move_to_ref_location() == False:
+                self.left_click(PLAYER_X+random.randint(-20, 20), PLAYER_Y+random.randint(-20, 20), 0,0,0,0)
+                logging.info("Looking for coords")
             mob_det = image_helper.mob_detection()
-            while mob_det != False:
-                combat.rotation()
+            if mob_det != False:
+                logging.info('Battle state')
+                x, y = mob_det
+                combat.rotation(x, y)
+            self.loot_process()
+    
+
+    def game_manager_macro(self):
+        '''Game handling routine'''
+        if self.is_death():
+            logging.info('Death state')
+            self.click_is_death_ok()
+        elif self.is_in_game():
+            logging.info('Game state')
+            mob_det = image_helper.mob_detection()
+            if mob_det != False:
+                logging.info('Battle state')
+                x, y = mob_det
+                combat.rotation(x, y)
             self.loot_process()
                 

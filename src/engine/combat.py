@@ -41,11 +41,14 @@ def rotation():
 
 """Pulverize druid"""
 # https://maxroll.gg/d4/build-guides/pulverize-druid-guide
-def druid():
+def druid(x=None, y=None):
     # target check
     if image_helper.pixel_matches_color(801,45, 107,2,1, 15) or image_helper.pixel_matches_color(801,45, 156,65,93, 15) or \
                 image_helper.pixel_matches_color(801,45, 231,13,9, 15) or image_helper.pixel_matches_color(710,45, 162,4,4, 15) or \
-                image_helper.pixel_matches_color(710,45, 124,71,98, 15) or image_helper.mob_detection():
+                image_helper.pixel_matches_color(710,45, 124,71,98, 15) or image_helper.mob_detection() != False:
+        if x != None and y != None:
+            input_helper.moveTo(x, y)
+
         # health check
         if not image_helper.pixel_matches_color(608,980, 95,10,15, 45) and not image_helper.pixel_matches_color(608,972, 148,14,24, 45) and \
                     not image_helper.pixel_matches_color(607,978, 97,29,82, 45):
@@ -61,8 +64,17 @@ def druid():
                 input_helper.press('space')
                 logging.info('Use evade')
                 time.sleep(random.uniform(0.11, 0.13))
+
         # class skill check
-        if image_helper.locate_needle(SKILLPATH+'druid\\01.png', conf=0.6):
+        if image_helper.locate_needle(SKILLPATH+'druid\\04.png', conf=0.5):
+            input_helper.press('r')
+            logging.info('Use skill 4')
+            time.sleep(random.uniform(0.11, 0.13))
+        elif image_helper.locate_needle(SKILLPATH+'druid\\03.png', conf=0.6):
+            input_helper.press('e')
+            logging.info('Use skill 3')
+            time.sleep(random.uniform(0.11, 0.13))
+        elif image_helper.locate_needle(SKILLPATH+'druid\\01.png', conf=0.6):
             input_helper.press('q')
             logging.info('Use skill 1')
             time.sleep(random.uniform(0.11, 0.13))
@@ -70,21 +82,13 @@ def druid():
             input_helper.press('w')
             logging.info('Use skill 2')
             time.sleep(random.uniform(0.11, 0.13))
-        elif image_helper.locate_needle(SKILLPATH+'druid\\03.png', conf=0.6):
-            input_helper.press('e')
-            logging.info('Use skill 3')
-            time.sleep(random.uniform(0.11, 0.13))
-        elif image_helper.locate_needle(SKILLPATH+'druid\\04.png', conf=0.5):
-            input_helper.press('r')
-            logging.info('Use skill 4')
-            time.sleep(random.uniform(0.11, 0.13))
+
         if image_helper.locate_needle(SKILLPATH+'druid\\05.png', conf=0.97):
             input_helper.rightClick()
             logging.info('Use skill right mouse')
             time.sleep(random.uniform(0.11, 0.13))
-        """else:
-            logging.debug('cannot find images, do left click')
+        elif x != None and y != None:
             input_helper.leftClick()
             logging.info('Use skill left mouse')
-            time.sleep(random.uniform(0.11, 0.13))"""
+            time.sleep(random.uniform(0.11, 0.13))
 
