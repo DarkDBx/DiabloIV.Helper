@@ -32,7 +32,6 @@ class TimerHelper:
     """
     Interface to get the timer status.
     Return "TIMER_STOPPED" when timer completed
-    Return "TIMER_IDLE" after timer completed on consecutive call of this function
     """
     def GetTimerState(self):
         time = self.timerPool[self.timeID]['time']
