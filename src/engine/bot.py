@@ -3,7 +3,8 @@ from time import sleep
 from random import randint
 from functools import wraps
 
-from helper import process_helper, input_helper, image_helper, config_helper
+from helper import process_helper, input_helper, image_helper, config_helper, timer_helper
+from helper.timer_helper import TIMER_STOPPED
 from engine import combat
 
 
@@ -42,6 +43,7 @@ class Bot:
     def __init__(self) -> None:
         self.cfg = config_helper.read_config()
         self.ph = process_helper.ProcessHelper()
+        self.timer1 = timer_helper.TimerHelper('timer1')
     
 
     def set_window_pos(self):
@@ -149,6 +151,7 @@ class Bot:
             return False
         if not stuck:
             self.left_click(PLAYER_X-tx, PLAYER_Y-ty, 0,0,0,0)
+            self.left_click(PLAYER_X-tx, PLAYER_Y-ty, 0,0,0,0)
             info("Moving to %d,%d" % (PLAYER_X-tx, PLAYER_Y-ty))
             return True
         else:
@@ -156,32 +159,40 @@ class Bot:
             return False
 
 
-    def find_drops(self):
+    def pick_it(self):
         '''Looking for some legendary/unique loot and get it'''
-        item_array = [["pickit\\a.png", 1, 8, 232,119,5, 45],
-                    ["pickit\\e.png", 1, 5, 245,127,5, 45],
-                    ["pickit\\i.png", 2, 7, 248,128,5, 45],
-                    ["pickit\\o.png", 2, 4, 240,124,6, 45],
-                    ["pickit\\u.png", 1, 3, 248,128,5, 45]]
-        for i in range(4):
-            x, y = self.get_ref_location(item_array[i][0])
-            color_value = self.is_right_color(x+item_array[i][1], 
-                                            y+item_array[i][2],
-                                            item_array[i][3],
-                                            item_array[i][4],
-                                            item_array[i][5],
-                                            item_array[i][6])
-            if (x > -1 and y > -1) and color_value == True:
-                self.left_click(x+30,y+15, -2,8,-2,2)
-                info('Picked item value ' + i + ' at coord ' + x, y)
-                sleep(2)
-                return True
+        item_image_array = [["pickit\\a.png"],
+                        ["pickit\\e.png"],
+                        ["pickit\\i.png"],
+                        ["pickit\\o.png"],
+                        ["pickit\\u.png"],
+                        ["pickit\\ancestral.png"]]
+        item_color_array = [[1, 4, 248,128,5, 75],
+                        [1, 4, 216,166,120, 75]]
+        for i in range(5):
+            x, y = self.get_ref_location(item_image_array[i][0])
+            if (x > -1 and y > -1):
+                break
+        for j in range(1):
+            color_value = self.is_right_color(x+item_color_array[j][0], 
+                                            y+item_color_array[j][1],
+                                            item_color_array[j][2],
+                                            item_color_array[j][3],
+                                            item_color_array[j][4],
+                                            item_color_array[j][5])
+            if color_value == True:
+                break
+        if (x > -1 and y > -1) and color_value == True:
+            self.left_click(x+12,y+3, -2,8,-2,2)
+            info('Picked item at coord ' + str(x) + str(y))
+            sleep(2)
+            return True
         return False
 
 
-    def loot_process(self, j=5):
+    def loot_process(self, j=9):
         for i in range(j):
-            if not self.find_drops():
+            if not self.pick_it():
                 break
 
 
@@ -202,11 +213,14 @@ class Bot:
             if macro == False:
                 if self.move_to_ref_location() == False:
                     self.left_click(PLAYER_X+randint(-20, 20), PLAYER_Y+randint(-20, 20), 0,0,0,0)
+                    self.left_click(PLAYER_X+randint(-20, 20), PLAYER_Y+randint(-20, 20), 0,0,0,0)
                     info("Looking for coords")
             mob_det = image_helper.mob_detection()
             if mob_det != False:
                 info('Battle state')
                 x, y = mob_det
                 combat.rotation(x, y)
-            self.loot_process()
+            elif mob_det == False and self.timer1.GetTimerState() == TIMER_STOPPED:
+                self.timer1.StartTimer(6)
+                self.loot_process()
                 

@@ -11,7 +11,7 @@ from helper import config_helper
 
 
 APPNAME = 'LittleHelper'
-APPVERSION = 'v0.9.13'
+APPVERSION = 'v0.9.14'
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     app_gui.show()
 
     cfg = config_helper.read_config()
-    getLogger().setLevel(INFO)
+    getLogger().setLevel(DEBUG)
 
     info(('====== %s %s ======') % (APPNAME, APPVERSION))
     info('Starting up bot engine...')

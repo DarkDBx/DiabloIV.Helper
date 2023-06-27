@@ -84,7 +84,7 @@ def locate_needle(needle, haystack=0, conf=0.8, loctype='l', grayscale=True, reg
             # If the center of the image is not needed, don't return any coordinates.
             return True
         elif locate_var is None:
-            debug('cannot find l image ' + (str(needle) + ' conf=' + (str(conf))))
+            debug('cannot find l image ' + (str(needle)) + ' conf=' + (str(conf)))
             return False
         
     # without haystack image, return coordinates
@@ -95,6 +95,6 @@ def locate_needle(needle, haystack=0, conf=0.8, loctype='l', grayscale=True, reg
             # Return the xy coordinates for the center of the image, relative to the coordinate plane of the haystack.
             return locate_var
         elif locate_var is None:
-            debug('cannot find c image ' + (str(needle) + ', conf=' + (str(conf))))
+            debug('cannot find c image ' + (str(needle)) + ', conf=' + (str(conf)))
             return -1, -1
 
