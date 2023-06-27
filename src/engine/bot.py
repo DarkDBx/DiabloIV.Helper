@@ -59,15 +59,15 @@ class Bot:
 
 
     def is_on_landing(self):
-        return self.is_right_color(728,965)
+        return self.is_right_color()
 
 
     def is_on_menu(self):
-        return self.is_right_color(833,391)
+        return self.is_right_color()
 
 
     def is_on_loading(self):
-        return self.is_right_color(319,697)
+        return self.is_right_color(1,1, 0,0,0)
 
 
     def is_in_game(self):

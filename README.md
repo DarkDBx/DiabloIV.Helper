@@ -19,7 +19,7 @@
 
 
 # TODO
-- bot, pathfinding, autocombat, lootprocess
+- bot -> adjust pathfinding and autocombat, rework lootprocess
 
 
 # CREDITS
