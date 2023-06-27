@@ -173,8 +173,8 @@ class Bot:
                                             item_array[i][6])
             if (x > -1 and y > -1) and color_value == True:
                 self.left_click(x+30,y+15, -2,8,-2,2)
-                info('Picked item value '+i+' at coord '+x, y)
-                sleep(1)
+                info('Picked item value ' + i + ' at coord ' + x, y)
+                sleep(2)
                 return True
         return False
 

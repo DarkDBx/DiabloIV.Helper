@@ -158,7 +158,7 @@ class Overlay(QMainWindow):
             if self.running:
                 self.running = False
                 self.rotation_thread.join()
-                self.closeEvent()
+                #self.closeEvent()
         elif key == 'del':
             self.set_pause(not self.should_pause())
             if self.pause == False:

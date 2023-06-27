@@ -12,7 +12,6 @@
 
 
 # USAGE
-- Edit your rotation in src\engine\combat.py
 - 'home' hotkey get coordinates and rgb colors at mouse cursor
 - 'insert' hotkey save image per parameters from gui at mouse cursor
 - 'end' hotkey exit process
