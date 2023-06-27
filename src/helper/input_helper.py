@@ -1,15 +1,16 @@
-import ctypes
-import functools
-import inspect
-import time
-import pytweening
-import numpy as np
-import random
-import math
+from ctypes import windll, c_ulong, c_ushort, c_long, c_short, POINTER, Structure, Union, byref, pointer, sizeof
+from functools import wraps
+from inspect import getcallargs
+from time import sleep
+from pytweening import easeOutQuad
+from numpy import int32, int64, float32, float64
+from numpy import random as nprandom
+from random import random, randint
+from math import dist, factorial
 
 
-SendInput = ctypes.windll.user32.SendInput
-MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
+SendInput = windll.user32.SendInput
+MapVirtualKey = windll.user32.MapVirtualKeyW
 
 
 # Constants for failsafe check and pause
@@ -193,45 +194,45 @@ KEYBOARD_MAPPING = {
 
 # C struct redefinitions
 
-PUL = ctypes.POINTER(ctypes.c_ulong)
+PUL = POINTER(c_ulong)
 
 
-class KeyBdInput(ctypes.Structure):
-    _fields_ = [("wVk", ctypes.c_ushort),
-                ("wScan", ctypes.c_ushort),
-                ("dwFlags", ctypes.c_ulong),
-                ("time", ctypes.c_ulong),
+class KeyBdInput(Structure):
+    _fields_ = [("wVk", c_ushort),
+                ("wScan", c_ushort),
+                ("dwFlags", c_ulong),
+                ("time", c_ulong),
                 ("dwExtraInfo", PUL)]
 
 
-class HardwareInput(ctypes.Structure):
-    _fields_ = [("uMsg", ctypes.c_ulong),
-                ("wParamL", ctypes.c_short),
-                ("wParamH", ctypes.c_ushort)]
+class HardwareInput(Structure):
+    _fields_ = [("uMsg", c_ulong),
+                ("wParamL", c_short),
+                ("wParamH", c_ushort)]
 
 
-class MouseInput(ctypes.Structure):
-    _fields_ = [("dx", ctypes.c_long),
-                ("dy", ctypes.c_long),
-                ("mouseData", ctypes.c_ulong),
-                ("dwFlags", ctypes.c_ulong),
-                ("time", ctypes.c_ulong),
+class MouseInput(Structure):
+    _fields_ = [("dx", c_long),
+                ("dy", c_long),
+                ("mouseData", c_ulong),
+                ("dwFlags", c_ulong),
+                ("time", c_ulong),
                 ("dwExtraInfo", PUL)]
 
 
-class POINT(ctypes.Structure):
-    _fields_ = [("x", ctypes.c_long),
-                ("y", ctypes.c_long)]
+class POINT(Structure):
+    _fields_ = [("x", c_long),
+                ("y", c_long)]
 
 
-class Input_I(ctypes.Union):
+class Input_I(Union):
     _fields_ = [("ki", KeyBdInput),
                 ("mi", MouseInput),
                 ("hi", HardwareInput)]
 
 
-class Input(ctypes.Structure):
-    _fields_ = [("type", ctypes.c_ulong),
+class Input(Structure):
+    _fields_ = [("type", c_ulong),
                 ("ii", Input_I)]
 
 
@@ -252,14 +253,14 @@ def failSafeCheck():
 def _handlePause(_pause):
     if _pause:
         assert isinstance(PAUSE, int) or isinstance(PAUSE, float)
-        time.sleep(PAUSE)
+        sleep(PAUSE)
 
 
 # direct copy of _genericPyAutoGUIChecks()
 def _genericPyDirectInputChecks(wrappedFunction):
-    @functools.wraps(wrappedFunction)
+    @wraps(wrappedFunction)
     def wrapper(*args, **kwargs):
-        funcArgs = inspect.getcallargs(wrappedFunction, *args, **kwargs)
+        funcArgs = getcallargs(wrappedFunction, *args, **kwargs)
 
         failSafeCheck()
         returnVal = wrappedFunction(*args, **kwargs)
@@ -285,14 +286,14 @@ def _to_windows_coordinates(x=0, y=0):
 # relative mouse positions.
 def position(x=None, y=None):
     cursor = POINT()
-    ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+    windll.user32.GetCursorPos(byref(cursor))
     return (x if x else cursor.x, y if y else cursor.y)
 
 
 # size() works exactly the same as PyAutoGUI. I've duplicated it here so that _to_windows_coordinates() can use it 
 # to calculate the window size.
 def size():
-    return (ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+    return (windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1))
 
 
 ########################################################################################
@@ -301,7 +302,7 @@ def size():
 ########################################################################################
 
 def isNumeric(val):
-    return isinstance(val, (float, int, np.int32, np.int64, np.float32, np.float64))
+    return isinstance(val, (float, int, int32, int64, float32, float64))
 
 
 def isListOfPoints(l):
@@ -318,7 +319,7 @@ class BezierCurve():
     @staticmethod
     def binomial(n, k):
         """Returns the binomial coefficient "n choose k" """
-        return math.factorial(n) / float(math.factorial(k) * math.factorial(n - k))
+        return factorial(n) / float(factorial(k) * factorial(n - k))
 
 
     @staticmethod
@@ -385,7 +386,7 @@ class HumanCurve():
         distortionMean = kwargs.get("distortionMean", 1)
         distortionStdev = kwargs.get("distortionStdev", 1)
         distortionFrequency = kwargs.get("distortionFrequency", 0.4)
-        tween = kwargs.get("tweening", pytweening.easeOutQuad)
+        tween = kwargs.get("tweening", easeOutQuad)
         targetPoints = kwargs.get("targetPoints", 10)
 
         internalKnots = self.generateInternalKnots(leftBoundary,rightBoundary, \
@@ -416,8 +417,8 @@ class HumanCurve():
         if downBoundary > upBoundary:
             raise ValueError("downBoundary must be less than or equal to upBoundary")
 
-        knotsX = np.random.choice(range(leftBoundary, rightBoundary), size=knotsCount)
-        knotsY = np.random.choice(range(downBoundary, upBoundary), size=knotsCount)
+        knotsX = nprandom.choice(range(leftBoundary, rightBoundary), size=knotsCount)
+        knotsY = nprandom.choice(range(downBoundary, upBoundary), size=knotsCount)
         knots = list(zip(knotsX, knotsY))
         return knots
 
@@ -456,8 +457,8 @@ class HumanCurve():
         distorted = []
         for i in range(1, len(points)-1):
             x,y = points[i]
-            delta = np.random.normal(distortionMean, distortionStdev) if \
-                random.random() < distortionFrequency else 0
+            delta = nprandom.normal(distortionMean, distortionStdev) if \
+                random() < distortionFrequency else 0
             distorted += (x,y+delta),
         distorted = [points[0]] + distorted + [points[-1]]
         return distorted
@@ -490,10 +491,10 @@ def move_smooth(x, y, absolute=True, duration=0, randomize=4, delay_factor=[0.4,
     x = int(x)
     y = int(y)
     from_point = position()
-    dist = math.dist((x, y), from_point)
-    offsetBoundaryX = max(10, int(0.08 * dist))
-    offsetBoundaryY = max(10, int(0.08 * dist))
-    targetPoints = min(6, max(3, int(0.004 * dist)))
+    distance = dist((x, y), from_point)
+    offsetBoundaryX = max(10, int(0.08 * distance))
+    offsetBoundaryY = max(10, int(0.08 * distance))
+    targetPoints = min(6, max(3, int(0.004 * distance)))
 
     if not absolute:
         x = from_point[0] + x
@@ -502,16 +503,16 @@ def move_smooth(x, y, absolute=True, duration=0, randomize=4, delay_factor=[0.4,
     if type(randomize) is int:
         randomize = int(randomize)
         if randomize > 0:
-            x = int(x) + random.randint(-randomize, +randomize)
-            y = int(y) + random.randint(-randomize, +randomize)
+            x = int(x) + randint(-randomize, +randomize)
+            y = int(y) + randint(-randomize, +randomize)
     else:
         randomize = (int(randomize[0]), int(randomize[1]))
         if randomize[1] > 0 and randomize[0] > 0:
-            x = int(x) + random.randint(-randomize[0], +randomize[0])
-            y = int(y) + random.randint(-randomize[1], +randomize[1])
+            x = int(x) + randint(-randomize[0], +randomize[0])
+            y = int(y) + randint(-randomize[1], +randomize[1])
             
     human_curve = HumanCurve(from_point, (x, y), offsetBoundaryX=offsetBoundaryX, offsetBoundaryY=offsetBoundaryY, targetPoints=targetPoints)
-    #duration = min(0.5, max(0.05, dist * 0.0004) * random.uniform(delay_factor[0], delay_factor[1]))
+    #duration = min(0.5, max(0.05, distance * 0.0004) * uniform(delay_factor[0], delay_factor[1]))
     delta = duration / len(human_curve.points)
 
     if duration:
@@ -521,7 +522,7 @@ def move_smooth(x, y, absolute=True, duration=0, randomize=4, delay_factor=[0.4,
         dy = y - start_y
 
         if dx == 0 and dy == 0:
-            time.sleep(duration)
+            sleep(duration)
         else:
             for point in human_curve.points:
                 moveRel(int(point[0]), int(point[1]), duration=delta)
@@ -547,11 +548,11 @@ def mouseDown(x=None, y=None, button=PRIMARY, duration=None, tween=None, logScre
     if not ev:
         raise ValueError('button arg to _click() must be one of "left", "middle", or "right", not %s' % button)
 
-    extra = ctypes.c_ulong(0)
+    extra = c_ulong(0)
     ii_ = Input_I()
-    ii_.mi = MouseInput(0, 0, 0, ev, 0, ctypes.pointer(extra))
-    x = Input(ctypes.c_ulong(0), ii_)
-    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+    ii_.mi = MouseInput(0, 0, 0, ev, 0, pointer(extra))
+    x = Input(c_ulong(0), ii_)
+    SendInput(1, pointer(x), sizeof(x))
 
 
 # Ignored parameters: duration, tween, logScreenshot
@@ -571,11 +572,11 @@ def mouseUp(x=None, y=None, button=PRIMARY, duration=None, tween=None, logScreen
     if not ev:
         raise ValueError('button arg to _click() must be one of "left", "middle", or "right", not %s' % button)
 
-    extra = ctypes.c_ulong(0)
+    extra = c_ulong(0)
     ii_ = Input_I()
-    ii_.mi = MouseInput(0, 0, 0, ev, 0, ctypes.pointer(extra))
-    x = Input(ctypes.c_ulong(0), ii_)
-    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+    ii_.mi = MouseInput(0, 0, 0, ev, 0, pointer(extra))
+    x = Input(c_ulong(0), ii_)
+    SendInput(1, pointer(x), sizeof(x))
 
 
 # Ignored parameters: duration, tween, logScreenshot
@@ -599,13 +600,13 @@ def click(x=None, y=None, clicks=1, interval=0.0, button=PRIMARY, duration=None,
     for i in range(clicks):
         failSafeCheck()
 
-        extra = ctypes.c_ulong(0)
+        extra = c_ulong(0)
         ii_ = Input_I()
-        ii_.mi = MouseInput(0, 0, 0, ev, 0, ctypes.pointer(extra))
-        x = Input(ctypes.c_ulong(0), ii_)
-        SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+        ii_.mi = MouseInput(0, 0, 0, ev, 0, pointer(extra))
+        x = Input(c_ulong(0), ii_)
+        SendInput(1, pointer(x), sizeof(x))
 
-        time.sleep(interval)
+        sleep(interval)
 
 
 def leftClick(x=None, y=None, interval=0.1, duration=0.0, tween=None, logScreenshot=None, _pause=True):
@@ -632,7 +633,7 @@ def tripleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=N
 
 
 # Ignored parameters: duration, tween, logScreenshot
-# PyAutoGUI uses ctypes.windll.user32.SetCursorPos(x, y) for this, which might still work fine in DirectInput 
+# PyAutoGUI uses windll.user32.SetCursorPos(x, y) for this, which might still work fine in DirectInput 
 # environments.
 # Use the relative flag to do a raw win32 api relative movement call (no MOUSEEVENTF_ABSOLUTE flag), which may be more 
 # appropriate for some applications. Note that this may produce inexact results depending on mouse movement speed.
@@ -641,12 +642,12 @@ def moveTo(x=None, y=None, duration=0.5, tween=None, logScreenshot=False, _pause
     if not relative:
         x, y = position(x, y)  # if only x or y is provided, will keep the current position for the other axis
         x, y = _to_windows_coordinates(x, y)
-        extra = ctypes.c_ulong(0)
+        extra = c_ulong(0)
         ii_ = Input_I()
-        ii_.mi = MouseInput(x, y, 0, (MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE), 0, ctypes.pointer(extra))
-        command = Input(ctypes.c_ulong(0), ii_)
-        SendInput(1, ctypes.pointer(command), ctypes.sizeof(command))
-        time.sleep(duration)
+        ii_.mi = MouseInput(x, y, 0, (MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE), 0, pointer(extra))
+        command = Input(c_ulong(0), ii_)
+        SendInput(1, pointer(command), sizeof(command))
+        sleep(duration)
     else:
         currentX, currentY = position()
         moveRel(x - currentX, y - currentY, duration=duration)
@@ -672,12 +673,12 @@ def moveRel(xOffset=None, yOffset=None, duration=0.5, tween=None, logScreenshot=
         # obtain and set these values using the SystemParametersInfo function." 
         # https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-mouseinput
         # https://stackoverflow.com/questions/50601200/pyhon-directinput-mouse-relative-moving-act-not-as-expected
-        extra = ctypes.c_ulong(0)
+        extra = c_ulong(0)
         ii_ = Input_I()
-        ii_.mi = MouseInput(xOffset, yOffset, 0, MOUSEEVENTF_MOVE, 0, ctypes.pointer(extra))
-        command = Input(ctypes.c_ulong(0), ii_)
-        SendInput(1, ctypes.pointer(command), ctypes.sizeof(command))
-        time.sleep(duration)
+        ii_.mi = MouseInput(xOffset, yOffset, 0, MOUSEEVENTF_MOVE, 0, pointer(extra))
+        command = Input(c_ulong(0), ii_)
+        SendInput(1, pointer(command), sizeof(command))
+        sleep(duration)
 
 
 move = moveRel
@@ -710,25 +711,25 @@ def keyDown(key, logScreenshot=None, _pause=True):
         # if numlock is on and an arrow key is being pressed, we need to send an additional scancode
         # https://stackoverflow.com/questions/14026496/sendinput-sends-num8-when-i-want-to-send-vk-up-how-come
         # https://handmade.network/wiki/2823-keyboard_inputs_-_scancodes,_raw_input,_text_input,_key_names
-        if ctypes.windll.user32.GetKeyState(0x90):
+        if windll.user32.GetKeyState(0x90):
             # We need to press two keys, so we expect to have inserted 2 events when done
             expectedEvents = 2
             hexKeyCode = 0xE0
-            extra = ctypes.c_ulong(0)
+            extra = c_ulong(0)
             ii_ = Input_I()
-            ii_.ki = KeyBdInput(0, hexKeyCode, KEYEVENTF_SCANCODE, 0, ctypes.pointer(extra))
-            x = Input(ctypes.c_ulong(1), ii_)
+            ii_.ki = KeyBdInput(0, hexKeyCode, KEYEVENTF_SCANCODE, 0, pointer(extra))
+            x = Input(c_ulong(1), ii_)
 
             # SendInput returns the number of event successfully inserted into input stream
             # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput#return-value
-            insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+            insertedEvents += SendInput(1, pointer(x), sizeof(x))
 
     hexKeyCode = KEYBOARD_MAPPING[key]
-    extra = ctypes.c_ulong(0)
+    extra = c_ulong(0)
     ii_ = Input_I()
-    ii_.ki = KeyBdInput(0, hexKeyCode, keybdFlags, 0, ctypes.pointer(extra))
-    x = Input(ctypes.c_ulong(1), ii_)
-    insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+    ii_.ki = KeyBdInput(0, hexKeyCode, keybdFlags, 0, pointer(extra))
+    x = Input(c_ulong(1), ii_)
+    insertedEvents += SendInput(1, pointer(x), sizeof(x))
 
     return insertedEvents == expectedEvents
 
@@ -751,27 +752,27 @@ def keyUp(key, logScreenshot=None, _pause=True):
         keybdFlags |= KEYEVENTF_EXTENDEDKEY
 
     hexKeyCode = KEYBOARD_MAPPING[key]
-    extra = ctypes.c_ulong(0)
+    extra = c_ulong(0)
     ii_ = Input_I()
-    ii_.ki = KeyBdInput(0, hexKeyCode, keybdFlags, 0, ctypes.pointer(extra))
-    x = Input(ctypes.c_ulong(1), ii_)
+    ii_.ki = KeyBdInput(0, hexKeyCode, keybdFlags, 0, pointer(extra))
+    x = Input(c_ulong(1), ii_)
 
     # SendInput returns the number of event successfully inserted into input stream
     # https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput#return-value
-    insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+    insertedEvents += SendInput(1, pointer(x), sizeof(x))
 
     # if numlock is on and an arrow key is being pressed, we need to send an additional scancode
     # https://stackoverflow.com/questions/14026496/sendinput-sends-num8-when-i-want-to-send-vk-up-how-come
     # https://handmade.network/wiki/2823-keyboard_inputs_-_scancodes,_raw_input,_text_input,_key_names
-    if key in ['up', 'left', 'down', 'right'] and ctypes.windll.user32.GetKeyState(0x90):
+    if key in ['up', 'left', 'down', 'right'] and windll.user32.GetKeyState(0x90):
         # We need to press two keys, so we expect to have inserted 2 events when done
         expectedEvents = 2
         hexKeyCode = 0xE0
-        extra = ctypes.c_ulong(0)
+        extra = c_ulong(0)
         ii_ = Input_I()
-        ii_.ki = KeyBdInput(0, hexKeyCode, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP, 0, ctypes.pointer(extra))
-        x = Input(ctypes.c_ulong(1), ii_)
-        insertedEvents += SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+        ii_.ki = KeyBdInput(0, hexKeyCode, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP, 0, pointer(extra))
+        x = Input(c_ulong(1), ii_)
+        insertedEvents += SendInput(1, pointer(x), sizeof(x))
 
     return insertedEvents == expectedEvents
 
@@ -807,7 +808,7 @@ def press(keys, presses=1, interval=0.05, logScreenshot=None, _pause=True):
             if downed and upped:
                 completedPresses += 1
 
-        time.sleep(interval)
+        sleep(interval)
 
     return completedPresses == expectedPresses
 
@@ -821,7 +822,7 @@ def typewrite(message, interval=0.05, logScreenshot=None, _pause=True):
         if len(c) > 1:
             c = c.lower()
         press(c, _pause=False)
-        time.sleep(interval)
+        sleep(interval)
         failSafeCheck()
 
 

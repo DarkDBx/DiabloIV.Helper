@@ -2,7 +2,7 @@
 - Diablo 4 pixel/image recognition bot/assistant.
 - Use the macro recorder/player to get a waypoint file and let the robot do the combat/looting. 80% accurate
 - Set up a waypoint on the map and let the robot do the combat/looting. 50% accurate
-- Set up a combat rotation and let the assistant do the combat. 95% accurate
+- Set up a combat rotation and let the assistant do the combat. 90% accurate
 
 
 # PARAMETER
@@ -20,7 +20,7 @@
 
 
 # TODO
-- rework, test, debug
+- bot, pathfinding, autocombat, lootprocess
 
 
 # CREDITS

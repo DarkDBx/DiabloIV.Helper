@@ -1,7 +1,7 @@
-import logging
-import threading
-import os
-import keyboard
+from logging import info, error
+from os import listdir, path
+from keyboard import add_hotkey
+from threading import Thread
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem, QIntValidator
 from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog, QGridLayout, QLineEdit,
                             QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory)
@@ -22,16 +22,10 @@ class Toolbox(QDialog):
         self.label.setPixmap(self.pixmap) 
         self.label.resize(self.pixmap.width(), self.pixmap.height())
 
-        keyboard.add_hotkey('insert', lambda: self.on_press('insert'))
-        keyboard.add_hotkey('home', lambda: self.on_press('home'))
-        keyboard.add_hotkey('end', lambda: self.on_press('end'))
-        keyboard.add_hotkey('del', lambda: self.on_press('del'))
+        add_hotkey('insert', lambda: self.on_press('insert'))
+        add_hotkey('home', lambda: self.on_press('home'))
         
         self.running = False
-        self.pause = False
-        self._lock = threading.Lock()
-        self.pause_req = False
-
         self.image_name = 'default'
         self.image_path = '.\\assets\\skills\\'
         self.x_coord = 25
@@ -88,7 +82,7 @@ class Toolbox(QDialog):
 
     def check_folder(self):
         lt = []
-        for p in os.listdir("record"):
+        for p in listdir("record"):
             if p[-4:] == ".txt":
                 lt = QStandardItem(p)
                 self.model.appendRow(lt)
@@ -97,60 +91,48 @@ class Toolbox(QDialog):
 
     def save_as(self):
         if len(self.recording) != 0:
-            if os.path.exists(".\\record\\" + self.file_name + ".txt"):
-                logging.error("Filename already taken")
+            if path.exists(".\\record\\" + self.file_name + ".txt"):
+                error("Filename already taken")
             else:
                 f = open(".\\record\\" + self.file_name + ".txt", "x")
                 f.write(str(self.recording))
                 self.check_folder()
-                logging.info("File saved as: {0}".format(self.file_name + ".txt"))
+                info("File saved as: {0}".format(self.file_name + ".txt"))
         else:
-            logging.error("Nothing recorded yet")
+            error("Nothing recorded yet")
 
 
     def start(self):
         self.record.prepare_record_start()
-        logging.info("Recording...")
+        info("Recording...")
         self.started = True
 
 
     def stop(self):
         if self.started:
             self.recording = self.record.record_stop()
-            logging.info("Recording stopped")
+            info("Recording stopped")
             self.started = False
         else:
-            logging.error("Nothing to stop")
+            error("Nothing to stop")
 
 
     def replay(self):
         try:
-            logging.info("Replaying...")
+            info("Replaying...")
             rh = recorder_helper.Replay(".\\record\\" + self.file_name_replay)
-            replay_thread = threading.Thread(target=rh.replay_run)
-
-            replay_thread.start()
-            replay_thread.join()
-            logging.info("Replay stopped")
-        except SyntaxError:
-            logging.error("Wrong file")
-        except FileNotFoundError:
-            logging.error("File not found")
-
-
-    def replay_loop(self):
-        try:
-            logging.info("Replaying infinite...")
-            self.running = True
-            rh = recorder_helper.Replay(".\\record\\" + self.file_name_replay)
-            self.replay_thread = threading.Thread(target=rh.replay_run)
-
-            while self.running:
+            self.replay_thread = Thread(target=rh.replay_run)
+            
+            if not self.replay_thread.is_alive():
+                self.replay_thread = None
+                self.replay_thread = Thread(target=rh.replay_run)
                 self.replay_thread.start()
+                self.replay_thread.join()
+                info("Replay stopped")
         except SyntaxError:
-            logging.error("Wrong file")
+            error("Wrong file")
         except FileNotFoundError:
-            logging.error("File not found")
+            error("File not found")
 
 
     # imageCrop
@@ -254,32 +236,12 @@ class Toolbox(QDialog):
         toggleReplayButton.setCheckable(False)
         toggleReplayButton.setChecked(False)
         toggleReplayButton.clicked.connect(self.replay)
-
-        toggleReplayLoopButton = QPushButton("Replay loop")
-        toggleReplayLoopButton.setCheckable(False)
-        toggleReplayLoopButton.setChecked(False)
-        toggleReplayLoopButton.clicked.connect(self.replay_loop)
         
         layout.addWidget(self.replayComboBox)
         layout.addStretch(1)
         layout.addWidget(toggleReplayButton)
-        layout.addStretch(1)
-        layout.addWidget(toggleReplayLoopButton)
         layout.addStretch(20)
         self.replayBox.setLayout(layout)
-            
-
-    def should_pause(self):
-        self._lock.acquire()
-        pause_req = self.pause_req
-        self._lock.release()
-        return pause_req
-
-
-    def set_pause(self, pause):
-        self._lock.acquire()
-        self.pause_req = pause
-        self._lock.release()
 
 
     def on_press(self, key): 
@@ -288,26 +250,26 @@ class Toolbox(QDialog):
         elif key == 'insert':
             self.get_image_from_pos()
         elif key == 'end':
-            logging.info('_EXIT')
+            info('_EXIT')
             if self.running:
                 self.running = False
                 self.replay_thread.join()
-                logging.info('Replay stopped')
+                info('Replay stopped')
             
 
     def get_color_from_pos(self):
         """debug function, print coordinates and rgb color at mouse position"""
         x,y, r,g,b = image_helper.get_pixel_color_at_cursor()
-        logging.info("Position and color: x,y, r,g,b=%d,%d, %d,%d,%d" % (x,y, r,g,b))
+        info("Position and color: x,y, r,g,b=%d,%d, %d,%d,%d" % (x,y, r,g,b))
 
 
     def get_image_from_pos(self):
         """debug function, print coordinates and save image at mouse position"""
-        if os.path.exists(self.image_path+self.image_name+'.png'):
-            logging.error("Filename already taken")
+        if path.exists(self.image_path+self.image_name+'.png'):
+            error("Filename already taken")
         else:
             x,y = image_helper.get_image_at_cursor(self.image_name, self.image_path, self.x_coord, self.y_coord)
-            logging.info("File saved as: %s location: %s position: x=%d, y=%d, size=%d, %d" % (str(self.image_name+'.png'),self.image_path,x,y,self.x_coord,self.y_coord))
+            info("File saved as: %s location: %s position: x=%d, y=%d, size=%d, %d" % (str(self.image_name+'.png'),self.image_path,x,y,self.x_coord,self.y_coord))
             pixmap = QPixmap(self.image_path+self.image_name)
             self.imageLabel.setPixmap(pixmap)
             self.imageLabel.resize(pixmap.width(), pixmap.height())

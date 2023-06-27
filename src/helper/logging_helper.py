@@ -1,13 +1,13 @@
-import logging
+from logging import Handler, Formatter
 from PyQt5.QtCore import pyqtSignal, QObject
 
 
-class Handler(QObject, logging.Handler):
+class Handler(QObject, Handler):
     new_record = pyqtSignal(object)
 
     def __init__(self, parent):
         super().__init__(parent)
-        super(logging.Handler).__init__()
+        super(Handler).__init__()
         formatter = Formatter('[%(levelname)s] %(message)s')
         self.setFormatter(formatter)
 
@@ -18,7 +18,7 @@ class Handler(QObject, logging.Handler):
         self.new_record.emit(msg)
 
 
-class Formatter(logging.Formatter):
+class Formatter(Formatter):
     def formatException(self, ei):
         result = super(Formatter, self).formatException(ei)
         return result

@@ -1,11 +1,10 @@
 
 numpy
 pyaml
+opencv-python
 pillow
 pyqt5
 pyautogui
 pynput
-qscintilla
 keyboard
-matplotlib
 pywin32

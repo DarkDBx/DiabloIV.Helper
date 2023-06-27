@@ -1,7 +1,7 @@
-import time
-import random
-import logging
-import functools
+from logging import info, debug
+from time import sleep
+from random import randint
+from functools import wraps
 
 from helper import process_helper, input_helper, image_helper, config_helper
 from engine import combat
@@ -21,10 +21,10 @@ MAP_Y_MAX = 210
 def stuck_check(func):
     n = [0]
 
-    @functools.wraps(func)
+    @wraps(func)
     def decorated(*args, **kwargs):
         if n[0] > 10:
-            logging.debug("****Character is stuck, try to escape****")
+            debug("****Character is stuck, try to escape****")
             n[0] = 0
             for i in range(2):
                 func(*args, **kwargs, stuck=True)
@@ -79,9 +79,9 @@ class Bot:
 
 
     def click_is_death_ok(self):
-        time.sleep(3)
+        sleep(3)
         self.left_click(904,924)
-        time.sleep(.5)
+        sleep(.5)
 
 
     def left_click(self, x=None, y=None, a=-5,b=35,c=-5,d=5):
@@ -89,9 +89,9 @@ class Bot:
         if x == None or y == None:
             input_helper.leftClick()
         else:
-            ex = random.randint(a, b)
+            ex = randint(a, b)
             fx = x + ex
-            ey = random.randint(c, d)
+            ey = randint(c, d)
             fy = y + ey
             input_helper.leftClick(fx, fy)
 
@@ -119,7 +119,7 @@ class Bot:
                         n = 30
                         x, y = image_helper.coord_matches_color_rect()"""
         if x == -1 and y == -1:
-            logging.debug("Referenceobject not found: %d, %d" % (x, y))
+            debug("Referenceobject not found: %d, %d" % (x, y))
             return -1, -1
         else:
             dx = (MAP_X+n)-x
@@ -143,16 +143,16 @@ class Bot:
         while abs(tx) > 1080 or abs(ty) > 360:
             tx = int(tx/1.5)
             ty = int(ty/1.5)
-        logging.debug("Relative coords %d, %d, distance %d, absolute coords %d, %d, get distance %s" %
+        debug("Relative coords %d, %d, distance %d, absolute coords %d, %d, get distance %s" %
             (dx, dy, distance, PLAYER_X-tx, PLAYER_Y-ty, distance > 10))
         if distance < 10:
             return False
         if not stuck:
             self.left_click(PLAYER_X-tx, PLAYER_Y-ty, 0,0,0,0)
-            logging.info("Moving to %d,%d" % (PLAYER_X-tx, PLAYER_Y-ty))
+            info("Moving to %d,%d" % (PLAYER_X-tx, PLAYER_Y-ty))
             return True
         else:
-            logging.info("Got stuck")
+            info("Got stuck")
             return False
 
 
@@ -173,8 +173,8 @@ class Bot:
                                             item_array[i][6])
             if (x > -1 and y > -1) and color_value == True:
                 self.left_click(x+30,y+15, -2,8,-2,2)
-                logging.info('Picked item value '+i+' at coord '+x, y)
-                time.sleep(1)
+                info('Picked item value '+i+' at coord '+x, y)
+                sleep(1)
                 return True
         return False
 
@@ -186,40 +186,26 @@ class Bot:
 
 
     def wait_for_loading(self):
-        time.sleep(1)
+        sleep(1)
         while self.is_on_loading():
-            time.sleep(0.5)
-        time.sleep(2)
+            sleep(0.5)
+        sleep(2)
     
 
-    def game_manager(self):
+    def game_manager(self, macro=False):
         '''Game handling routine'''
         if self.is_death():
-            logging.info('Death state')
+            info('Death state')
             self.click_is_death_ok()
         elif self.is_in_game():
-            logging.info('Game state')
-            if self.move_to_ref_location() == False:
-                self.left_click(PLAYER_X+random.randint(-20, 20), PLAYER_Y+random.randint(-20, 20), 0,0,0,0)
-                logging.info("Looking for coords")
+            info('Game state')
+            if macro == False:
+                if self.move_to_ref_location() == False:
+                    self.left_click(PLAYER_X+randint(-20, 20), PLAYER_Y+randint(-20, 20), 0,0,0,0)
+                    info("Looking for coords")
             mob_det = image_helper.mob_detection()
             if mob_det != False:
-                logging.info('Battle state')
-                x, y = mob_det
-                combat.rotation(x, y)
-            self.loot_process()
-    
-
-    def game_manager_macro(self):
-        '''Game handling routine'''
-        if self.is_death():
-            logging.info('Death state')
-            self.click_is_death_ok()
-        elif self.is_in_game():
-            logging.info('Game state')
-            mob_det = image_helper.mob_detection()
-            if mob_det != False:
-                logging.info('Battle state')
+                info('Battle state')
                 x, y = mob_det
                 combat.rotation(x, y)
             self.loot_process()

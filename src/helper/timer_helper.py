@@ -1,5 +1,5 @@
+from logging import debug
 from timeit import default_timer
-import logging
 
 
 TIMER_RUNNING = 1
@@ -43,6 +43,6 @@ class TimerHelper:
             self.timerPool[self.timeID]['state'] = TIMER_STOPPED
             self.timerPool[self.timeID]['duration'] = 0
         
-        logging.debug('timer '+str(self.timeID)+' state: '+str(self.timerPool[self.timeID]['state']))
+        debug('timer '+str(self.timeID)+' state: '+str(self.timerPool[self.timeID]['state']))
         return self.timerPool[self.timeID]['state']
 

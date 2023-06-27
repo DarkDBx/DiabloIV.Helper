@@ -1,12 +1,12 @@
-import logging
-import keyboard
-import threading
-import time
+from logging import getLogger, info
+from keyboard import add_hotkey
+from threading import Thread, Lock
+from time import sleep
 from sys import exit
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QComboBox, QPlainTextEdit, QMainWindow, QGridLayout,
-                             QGroupBox, QPushButton, QHBoxLayout, QLabel, QStyleFactory, QWidget)
+                             QGroupBox, QPushButton, QHBoxLayout, QStyleFactory, QWidget)
 
 from helper import config_helper, logging_helper
 from engine import bot, combat, toolbox
@@ -26,12 +26,12 @@ class Overlay(QMainWindow):
         visible_window = QWidget(self)
         visible_window.setFixedSize(470, 170)
         
-        keyboard.add_hotkey('end', lambda: self.on_press('end'))
-        keyboard.add_hotkey('del', lambda: self.on_press('del'))
+        add_hotkey('end', lambda: self.on_press('end'))
+        add_hotkey('del', lambda: self.on_press('del'))
         
         self.running = False
         self.pause = False
-        self._lock = threading.Lock()
+        self._lock = Lock()
         self.pause_req = False
         self.cfg = config_helper.read_config()
         self.robot = bot.Bot()
@@ -55,7 +55,7 @@ class Overlay(QMainWindow):
 
     # prepare dropdownBox
     def update_class(self, item, value=None):
-        logging.info('Preset '+item+': '+value)
+        info('Preset '+item+': '+value)
         config_helper.save_config(item, value)
 
 
@@ -81,8 +81,8 @@ class Overlay(QMainWindow):
         log_text_box = QPlainTextEdit(self)
         log_text_box.setStyleSheet('background-color: rgba(255,255,255, 0); color: white')
         log_text_box.setReadOnly(True)
-        logging.getLogger().addHandler(handler)
-        #logging.getLogger().setLevel(logging.DEBUG)
+        getLogger().addHandler(handler)
+        #getLogger().setLevel(DEBUG)
         handler.new_record.connect(log_text_box.appendPlainText)
         
         layout.addWidget(log_text_box)
@@ -90,7 +90,7 @@ class Overlay(QMainWindow):
         
     
     def closeEvent(self):
-        root_logger = logging.getLogger()
+        root_logger = getLogger()
         handler = logging_helper.Handler(self)
         root_logger.removeHandler(handler)
         exit(0)
@@ -121,12 +121,12 @@ class Overlay(QMainWindow):
         toggleStartButton = QPushButton("ROBOT")
         toggleStartButton.setCheckable(False)
         toggleStartButton.setChecked(False)
-        toggleStartButton.clicked.connect(self.combat_rotation_thread)
+        toggleStartButton.clicked.connect(lambda: self.get_rotation_thread(True))
 
         toggleAssistButton = QPushButton("ASSISTANT")
         toggleAssistButton.setCheckable(False)
         toggleAssistButton.setChecked(False)
-        toggleAssistButton.clicked.connect(self.assist_rotation_thread)
+        toggleAssistButton.clicked.connect(lambda: self.get_rotation_thread(False))
 
         layout.addStretch(1)
         layout.addWidget(toggleStartButton)
@@ -154,7 +154,7 @@ class Overlay(QMainWindow):
 
     def on_press(self, key):
         if key == 'end':
-            logging.info('_EXIT')
+            info('_EXIT')
             if self.running:
                 self.running = False
                 self.rotation_thread.join()
@@ -163,10 +163,10 @@ class Overlay(QMainWindow):
             self.set_pause(not self.should_pause())
             if self.pause == False:
                 self.pause = True
-                logging.info('_PAUSE')
+                info('_PAUSE')
             else:
                 self.pause = False
-                logging.info('_RUN')
+                info('_RUN')
             
 
     def should_pause(self):
@@ -182,40 +182,28 @@ class Overlay(QMainWindow):
         self._lock.release()
 
 
-    def combat_rotation_thread(self):
-        self.rotation_thread = threading.Thread(target=self.get_combat_rotation)
-        self.rotation_thread.start()
+    def get_rotation_thread(self, bot_state):
+        self.rotation_thread = Thread(target=lambda: self.get_rotation(bot_state))
+        if not self.rotation_thread.is_alive():
+            self.rotation_thread = None
+            self.rotation_thread = Thread(target=lambda: self.get_rotation(bot_state))
+            self.rotation_thread.start()
 
 
-    def assist_rotation_thread(self):
-        self.rotation_thread = threading.Thread(target=self.get_assist_rotation)
-        self.rotation_thread.start()
-
-
-    def get_combat_rotation(self):
-        logging.info('LittleHelper robot started')
+    def get_rotation(self, bot_state):
+        info('LittleHelper started')
 
         self.robot.set_foreground()
         self.running = True
         while self.running:
             while self.should_pause():
-                time.sleep(0.25)
-            self.robot.game_manager()
+                sleep(0.25)
+            if bot_state:
+                self.robot.game_manager()
+            else:
+                combat.rotation()
 
-        logging.info("LittleHelper robot stopped")
-
-
-    def get_assist_rotation(self):
-        logging.info('LittleHelper assistant started')
-
-        self.robot.set_foreground()
-        self.running = True
-        while self.running:
-            while self.should_pause():
-                time.sleep(0.25)
-            combat.rotation()
-
-        logging.info("LittleHelper assistant stopped")
+        info("LittleHelper stopped")
 
 
     def littlehelper_toolbox(self):

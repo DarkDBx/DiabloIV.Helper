@@ -1,13 +1,12 @@
-import threading
-import logging
-import time
-from time import process_time_ns
+from logging import error
+from threading import Thread
+from time import time
 from pynput import mouse as mo
 from pynput import keyboard as ke
 from pynput.keyboard import Controller as Controller_k, Key
 from pynput.mouse import Controller as Controller_m, Button
 
-from helper import process_helper, image_helper
+from helper import process_helper, image_helper, input_helper
 from engine import bot
 
 
@@ -43,37 +42,40 @@ class Record:
 
 
     def click(self, x, y, button, pressed):
-        self.history.append((time.time() - self.st_tm, "{0}".format(button), pressed, x, y))
+        self.history.append((time() - self.st_tm, "{0}".format(button), pressed, x, y))
 
 
     def scroll(self, x, y, dx, dy):
-        self.history.append((time.time() - self.st_tm, "scroll", dy, x, y))
+        self.history.append((time() - self.st_tm, "scroll", dy, x, y))
 
 
     def press(self, key):
         try:
-            self.history.append((time.time() - self.st_tm, "key", key.char, True, True))
+            self.history.append((time() - self.st_tm, "key", key.char, True, True))
         except AttributeError:
-            self.history.append((time.time() - self.st_tm, "key", str(key), True, False))
+            self.history.append((time() - self.st_tm, "key", str(key), True, False))
 
 
     def release(self, key):
         try:
-            self.history.append((time.time() - self.st_tm, "key", key.char, False, True))
+            self.history.append((time() - self.st_tm, "key", key.char, False, True))
         except AttributeError:
-            self.history.append((time.time() - self.st_tm, "key", str(key), False, False))
+            self.history.append((time() - self.st_tm, "key", str(key), False, False))
 
 
     def prepare_record_start(self):
-        self.replay_thread = threading.Thread(target=self.record_start)
-        self.replay_thread.start()
+        self.replay_thread = Thread(target=self.record_start)
+        if not self.replay_thread.is_alive():
+            self.replay_thread = None
+            self.replay_thread = Thread(target=self.record_start)
+            self.replay_thread.start()
 
 
     def record_start(self):
         ph = process_helper.ProcessHelper()
         ph.set_foreground_window()
 
-        self.st_tm = time.time()
+        self.st_tm = time()
         self.m_listener.start()
         self.k_listener.start()
 
@@ -107,9 +109,6 @@ class Replay:
         self.keyboard = Controller_k()
         self.mouse = Controller_m()
         self.robot = bot.Bot()
-        self._lock = threading.Lock()
-        self.pause_req = False
-        self.running = False
 
 
     def replay_run(self):
@@ -123,21 +122,21 @@ class Replay:
             y = action[4]
 
             if action[1][:7] == "Button.":
-                #input_helper.move_smooth(x, y, tm)
-                time.sleep(tm)
-                self.mouse.position = (x, y)
+                input_helper.move_smooth(x, y, tm)
+                #time.sleep(tm)
+                #self.mouse.position = (x, y)
                 try:
                     if action[2]:
                         self.mouse.press(self.dic[action[1]])
                     else:
                         self.mouse.release(self.dic[action[1]])
                 except KeyError:
-                    logging.error("Unknown key " + str(action[2]))
+                    error("Unknown key " + str(action[2]))
 
             elif action[1] == "scroll":
-                #input_helper.move_smooth(x, y, tm)
-                time.sleep(tm)
-                self.mouse.position = (x, y)
+                input_helper.move_smooth(x, y, tm)
+                #time.sleep(tm)
+                #self.mouse.position = (x, y)
                 self.mouse.scroll(None, action[2])
                 
             elif action[1] == "key":
@@ -148,7 +147,7 @@ class Replay:
                         else:
                             self.keyboard.press(self.dic[action[2]])
                     except KeyError:
-                        logging.error("Unknown key " + str(action[2]))
+                        error("Unknown key " + str(action[2]))
                 else:
                     try:
                         if action[4]:
@@ -156,30 +155,10 @@ class Replay:
                         else:
                             self.keyboard.release(self.dic[action[2]])
                     except KeyError:
-                        logging.error("Unknown key " + str(action[2]))
+                        error("Unknown key " + str(action[2]))
             else:
-                logging.error("Unknown action")
+                error("Unknown action")
 
-            self.get_combat_rotation()
-
-
-    def get_combat_rotation(self):
-        mob_det = image_helper.mob_detection()
-        while mob_det != False:
-            while self.should_pause():
-                time.sleep(0.25)
-            self.robot.game_manager_macro()
-            
-
-    def should_pause(self):
-        self._lock.acquire()
-        pause_req = self.pause_req
-        self._lock.release()
-        return pause_req
-
-
-    def set_pause(self, pause):
-        self._lock.acquire()
-        self.pause_req = pause
-        self._lock.release()
+            while image_helper.mob_detection() != False:
+                self.robot.game_manager(True)
 
