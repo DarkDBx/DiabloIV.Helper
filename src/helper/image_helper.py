@@ -1,7 +1,8 @@
 from logging import debug
-from pyautogui import screenshot, pixelMatchesColor, locate, locateOnScreen, locateCenterOnScreen
-from numpy import linspace, meshgrid, vstack
-from itertools import product
+from pyautogui import screenshot, locate, locateOnScreen, locateCenterOnScreen
+from numpy import array, ndarray, pi
+from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, HoughLinesP
+from PIL import ImageGrab
 
 from helper import input_helper
 
@@ -23,7 +24,7 @@ def get_image_at_cursor(name='default', path='.\\assets\\skills\\', ix=25, iy=25
     return x, y
 
 
-def pixel_matches_color(x, y, exR, exG, exB, tolerance=25):
+def pixel_matches_color(x,y, exR,exG,exB, tolerance=25):
     """Get rgb color at coordinate"""
     r, g, b = screenshot().getpixel((x, y))
     if (abs(r - exR) <= tolerance) and (abs(g - exG) <= tolerance) and (abs(b - exB) <= tolerance):
@@ -31,19 +32,24 @@ def pixel_matches_color(x, y, exR, exG, exB, tolerance=25):
     return False
 
 
-def coord_matches_color_rect():
-    """Get a set rgb color at a rectangle around the minimap player position"""
-    points_x = linspace(1720,1780,40, dtype=int)
-    points_y = linspace(120,180,40, dtype=int)
-    grid_x, grid_y = meshgrid(points_x, points_y, copy=False, sparse=True)
-    positions = vstack([grid_x.ravel(), grid_y.ravel()])
+def line_detection():
+    image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
+    np_array = array(image_grab)
+    hsv = cvtColor(np_array, COLOR_BGR2HSV)
+    mask = inRange(hsv, array([70, 180, 90]), array([120, 255, 140]))
+    edges = Canny(mask, 70, 255, apertureSize=3)
+    #imwrite('.\\assets\\target\\test_edges.png', edges)
+    minLineLength=10
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/15, threshold=10, lines=array([]), minLineLength=minLineLength, maxLineGap=20)
 
-    for x, y in product(positions[0], positions[1]):
-        if (x == min(points_x)) | (x == max(points_x)) | \
-                (y == min(points_y)) | (y == max(points_y)):
-            if pixelMatchesColor(x.item(), y.item(), (104,74,56), tolerance=5):
-                return x, y
-    return -1, -1
+    if type(lines) is ndarray:
+        a,b,c = lines.shape
+        for i in range(a):
+            #line(np_array, (lines[i][0][0], lines[i][0][1]), (lines[i][0][2], lines[i][0][3]), (90,220,110), 2, LINE_AA)
+            #imwrite('.\\assets\\target\\test_lines.png', np_array)
+            return lines[i][0][0], lines[i][0][1], lines[i][0][2], lines[i][0][3]
+        
+    return -1,-1, -1,-1
     
 
 def mob_detection():

@@ -11,7 +11,7 @@ from helper import config_helper
 
 
 APPNAME = 'LittleHelper'
-APPVERSION = 'v0.9.14'
+APPVERSION = 'v0.9.15'
 
 
 def main():

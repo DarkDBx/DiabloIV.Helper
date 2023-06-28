@@ -58,7 +58,7 @@ def combat_rotation(value, x, y):
                 info('Use potion')
                 sleep(uniform(0.11, 0.13))
             if image_helper.locate_needle(SKILLPATH+'evade.png', conf=0.7) and timer2.GetTimerState() == TIMER_STOPPED:
-                timer2.StartTimer(6)
+                timer2.StartTimer(3)
                 input_helper.press('space')
                 info('Use evade')
                 sleep(uniform(0.11, 0.13))

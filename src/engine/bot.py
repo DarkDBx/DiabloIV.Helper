@@ -12,10 +12,8 @@ from engine import combat
 IMAGE_DIR = ".\\assets\\"
 PLAYER_X = 960 # Center of the screen coordinate X
 PLAYER_Y = 520 # Center of the screen coordinate Y
-MAP_X = 1690
-MAP_Y = 90
-MAP_X_MAX = 1810
-MAP_Y_MAX = 210
+MAP_X = 1750
+MAP_Y = 150
 # endregion
 
 
@@ -102,59 +100,45 @@ class Bot:
         input_helper.press(keys)
 
 
-    def get_ref_location(self, ref_img, conf=0.8, region=(200,50,1575,900)):
-        x, y = image_helper.locate_needle(IMAGE_DIR + ref_img, conf=conf, loctype='c', region=region)
+    def get_ref_location(self, ref_img, conf=0.8, grayscale=True, region=(200,50,1575,900)):
+        x, y = image_helper.locate_needle(IMAGE_DIR + ref_img, conf=conf, loctype='c', grayscale=grayscale, region=region)
         return x, y
 
 
-    def get_player_ref_location(self, trans=False):
+    def get_player_ref_location(self, trans=True):
         '''Detect path on minimap and calculate player position'''
-        n = 60
-        x, y = self.get_ref_location('target\\path01.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
-        if x == -1 and y == -1:
-            x, y = self.get_ref_location('target\\path02.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
-            if x == -1 and y == -1:
-                x, y = self.get_ref_location('target\\path03.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
-                if x == -1 and y == -1:
-                    x, y = self.get_ref_location('target\\path04.png', conf=0.975, region=(MAP_X,MAP_Y,MAP_X_MAX,MAP_Y_MAX))
-                    """if x == -1 and y == -1:
-                        n = 30
-                        x, y = image_helper.coord_matches_color_rect()"""
-        if x == -1 and y == -1:
-            debug("Referenceobject not found: %d, %d" % (x, y))
+        x,y, w,h = image_helper.line_detection()
+                    
+        if (x == -1) or (y == -1):
+            debug("Referenceobject not found")
             return -1, -1
         else:
-            dx = (MAP_X+n)-x
-            dy = (MAP_Y+n)-y
+            x = (MAP_X-x)-1650
+            y = (MAP_Y-y)-50
             if trans:
-                return dx*10, dy*10
+                return x*10, y*10
             else:
-                return dx, dy
+                return x, y
 
 
     @stuck_check
     def move_to_ref_location(self, stuck=False):
         '''Calculate distance to click for moving'''
-        dx, dy = self.get_player_ref_location()
-        if dx == -1 and dy == -1:
+        x, y = self.get_player_ref_location()
+        if x == -1 and y == -1:
             return False
-        distance = int(pow(dx**2+dy**2, 0.5))
-        tx = dx if abs(dx) < 10 else dx*10
-        ty = dy if abs(dy) < 10 else dy*10
         
-        while abs(tx) > 1080 or abs(ty) > 360:
-            tx = int(tx/1.5)
-            ty = int(ty/1.5)
-        debug("Relative coords %d, %d, distance %d, absolute coords %d, %d, get distance %s" %
-            (dx, dy, distance, PLAYER_X-tx, PLAYER_Y-ty, distance > 10))
-        if distance < 10:
-            return False
+        while abs(x) > 1080 or abs(y) > 360:
+            x = int(x/1.5)
+            y = int(y/1.5)
+        debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
         if not stuck:
-            self.left_click(PLAYER_X-tx, PLAYER_Y-ty, 0,0,0,0)
-            self.left_click(PLAYER_X-tx, PLAYER_Y-ty, 0,0,0,0)
-            info("Moving to %d,%d" % (PLAYER_X-tx, PLAYER_Y-ty))
+            self.left_click(PLAYER_X-x, PLAYER_Y-y, 0,0,0,0)
+            self.left_click(PLAYER_X-x, PLAYER_Y-y, 0,0,0,0)
+            info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
             return True
         else:
+            self.left_click(PLAYER_X+randint(-20, 20), PLAYER_Y+randint(-20, 20), 0,0,0,0)
             info("Got stuck")
             return False
 
@@ -211,16 +195,13 @@ class Bot:
         elif self.is_in_game():
             info('Game state')
             if macro == False:
-                if self.move_to_ref_location() == False:
-                    self.left_click(PLAYER_X+randint(-20, 20), PLAYER_Y+randint(-20, 20), 0,0,0,0)
-                    self.left_click(PLAYER_X+randint(-20, 20), PLAYER_Y+randint(-20, 20), 0,0,0,0)
-                    info("Looking for coords")
+                self.move_to_ref_location()
             mob_det = image_helper.mob_detection()
             if mob_det != False:
                 info('Battle state')
                 x, y = mob_det
                 combat.rotation(x, y)
             elif mob_det == False and self.timer1.GetTimerState() == TIMER_STOPPED:
-                self.timer1.StartTimer(6)
+                self.timer1.StartTimer(9)
                 self.loot_process()
                 
