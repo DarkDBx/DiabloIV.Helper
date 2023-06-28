@@ -24,6 +24,7 @@ class Toolbox(QDialog):
 
         add_hotkey('insert', lambda: self.on_press('insert'))
         add_hotkey('home', lambda: self.on_press('home'))
+        add_hotkey('end', lambda: self.on_press('end'))
         
         self.running = False
         self.image_name = 'default'
@@ -120,15 +121,17 @@ class Toolbox(QDialog):
     def replay(self):
         try:
             info("Replaying...")
-            rh = recorder_helper.Replay(".\\record\\" + self.file_name_replay)
-            self.replay_thread = Thread(target=rh.replay_run)
+            rec = recorder_helper.Replay(".\\record\\" + self.file_name_replay)
+            self.replay_thread = Thread(target=rec.replay_run)
+            self.running = True
             
-            if not self.replay_thread.is_alive():
-                self.replay_thread = None
-                self.replay_thread = Thread(target=rh.replay_run)
-                self.replay_thread.start()
-                self.replay_thread.join()
-                info("Replay stopped")
+            while self.running:
+                if not self.replay_thread.is_alive():
+                    self.replay_thread = None
+                    self.replay_thread = Thread(target=rec.replay_run)
+                    self.replay_thread.start()
+                    self.replay_thread.join()
+                    #info("Replay stopped")
         except SyntaxError:
             error("Wrong file")
         except FileNotFoundError:

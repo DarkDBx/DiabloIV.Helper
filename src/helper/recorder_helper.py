@@ -72,8 +72,8 @@ class Record:
 
 
     def record_start(self):
-        ph = process_helper.ProcessHelper()
-        ph.set_foreground_window()
+        proc = process_helper.ProcessHelper()
+        proc.set_foreground_window()
 
         self.st_tm = time()
         self.m_listener.start()
@@ -85,6 +85,7 @@ class Record:
         self.k_listener.stop()
         self.replay_thread.join()
         self.history.pop()  # deletes last clicks
+        self.history.pop()
         self.history.pop()
 
         x = 0
@@ -112,8 +113,8 @@ class Replay:
 
 
     def replay_run(self):
-        ph = process_helper.ProcessHelper()
-        ph.set_foreground_window()
+        proc = process_helper.ProcessHelper()
+        proc.set_foreground_window()
 
         for z in range(self.length):
             action = self.recording[z]
@@ -159,6 +160,6 @@ class Replay:
             else:
                 error("Unknown action")
 
-            while image_helper.mob_detection() != False:
+            if image_helper.mob_detection() != False:
                 self.robot.game_manager(True)
 
