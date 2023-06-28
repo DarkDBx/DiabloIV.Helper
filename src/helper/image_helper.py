@@ -1,4 +1,4 @@
-from logging import debug
+from logging import debug, info
 from pyautogui import screenshot, locate, locateOnScreen, locateCenterOnScreen
 from numpy import array, ndarray, pi
 from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, HoughLinesP
@@ -32,7 +32,7 @@ def pixel_matches_color(x,y, exR,exG,exB, tolerance=25):
     return False
 
 
-def line_detection():
+def path_detection():
     image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
@@ -40,28 +40,31 @@ def line_detection():
     edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
     lines = HoughLinesP(image=edges, rho=1, theta=pi/15, threshold=15, lines=array([]), minLineLength=10, maxLineGap=30)
     mask_backup = inRange(hsv, array([40, 160, 60]), array([140, 255, 160]))
-    edges_backup = Canny(mask_backup, 20, 200, apertureSize=5, L2gradient=True)
+    edges_backup = Canny(mask_backup, 30, 90, apertureSize=5, L2gradient=True)
     lines_backup = HoughLinesP(image=edges_backup, rho=1, theta=pi/5, threshold=5, lines=array([]), minLineLength=5, maxLineGap=60)
 
     if type(lines) is ndarray:
+        info('found path, 1st try')
         return lines[0][0][0], lines[0][0][1], lines[0][0][2], lines[0][0][3]
     elif type(lines_backup) is ndarray:
+        info('found path, 2nd try')
         return lines_backup[0][0][0], lines_backup[0][0][1], lines_backup[0][0][2], lines_backup[0][0][3]
         
-    return -1,-1, -1,-1
-    
+    return False
+
 
 def mob_detection():
-    """Get mob type and position"""
-    x, y = locate_needle('.\\assets\\target\\elite.png', conf=0.97, loctype='c', region=(400,140,1500,870))
-    if x != -1 and y != -1:
-        return x, y
-    x, y = locate_needle('.\\assets\\target\\normal.png', conf=0.97, loctype='c', region=(400,140,1500,870))
-    if x != -1 and y != -1:
-        return x, y
-    x, y = locate_needle('.\\assets\\target\\normal_shield.png', conf=0.97, loctype='c', region=(400,140,1500,870))
-    if x != -1 and y != -1:
-        return x, y
+    image_grab = ImageGrab.grab(bbox=(400,140,1500,870))
+    np_array = array(image_grab)
+    hsv = cvtColor(np_array, COLOR_BGR2HSV)
+    mask = inRange(hsv, array([110, 10, 0]), array([190, 40, 15]))
+    edges = Canny(mask, 1, 3, apertureSize=3, L2gradient=True)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/180, threshold=15, lines=array([]), minLineLength=7, maxLineGap=20)
+
+    if type(lines) is ndarray:
+        info('found mob')
+        return lines[0][0][0], lines[0][0][1], lines[0][0][2], lines[0][0][3]
+        
     return False
 
 

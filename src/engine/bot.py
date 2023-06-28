@@ -107,12 +107,13 @@ class Bot:
 
     def get_player_ref_location(self, trans=True):
         '''Detect path on minimap and calculate player position'''
-        x,y, w,h = image_helper.line_detection()
+        path = image_helper.path_detection()
                     
-        if (x == -1) or (y == -1):
+        if path == False:
             debug("Referenceobject not found")
             return -1, -1
         else:
+            x,y, w,h = path
             x = (MAP_X-x)-1650
             y = (MAP_Y-y)-50
             if trans:
@@ -195,14 +196,11 @@ class Bot:
             info('Game state')
             if macro == False:
                 self.move_to_ref_location()
-            if image_helper.mob_detection() == False and self.timer1.GetTimerState() == TIMER_STOPPED:
-                self.timer1.StartTimer(9)
+            mob = image_helper.mob_detection()
+            if mob != False:
+                x,y, w,h = mob
+                combat.rotation(x+25, y+50)
+            elif self.timer1.GetTimerState() == TIMER_STOPPED:
+                self.timer1.StartTimer(7)
                 self.loot_process()
-            while True:
-                mob = image_helper.mob_detection()
-                if mob == False:
-                    return False
-                else:
-                    x, y = mob
-                    combat.rotation(x, y)
                 
