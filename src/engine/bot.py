@@ -23,7 +23,7 @@ def stuck_check(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         if n[0] > 10:
-            debug("****Character is stuck, try to escape****")
+            debug("***Character is stuck, try to escape***")
             n[0] = 0
             for i in range(2):
                 func(*args, **kwargs, stuck=True)
@@ -116,7 +116,7 @@ class Bot:
             x = (MAP_X-x)-1650
             y = (MAP_Y-y)-50
             if trans:
-                return x*10, y*10
+                return x*20, y*20
             else:
                 return x, y
 
@@ -134,11 +134,10 @@ class Bot:
         debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
         if not stuck:
             self.left_click(PLAYER_X-x, PLAYER_Y-y, 0,0,0,0)
-            self.left_click(PLAYER_X-x, PLAYER_Y-y, 0,0,0,0)
             info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
             return True
         else:
-            self.left_click(PLAYER_X+randint(-20, 20), PLAYER_Y+randint(-20, 20), 0,0,0,0)
+            self.left_click(PLAYER_X+randint(-50, 50), PLAYER_Y+randint(-50, 50), 0,0,0,0)
             info("Got stuck")
             return False
 
@@ -168,7 +167,7 @@ class Bot:
                 break
         if (x > -1 and y > -1) and color_value == True:
             self.left_click(x+12,y+3, -2,8,-2,2)
-            info('Picked item at coord ' + str(x) + str(y))
+            info('Picked item at coords ' + str(x) + str(y))
             sleep(2)
             return True
         return False
@@ -196,12 +195,14 @@ class Bot:
             info('Game state')
             if macro == False:
                 self.move_to_ref_location()
-            mob_det = image_helper.mob_detection()
-            if mob_det != False:
-                info('Battle state')
-                x, y = mob_det
-                combat.rotation(x, y)
-            elif mob_det == False and self.timer1.GetTimerState() == TIMER_STOPPED:
+            if image_helper.mob_detection() == False and self.timer1.GetTimerState() == TIMER_STOPPED:
                 self.timer1.StartTimer(9)
                 self.loot_process()
+            while True:
+                mob = image_helper.mob_detection()
+                if mob == False:
+                    return False
+                else:
+                    x, y = mob
+                    combat.rotation(x, y)
                 

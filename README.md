@@ -1,8 +1,8 @@
 # DESCRIPTION
 - Diablo 4 pixel bot and toolkit.
-- Set up a combat rotation and let the assistant do the combat. 90% accurate
-- Set up a waypoint on the map and let the robot do the combat/looting. 60% accurate
-- Use the macro recorder/player to get a waypoint file and let the robot do the combat/looting. ??% accurate
+- Set up a combat rotation and let the assistant do the combat. 95% accurate
+- Set up a waypoint on the map and let the robot do the combat, pathing and looting. 80% accurate
+- Use the macro recorder/player to get a waypoint file and let the robot do the combat, pathing and looting. ??% accurate
 
 
 # PARAMETER
@@ -19,7 +19,7 @@
 
 
 # TODO
-- bot -> adjust pathfinding and lootprocess
+- bot -> adjust lootprocess
 - macro-player -> test
 
 

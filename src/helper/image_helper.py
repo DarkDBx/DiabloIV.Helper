@@ -36,18 +36,17 @@ def line_detection():
     image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
-    mask = inRange(hsv, array([70, 180, 90]), array([120, 255, 140]))
-    edges = Canny(mask, 70, 255, apertureSize=3)
-    #imwrite('.\\assets\\target\\test_edges.png', edges)
-    minLineLength=10
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/15, threshold=10, lines=array([]), minLineLength=minLineLength, maxLineGap=20)
+    mask = inRange(hsv, array([60, 180, 80]), array([120, 255, 140]))
+    edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/15, threshold=15, lines=array([]), minLineLength=10, maxLineGap=30)
+    mask_backup = inRange(hsv, array([40, 160, 60]), array([140, 255, 160]))
+    edges_backup = Canny(mask_backup, 20, 200, apertureSize=5, L2gradient=True)
+    lines_backup = HoughLinesP(image=edges_backup, rho=1, theta=pi/5, threshold=5, lines=array([]), minLineLength=5, maxLineGap=60)
 
     if type(lines) is ndarray:
-        a,b,c = lines.shape
-        for i in range(a):
-            #line(np_array, (lines[i][0][0], lines[i][0][1]), (lines[i][0][2], lines[i][0][3]), (90,220,110), 2, LINE_AA)
-            #imwrite('.\\assets\\target\\test_lines.png', np_array)
-            return lines[i][0][0], lines[i][0][1], lines[i][0][2], lines[i][0][3]
+        return lines[0][0][0], lines[0][0][1], lines[0][0][2], lines[0][0][3]
+    elif type(lines_backup) is ndarray:
+        return lines_backup[0][0][0], lines_backup[0][0][1], lines_backup[0][0][2], lines_backup[0][0][3]
         
     return -1,-1, -1,-1
     
