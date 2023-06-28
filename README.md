@@ -18,11 +18,6 @@
 - 'delete' hotkey pause process
 
 
-# TODO
-- bot -> adjust lootprocess
-- macro-player -> test
-
-
 # CREDITS
 - https://stackoverflow.com/
 - https://github.com/
