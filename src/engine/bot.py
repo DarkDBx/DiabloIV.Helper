@@ -40,18 +40,18 @@ def stuck_check(func):
 class Bot:
     def __init__(self) -> None:
         self.cfg = config_helper.read_config()
-        self.ph = process_helper.ProcessHelper()
+        self.proc = process_helper.ProcessHelper()
         self.timer1 = timer_helper.TimerHelper('timer1')
     
 
     def set_window_pos(self):
         '''Move the window to 0, 0 and put it on top'''
-        self.ph.set_window_pos()
+        self.proc.set_window_pos()
 
 
     def set_foreground(self):
         '''Set to foreground window'''
-        self.ph.set_foreground_window()
+        self.proc.set_foreground_window()
 
 
     def is_right_color(self, x, y, r=0, g=0, b=0, tol=25):
