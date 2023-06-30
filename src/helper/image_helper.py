@@ -1,7 +1,7 @@
 from logging import debug, info
 from pyautogui import screenshot, locate, locateOnScreen, locateCenterOnScreen
 from numpy import array, ndarray, pi
-from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, HoughLinesP
+from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, HoughLinesP, imwrite
 from PIL import ImageGrab
 
 from helper import input_helper
@@ -36,34 +36,36 @@ def path_detection():
     image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
+    #imwrite('.\\assets\\path_hsv.png', hsv)
     mask = inRange(hsv, array([60, 180, 80]), array([120, 255, 140]))
+    #imwrite('.\\assets\\path_mask.png', mask)
     edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/15, threshold=15, lines=array([]), minLineLength=10, maxLineGap=30)
-    mask_backup = inRange(hsv, array([40, 160, 60]), array([140, 255, 160]))
-    edges_backup = Canny(mask_backup, 30, 90, apertureSize=5, L2gradient=True)
-    lines_backup = HoughLinesP(image=edges_backup, rho=1, theta=pi/5, threshold=5, lines=array([]), minLineLength=5, maxLineGap=60)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/5, threshold=5, lines=array([]), minLineLength=5, maxLineGap=15)
 
     if type(lines) is ndarray:
-        info('found path, 1st try')
-        return lines[0][0][0], lines[0][0][1], lines[0][0][2], lines[0][0][3]
-    elif type(lines_backup) is ndarray:
-        info('found path, 2nd try')
-        return lines_backup[0][0][0], lines_backup[0][0][1], lines_backup[0][0][2], lines_backup[0][0][3]
+        for points in lines:
+            x,y, w,h=points[0]
+            info('found path at ' + str(x) + ', ' + str(y))
+            return x, y
         
     return False
 
 
 def mob_detection():
-    image_grab = ImageGrab.grab(bbox=(400,140,1500,870))
+    image_grab = ImageGrab.grab(bbox=(400, 50, 1500, 870))
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
-    mask = inRange(hsv, array([110, 10, 0]), array([190, 40, 15]))
-    edges = Canny(mask, 1, 3, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/180, threshold=15, lines=array([]), minLineLength=7, maxLineGap=20)
+    #imwrite('.\\assets\\mob_hsv.png', hsv)
+    mask = inRange(hsv, array([60, 180, 80]), array([120, 255, 140]))
+    #imwrite('.\\assets\\mob_mask.png', mask)
+    edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/360, threshold=15, lines=array([]), minLineLength=5, maxLineGap=0)
 
     if type(lines) is ndarray:
-        info('found mob')
-        return lines[0][0][0], lines[0][0][1], lines[0][0][2], lines[0][0][3]
+        for points in lines:
+            x,y, w,h=points[0]
+            info('found mob at ' + str(x) + ', ' + str(y))
+            return x, y
         
     return False
 

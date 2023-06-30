@@ -43,9 +43,9 @@ def combat_rotation(value, x, y):
     # target check
     if image_helper.pixel_matches_color(801,45, 107,2,1, 20) or image_helper.pixel_matches_color(801,45, 156,65,93, 20) or \
                 image_helper.pixel_matches_color(801,45, 231,13,9, 20) or image_helper.pixel_matches_color(710,45, 162,4,4, 20) or \
-                image_helper.pixel_matches_color(710,45, 124,71,98, 20) or (x == None and y == None and image_helper.mob_detection() != False):
+                image_helper.pixel_matches_color(710,45, 124,71,98, 20) or image_helper.mob_detection() != False:
         if x != None and y != None:
-            input_helper.move_smooth(x, y)
+            input_helper.move_smooth(x, y, 1)
 
         # health check
         if not image_helper.pixel_matches_color(608,980, 95,10,15, 45) and not image_helper.pixel_matches_color(608,972, 148,14,24, 45) and \

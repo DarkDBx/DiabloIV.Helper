@@ -113,7 +113,7 @@ class Bot:
             debug("Referenceobject not found")
             return -1, -1
         else:
-            x,y, w,h = path
+            x, y = path
             x = (MAP_X-x)-1650
             y = (MAP_Y-y)-50
             if trans:
@@ -138,7 +138,7 @@ class Bot:
             info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
             return True
         else:
-            self.left_click(PLAYER_X+randint(-50, 50), PLAYER_Y+randint(-50, 50), 0,0,0,0)
+            self.left_click(PLAYER_X+randint(-150, 150), PLAYER_Y+randint(-150, 150), 0,0,0,0)
             info("Got stuck")
             return False
 
@@ -156,16 +156,15 @@ class Bot:
         for i in range(5):
             x, y = self.get_ref_location(item_image_array[i][0])
             if (x > -1 and y > -1):
-                break
-        for j in range(1):
-            color_value = self.is_right_color(x+item_color_array[j][0], 
-                                            y+item_color_array[j][1],
-                                            item_color_array[j][2],
-                                            item_color_array[j][3],
-                                            item_color_array[j][4],
-                                            item_color_array[j][5])
-            if color_value == True:
-                break
+                for j in range(1):
+                    color_value = self.is_right_color(x+item_color_array[j][0], 
+                                                    y+item_color_array[j][1],
+                                                    item_color_array[j][2],
+                                                    item_color_array[j][3],
+                                                    item_color_array[j][4],
+                                                    item_color_array[j][5])
+                    if color_value == True:
+                        break
         if (x > -1 and y > -1) and color_value == True:
             self.left_click(x+12,y+3, -2,8,-2,2)
             info('Picked item at coords ' + str(x) + str(y))
@@ -187,19 +186,20 @@ class Bot:
         sleep(2)
     
 
-    def game_manager(self, macro=False):
+    def game_manager(self, move=True):
         '''Game handling routine'''
         if self.is_death():
             info('Death state')
             self.click_is_death_ok()
         elif self.is_in_game():
             info('Game state')
-            if macro == False:
+            if move == True:
                 self.move_to_ref_location()
             mob = image_helper.mob_detection()
             if mob != False:
-                x,y, w,h = mob
-                combat.rotation(x+25, y+50)
+                x, y = mob
+                combat.rotation(x+400, y+50)
+                self.game_manager(False)
             elif self.timer1.GetTimerState() == TIMER_STOPPED:
                 self.timer1.StartTimer(7)
                 self.loot_process()

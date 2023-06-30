@@ -160,6 +160,5 @@ class Replay:
             else:
                 error("Unknown action")
 
-            if image_helper.mob_detection() != False:
-                self.robot.game_manager(True)
+            self.robot.game_manager(True)
 
