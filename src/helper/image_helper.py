@@ -37,10 +37,10 @@ def path_detection():
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
     #imwrite('.\\assets\\path_hsv.png', hsv)
-    mask = inRange(hsv, array([60, 180, 80]), array([120, 255, 140]))
+    mask = inRange(hsv, array([60, 120, 80]), array([120, 255, 150]))
     #imwrite('.\\assets\\path_mask.png', mask)
     edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/5, threshold=5, lines=array([]), minLineLength=5, maxLineGap=15)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/5, threshold=5, lines=array([]), minLineLength=10, maxLineGap=15)
 
     if type(lines) is ndarray:
         for points in lines:
@@ -56,10 +56,10 @@ def mob_detection():
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
     #imwrite('.\\assets\\mob_hsv.png', hsv)
-    mask = inRange(hsv, array([60, 180, 80]), array([120, 255, 140]))
+    mask = inRange(hsv, array([50, 220, 50]), array([175, 255, 175]))
     #imwrite('.\\assets\\mob_mask.png', mask)
     edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/360, threshold=15, lines=array([]), minLineLength=5, maxLineGap=0)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/360, threshold=5, lines=array([]), minLineLength=10, maxLineGap=0)
 
     if type(lines) is ndarray:
         for points in lines:

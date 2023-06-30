@@ -3,18 +3,15 @@ from time import sleep
 from random import randint
 from functools import wraps
 
-from helper import process_helper, input_helper, image_helper, config_helper, timer_helper
-from helper.timer_helper import TIMER_STOPPED
+from helper import process_helper, input_helper, image_helper, config_helper
 from engine import combat
 
 
-# region constant
 IMAGE_DIR = ".\\assets\\"
 PLAYER_X = 960 # Center of the screen coordinate X
 PLAYER_Y = 520 # Center of the screen coordinate Y
 MAP_X = 1750
 MAP_Y = 150
-# endregion
 
 
 def stuck_check(func):
@@ -41,7 +38,6 @@ class Bot:
     def __init__(self) -> None:
         self.cfg = config_helper.read_config()
         self.proc = process_helper.ProcessHelper()
-        self.timer1 = timer_helper.TimerHelper('timer1')
     
 
     def set_window_pos(self):
@@ -117,7 +113,7 @@ class Bot:
             x = (MAP_X-x)-1650
             y = (MAP_Y-y)-50
             if trans:
-                return x*20, y*20
+                return x*30, y*30
             else:
                 return x, y
 
@@ -127,14 +123,20 @@ class Bot:
         '''Calculate distance to click for moving'''
         x, y = self.get_player_ref_location()
         if x == -1 and y == -1:
+            input_helper.mouseUp()
             return False
         
         while abs(x) > 1080 or abs(y) > 360:
             x = int(x/1.5)
             y = int(y/1.5)
+        if abs(x) < 0:
+            x = 1
+        if abs(y) < 0:
+            y = 1
+
         debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
         if not stuck:
-            self.left_click(PLAYER_X-x, PLAYER_Y-y, 0,0,0,0)
+            input_helper.mouseDown(PLAYER_X-x, PLAYER_Y-y)
             info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
             return True
         else:
@@ -151,14 +153,19 @@ class Bot:
                         ["pickit\\o.png"],
                         ["pickit\\u.png"],
                         ["pickit\\ancestral.png"]]
-        item_color_array = [[1, 4, 248,128,5, 75],
-                        [1, 4, 216,166,120, 75]]
+        item_color_array = [[1, 4, 248,128,5, 50],
+                        [1, 4, 216,166,120, 50],
+                        [1, 4, 234,236,10, 50]]
         for i in range(5):
-            x, y = self.get_ref_location(item_image_array[i][0])
+            x, y = self.get_ref_location(item_image_array[i][0], region=(400, 50, 1500, 870))
             if (x > -1 and y > -1):
-                for j in range(1):
-                    color_value = self.is_right_color(x+item_color_array[j][0], 
-                                                    y+item_color_array[j][1],
+                if i == 5:
+                    n = 2
+                else:
+                    n = 1
+                for j in range(n):
+                    color_value = self.is_right_color(x+400+item_color_array[j][0], 
+                                                    y+50+item_color_array[j][1],
                                                     item_color_array[j][2],
                                                     item_color_array[j][3],
                                                     item_color_array[j][4],
@@ -173,7 +180,7 @@ class Bot:
         return False
 
 
-    def loot_process(self, j=9):
+    def loot_process(self, j=15):
         for i in range(j):
             if not self.pick_it():
                 break
@@ -186,7 +193,7 @@ class Bot:
         sleep(2)
     
 
-    def game_manager(self, move=True):
+    def game_manager(self, move=True, loot=False):
         '''Game handling routine'''
         if self.is_death():
             info('Death state')
@@ -197,10 +204,11 @@ class Bot:
                 self.move_to_ref_location()
             mob = image_helper.mob_detection()
             if mob != False:
+                input_helper.mouseUp()
                 x, y = mob
-                combat.rotation(x+400, y+50)
-                self.game_manager(False)
-            elif self.timer1.GetTimerState() == TIMER_STOPPED:
-                self.timer1.StartTimer(7)
+                n = 25
+                combat.rotation(x+400+n, y+50+(n*2))
+                self.game_manager(False, True)
+            elif loot:
                 self.loot_process()
                 
