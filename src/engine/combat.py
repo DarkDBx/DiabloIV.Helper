@@ -11,7 +11,6 @@ SKILLPATH = ".\\assets\\skills\\"
 
 timer1 = timer_helper.TimerHelper('timer1')
 timer2 = timer_helper.TimerHelper('timer2')
-timer3 = timer_helper.TimerHelper('timer3')
 
 
 def press_combo(key1, key2):
@@ -40,10 +39,18 @@ def rotation(x=None, y=None):
 
 
 def combat_rotation(value, x, y):
+    cfg = config_helper.read_config()
+    evade = cfg['evade']
+    pot = cfg['pot']
+    skill1 = cfg['skill1']
+    skill2 = cfg['skill2']
+    skill3 = cfg['skill3']
+    skill4 = cfg['skill4']
+
     # target check
     if image_helper.pixel_matches_color(801,45, 107,2,1, 20) or image_helper.pixel_matches_color(801,45, 156,65,93, 20) or \
                 image_helper.pixel_matches_color(801,45, 231,13,9, 20) or image_helper.pixel_matches_color(710,45, 162,4,4, 20) or \
-                image_helper.pixel_matches_color(710,45, 124,71,98, 20) or image_helper.mob_detection() != False:
+                image_helper.pixel_matches_color(710,45, 124,71,98, 20) or image_helper.line_detection('mob') != False:
         if x != None and y != None:
             input_helper.move_smooth(x, y, 1)
 
@@ -54,30 +61,30 @@ def combat_rotation(value, x, y):
                         image_helper.locate_needle(SKILLPATH+'pot60.png', conf=0.7) or image_helper.locate_needle(SKILLPATH+'pot70.png', conf=0.7)) and \
                         timer1.GetTimerState() == TIMER_STOPPED:
                 timer1.StartTimer(3)
-                input_helper.press('f')
+                input_helper.press(pot)
                 info('Use potion')
                 sleep(uniform(0.11, 0.13))
             if image_helper.locate_needle(SKILLPATH+'evade.png', conf=0.7) and timer2.GetTimerState() == TIMER_STOPPED:
                 timer2.StartTimer(3)
-                input_helper.press('space')
+                input_helper.press(evade)
                 info('Use evade')
                 sleep(uniform(0.11, 0.13))
 
         # class skill check
         if image_helper.locate_needle(SKILLPATH+value+'\\04.png', conf=0.6):
-            input_helper.press('r')
+            input_helper.press(skill4)
             info('Use skill 4')
             sleep(uniform(0.11, 0.13))
         elif image_helper.locate_needle(SKILLPATH+value+'\\03.png', conf=0.6):
-            input_helper.press('e')
+            input_helper.press(skill3)
             info('Use skill 3')
             sleep(uniform(0.11, 0.13))
         elif image_helper.locate_needle(SKILLPATH+value+'\\01.png', conf=0.6):
-            input_helper.press('q')
+            input_helper.press(skill1)
             info('Use skill 1')
             sleep(uniform(0.11, 0.13))
         elif image_helper.locate_needle(SKILLPATH+value+'\\02.png', conf=0.6):
-            input_helper.press('w')
+            input_helper.press(skill2)
             info('Use skill 2')
             sleep(uniform(0.11, 0.13))
 

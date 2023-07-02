@@ -1,7 +1,7 @@
 from logging import debug, info
 from pyautogui import screenshot, locate, locateOnScreen, locateCenterOnScreen
 from numpy import array, ndarray, pi
-from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, HoughLinesP, imwrite
+from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, HoughLinesP
 from PIL import ImageGrab
 
 from helper import input_helper
@@ -27,46 +27,37 @@ def get_image_at_cursor(name='default', path='.\\assets\\skills\\', ix=25, iy=25
 def pixel_matches_color(x,y, exR,exG,exB, tolerance=25):
     """Get rgb color at coordinate"""
     r, g, b = screenshot().getpixel((x, y))
+
     if (abs(r - exR) <= tolerance) and (abs(g - exG) <= tolerance) and (abs(b - exB) <= tolerance):
         return True
     return False
 
 
-def path_detection():
-    image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
+def line_detection(line_type='path'):
+    """Recognition of a line by given color on the screen"""
+    if line_type == 'path':
+        radius = 15
+        image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
+    elif line_type == 'mob':
+        radius = 360
+        image_grab = ImageGrab.grab(bbox=(400, 50, 1500, 870))
+
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
-    #imwrite('.\\assets\\path_hsv.png', hsv)
-    mask = inRange(hsv, array([60, 120, 80]), array([120, 255, 150]))
-    #imwrite('.\\assets\\path_mask.png', mask)
+
+    if line_type == 'path':
+        mask = inRange(hsv, array([60, 120, 80]), array([120, 255, 150]))
+    elif line_type == 'mob':
+        mask = inRange(hsv, array([50, 220, 50]), array([175, 255, 175]))
+
     edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/5, threshold=5, lines=array([]), minLineLength=10, maxLineGap=15)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/radius, threshold=5, lines=array([]), minLineLength=5, maxLineGap=0)
 
     if type(lines) is ndarray:
         for points in lines:
             x,y, w,h=points[0]
-            info('found path at ' + str(x) + ', ' + str(y))
+            info('found line with radius ' + str(radius) + ' at ' + str(x) + ', ' + str(y))
             return x, y
-        
-    return False
-
-
-def mob_detection():
-    image_grab = ImageGrab.grab(bbox=(400, 50, 1500, 870))
-    np_array = array(image_grab)
-    hsv = cvtColor(np_array, COLOR_BGR2HSV)
-    #imwrite('.\\assets\\mob_hsv.png', hsv)
-    mask = inRange(hsv, array([50, 220, 50]), array([175, 255, 175]))
-    #imwrite('.\\assets\\mob_mask.png', mask)
-    edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/360, threshold=5, lines=array([]), minLineLength=10, maxLineGap=0)
-
-    if type(lines) is ndarray:
-        for points in lines:
-            x,y, w,h=points[0]
-            info('found mob at ' + str(x) + ', ' + str(y))
-            return x, y
-        
     return False
 
 

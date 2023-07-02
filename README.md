@@ -6,7 +6,10 @@
 
 
 # PARAMETER
-- Window fullscreen 1920x1080 resolution
+- Set windowed fullscreen with 1920x1080 resolution
+- Set monster health bar -> always on
+- Set key assignment in config.yml
+- Set basic skill on left mouse and core skill on right mouse
 - English language required for pickit
 - Python 3.9 interpreter, see requirements.txt
 

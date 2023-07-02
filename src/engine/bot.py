@@ -103,7 +103,7 @@ class Bot:
 
     def get_player_ref_location(self, trans=True):
         '''Detect path on minimap and calculate player position'''
-        path = image_helper.path_detection()
+        path = image_helper.line_detection()
                     
         if path == False:
             debug("Referenceobject not found")
@@ -122,6 +122,7 @@ class Bot:
     def move_to_ref_location(self, stuck=False):
         '''Calculate distance to click for moving'''
         x, y = self.get_player_ref_location()
+        
         if x == -1 and y == -1:
             input_helper.mouseUp()
             return False
@@ -135,6 +136,7 @@ class Bot:
             y = 1
 
         debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
+        
         if not stuck:
             input_helper.mouseDown(PLAYER_X-x, PLAYER_Y-y)
             info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
@@ -146,16 +148,16 @@ class Bot:
 
 
     def pick_it(self):
-        '''Looking for some legendary/unique loot and get it'''
+        '''Looking for some loot and grab it'''
         item_image_array = [["pickit\\a.png"],
-                        ["pickit\\e.png"],
-                        ["pickit\\i.png"],
-                        ["pickit\\o.png"],
-                        ["pickit\\u.png"],
-                        ["pickit\\ancestral.png"]]
+                ["pickit\\e.png"],
+                ["pickit\\i.png"],
+                ["pickit\\o.png"],
+                ["pickit\\u.png"],
+                ["pickit\\ancestral.png"]]
         item_color_array = [[1, 4, 248,128,5, 50],
-                        [1, 4, 216,166,120, 50],
-                        [1, 4, 234,236,10, 50]]
+                [1, 4, 216,166,120, 50],
+                [1, 4, 234,236,10, 50]]
         for i in range(5):
             x, y = self.get_ref_location(item_image_array[i][0], region=(400, 50, 1500, 870))
             if (x > -1 and y > -1):
@@ -165,11 +167,11 @@ class Bot:
                     n = 1
                 for j in range(n):
                     color_value = self.is_right_color(x+400+item_color_array[j][0], 
-                                                    y+50+item_color_array[j][1],
-                                                    item_color_array[j][2],
-                                                    item_color_array[j][3],
-                                                    item_color_array[j][4],
-                                                    item_color_array[j][5])
+                            y+50+item_color_array[j][1],
+                            item_color_array[j][2],
+                            item_color_array[j][3],
+                            item_color_array[j][4],
+                            item_color_array[j][5])
                     if color_value == True:
                         break
         if (x > -1 and y > -1) and color_value == True:
@@ -180,7 +182,7 @@ class Bot:
         return False
 
 
-    def loot_process(self, j=15):
+    def loot_process(self, j=30):
         for i in range(j):
             if not self.pick_it():
                 break
@@ -202,7 +204,7 @@ class Bot:
             info('Game state')
             if move == True:
                 self.move_to_ref_location()
-            mob = image_helper.mob_detection()
+            mob = image_helper.line_detection('mob')
             if mob != False:
                 input_helper.mouseUp()
                 x, y = mob

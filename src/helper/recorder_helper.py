@@ -160,5 +160,5 @@ class Replay:
             else:
                 error("Unknown action")
 
-            self.robot.game_manager(True)
+            self.robot.game_manager(False)
 
