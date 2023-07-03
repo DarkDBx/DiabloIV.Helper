@@ -37,9 +37,13 @@ def line_detection(line_type='path'):
     """Recognition of a line by given color on the screen"""
     if line_type == 'path':
         radius = 15
+        length = 10
+        gap = 5
         image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
     elif line_type == 'mob':
         radius = 360
+        length = 5
+        gap = 0
         image_grab = ImageGrab.grab(bbox=(400, 50, 1500, 870))
 
     np_array = array(image_grab)
@@ -51,7 +55,7 @@ def line_detection(line_type='path'):
         mask = inRange(hsv, array([50, 220, 50]), array([175, 255, 175]))
 
     edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/radius, threshold=5, lines=array([]), minLineLength=5, maxLineGap=0)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/radius, threshold=5, lines=array([]), minLineLength=length, maxLineGap=gap)
 
     if type(lines) is ndarray:
         for points in lines:

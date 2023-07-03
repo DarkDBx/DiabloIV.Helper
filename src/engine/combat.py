@@ -46,14 +46,25 @@ def combat_rotation(value, x, y):
     skill2 = cfg['skill2']
     skill3 = cfg['skill3']
     skill4 = cfg['skill4']
+    n = 25
+    elite = False
+    normal = False
 
     # target check
-    if image_helper.pixel_matches_color(801,45, 107,2,1, 20) or image_helper.pixel_matches_color(801,45, 156,65,93, 20) or \
-                image_helper.pixel_matches_color(801,45, 231,13,9, 20) or image_helper.pixel_matches_color(710,45, 162,4,4, 20) or \
-                image_helper.pixel_matches_color(710,45, 124,71,98, 20) or image_helper.line_detection('mob') != False:
-        if x != None and y != None:
-            input_helper.move_smooth(x, y, 1)
+    if (image_helper.pixel_matches_color(801,45, 107,2,1, 20) or image_helper.pixel_matches_color(801,45, 156,65,93, 20) or \
+                image_helper.pixel_matches_color(801,45, 231,13,9, 20)) and image_helper.line_detection('mob') != False:
+        normal = True
 
+        if x != None and y != None:
+            input_helper.move_smooth(x+400+n, y+50+(n*2), 1)
+    elif (image_helper.pixel_matches_color(710,45, 162,4,4, 20) or image_helper.pixel_matches_color(710,45, 124,71,98, 20)) and \
+                image_helper.line_detection('mob') != False:
+        elite = True
+
+        if x != None and y != None:
+            input_helper.move_smooth(x+400+(n*3), y+50+(n*6), 1)
+
+    if normal or elite:
         # health check
         if not image_helper.pixel_matches_color(608,980, 95,10,15, 45) and not image_helper.pixel_matches_color(608,972, 148,14,24, 45) and \
                     not image_helper.pixel_matches_color(607,978, 97,29,82, 45):

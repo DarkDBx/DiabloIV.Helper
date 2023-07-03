@@ -136,7 +136,7 @@ class Bot:
             y = 1
 
         debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
-        
+
         if not stuck:
             input_helper.mouseDown(PLAYER_X-x, PLAYER_Y-y)
             info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
@@ -209,7 +209,7 @@ class Bot:
                 input_helper.mouseUp()
                 x, y = mob
                 n = 25
-                combat.rotation(x+400+n, y+50+(n*2))
+                combat.rotation(x, y)
                 self.game_manager(False, True)
             elif loot:
                 self.loot_process()
