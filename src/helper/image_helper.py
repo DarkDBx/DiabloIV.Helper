@@ -36,31 +36,31 @@ def pixel_matches_color(x,y, exR,exG,exB, tolerance=25):
 def line_detection(line_type='path'):
     """Recognition of a line by given color on the screen"""
     if line_type == 'path':
-        radius = 15
-        length = 10
-        gap = 5
-        image_grab = ImageGrab.grab(bbox=(1650, 50, 1850, 250))
-    elif line_type == 'mob':
-        radius = 360
+        radius = 180
         length = 5
         gap = 0
-        image_grab = ImageGrab.grab(bbox=(400, 50, 1500, 870))
-
+        array_min = array([75, 120, 95]) # rgb color
+        array_max = array([125, 250, 145])
+        screen_box = (1650, 50, 1850, 250) # region of the screen x, y, w, h
+    elif line_type == 'mob':
+        radius = 180
+        length = 5
+        gap = 0
+        array_min = array([95, 235, 105])
+        array_max = array([185, 255, 135])
+        screen_box = (400, 50, 1500, 870)
+    
+    image_grab = ImageGrab.grab(bbox=screen_box)
     np_array = array(image_grab)
     hsv = cvtColor(np_array, COLOR_BGR2HSV)
-
-    if line_type == 'path':
-        mask = inRange(hsv, array([60, 120, 80]), array([120, 255, 150]))
-    elif line_type == 'mob':
-        mask = inRange(hsv, array([50, 220, 50]), array([175, 255, 175]))
-
+    mask = inRange(hsv, array_min, array_max)
     edges = Canny(mask, 50, 150, apertureSize=3, L2gradient=True)
-    lines = HoughLinesP(image=edges, rho=1, theta=pi/radius, threshold=5, lines=array([]), minLineLength=length, maxLineGap=gap)
+    lines = HoughLinesP(image=edges, rho=1, theta=pi/radius, threshold=15, lines=array([]), minLineLength=length, maxLineGap=gap)
 
     if type(lines) is ndarray:
         for points in lines:
             x,y, w,h=points[0]
-            info('found line with radius ' + str(radius) + ' at ' + str(x) + ', ' + str(y))
+            info('found line type ' + line_type + ' at ' + str(x) + ', ' + str(y))
             return x, y
     return False
 

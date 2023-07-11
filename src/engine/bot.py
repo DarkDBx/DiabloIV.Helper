@@ -127,12 +127,13 @@ class Bot:
             input_helper.mouseUp()
             return False
         
-        while abs(x) > 1080 or abs(y) > 360:
-            x = int(x/1.5)
-            y = int(y/1.5)
-        if abs(x) < 0:
+        if x > 1080:
+            x = 1080
+        elif x < 1:
             x = 1
-        if abs(y) < 0:
+        if y > 360:
+            y = 360
+        elif y < 1:
             y = 1
 
         debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
@@ -149,31 +150,27 @@ class Bot:
 
     def pick_it(self):
         '''Looking for some loot and grab it'''
-        item_image_array = [["pickit\\a.png"],
-                ["pickit\\e.png"],
-                ["pickit\\i.png"],
-                ["pickit\\o.png"],
-                ["pickit\\u.png"],
-                ["pickit\\ancestral.png"]]
-        item_color_array = [[1, 4, 248,128,5, 50],
-                [1, 4, 216,166,120, 50],
-                [1, 4, 234,236,10, 50]]
-        for i in range(5):
+        item_image_array = [["pickit\\a.png"], ["pickit\\e.png"], ["pickit\\i.png"],
+                ["pickit\\o.png"], ["pickit\\u.png"], ["pickit\\ancestral.png"], ["pickit\\cinder.png"]]
+        item_color_array = [[1,4, 248,128,5, 50], [1,4, 216,166,120, 50], [1,4, 234,236,10, 50], [1,4, 215,164,198, 50]]
+
+        for i in range(6):
             x, y = self.get_ref_location(item_image_array[i][0], region=(400, 50, 1500, 870))
             if (x > -1 and y > -1):
-                if i == 5:
+                if i == 6:
+                    n = 3
+                elif i == 5:
                     n = 2
                 else:
                     n = 1
+
                 for j in range(n):
-                    color_value = self.is_right_color(x+400+item_color_array[j][0], 
-                            y+50+item_color_array[j][1],
-                            item_color_array[j][2],
-                            item_color_array[j][3],
-                            item_color_array[j][4],
-                            item_color_array[j][5])
+                    color_value = self.is_right_color(x+item_color_array[j][0], 
+                            y+item_color_array[j][1], item_color_array[j][2],
+                            item_color_array[j][3], item_color_array[j][4], item_color_array[j][5])
                     if color_value == True:
                         break
+
         if (x > -1 and y > -1) and color_value == True:
             self.left_click(x+12,y+3, -2,8,-2,2)
             info('Picked item at coords ' + str(x) + str(y))
@@ -208,7 +205,6 @@ class Bot:
             if mob != False:
                 input_helper.mouseUp()
                 x, y = mob
-                n = 25
                 combat.rotation(x, y)
                 self.game_manager(False, True)
             elif loot:

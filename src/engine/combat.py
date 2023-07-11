@@ -52,12 +52,12 @@ def combat_rotation(value, x, y):
 
     # target check
     if (image_helper.pixel_matches_color(801,45, 107,2,1, 20) or image_helper.pixel_matches_color(801,45, 156,65,93, 20) or \
-                image_helper.pixel_matches_color(801,45, 231,13,9, 20)) and image_helper.line_detection('mob') != False:
+                image_helper.pixel_matches_color(801,45, 231,13,9, 20)) or image_helper.line_detection('mob') != False:
         normal = True
 
         if x != None and y != None:
             input_helper.move_smooth(x+400+n, y+50+(n*2), 1)
-    elif (image_helper.pixel_matches_color(710,45, 162,4,4, 20) or image_helper.pixel_matches_color(710,45, 124,71,98, 20)) and \
+    elif (image_helper.pixel_matches_color(710,45, 162,4,4, 20) or image_helper.pixel_matches_color(710,45, 124,71,98, 20)) or \
                 image_helper.line_detection('mob') != False:
         elite = True
 
