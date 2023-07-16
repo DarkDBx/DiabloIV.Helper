@@ -9,8 +9,8 @@ IMAGE_DIR = ".\\assets\\"
 
 
 def get_ref_location(ref_img):
-    print(IMAGE_DIR+ref_img)
     x, y = image_helper.locate_needle(IMAGE_DIR + ref_img, loctype='c', region=(400, 50, 1500, 870))
+
     return x, y
 
 
@@ -34,6 +34,7 @@ def pick_it():
 
     for i in range(6):
         x, y = get_ref_location(item_image_array[i][0])
+
         if (x > -1 and y > -1):
             if i == 6:
                 n = range(3, 3)
@@ -46,6 +47,7 @@ def pick_it():
                 color_value = image_helper.pixel_matches_color(x+item_color_array[j][0], 
                         y+item_color_array[j][1], item_color_array[j][2],
                         item_color_array[j][3], item_color_array[j][4], item_color_array[j][5])
+                
                 if color_value == True:
                     break
 
@@ -53,6 +55,7 @@ def pick_it():
         left_click(x+12,y+3, -2,8,-2,2)
         info('Picked item at coords ' + str(x) + str(y))
         sleep(2)
+
         return True
     return False
 
