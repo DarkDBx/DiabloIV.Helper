@@ -106,7 +106,6 @@ class Bot:
                 pather.move_to_ref_location()
             mob = image_helper.line_detection('mob')
             if mob != False:
-                input_helper.mouseUp()
                 x, y = mob
                 combat.rotation(x, y)
                 self.game_manager(False, True)

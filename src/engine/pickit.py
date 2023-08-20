@@ -5,7 +5,7 @@ from random import randint
 from helper import input_helper, image_helper
 
 
-IMAGE_DIR = ".\\assets\\"
+IMAGE_DIR = ".\\assets\\pickit\\"
 
 
 def get_ref_location(ref_img):
@@ -28,8 +28,8 @@ def left_click(self, x=None, y=None, a=-5,b=35,c=-5,d=5):
 
 def pick_it():
     '''Looking for some loot and grab it'''
-    item_image_array = [["pickit\\a.png"], ["pickit\\e.png"], ["pickit\\i.png"],
-            ["pickit\\o.png"], ["pickit\\u.png"], ["pickit\\ancestral.png"], ["pickit\\cinder.png"]]
+    item_image_array = [["a.png"], ["e.png"], ["i.png"],
+            ["o.png"], ["u.png"], ["ancestral.png"], ["cinder.png"]]
     item_color_array = [[1,4, 248,128,5, 50], [1,4, 216,166,120, 50], [1,4, 234,236,10, 50], [1,4, 215,164,198, 50]]
 
     for i in range(6):
@@ -55,7 +55,6 @@ def pick_it():
         left_click(x+12,y+3, -2,8,-2,2)
         info('Picked item at coords ' + str(x) + str(y))
         sleep(2)
-
         return True
     return False
 

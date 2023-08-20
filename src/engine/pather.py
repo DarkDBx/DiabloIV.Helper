@@ -55,17 +55,16 @@ def move_to_ref_location(stuck=False):
     x, y = get_player_ref_location()
     
     if x == -1 and y == -1:
-        input_helper.mouseUp()
         return False
 
     debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
 
     if not stuck:
-        input_helper.mouseDown(PLAYER_X-x, PLAYER_Y-y)
+        input_helper.leftClick(PLAYER_X-x, PLAYER_Y-y)
         info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
         return True
     else:
-        input_helper.leftClick(PLAYER_X+randint(-150, 150), PLAYER_Y+randint(-150, 150), 0,0,0,0)
-        info("Got stuck")
+        input_helper.leftClick(PLAYER_X-randint(-250, 250), PLAYER_Y-randint(-250, 250))
+        info("Got stuck, do random move")
         return False
 
