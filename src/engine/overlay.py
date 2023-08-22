@@ -21,7 +21,7 @@ class Overlay(QMainWindow):
         self.setWindowIcon(QIcon('.\\assets\\layout\\lilhelper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         self.setWindowTitle("LittleHelper")
-        self.setGeometry(1425, 895, 470, 170)
+        self.setGeometry(1425, 925, 470, 170)
         self.setFixedSize(470, 170)
         visible_window = QWidget(self)
         visible_window.setFixedSize(470, 170)
