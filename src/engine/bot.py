@@ -39,7 +39,7 @@ class Bot:
 
 
     def is_in_game(self):
-        return self.is_right_color(721,994, 56,76,84)
+        return (self.is_right_color(718,984, 59,75,84) and self.is_right_color(1209,966, 56,76,81))
 
 
     def is_death(self):

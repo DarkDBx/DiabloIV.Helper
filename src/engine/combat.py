@@ -21,7 +21,7 @@ def press_combo(key1, key2):
 
 
 def rotation(x=None, y=None):
-    """set up the skill rotation for a specific class injected by the config"""
+    """set up the skill rotation for a specific class, by the config value"""
     cfg = config_helper.read_config()
     class_var = cfg['class']
 
