@@ -7,6 +7,7 @@ from numpy import int32, int64, float32, float64
 from numpy import random as nprandom
 from random import random, randint
 from math import dist, factorial
+from pyautogui import scroll
 
 
 SendInput = windll.user32.SendInput
@@ -629,7 +630,18 @@ def tripleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=N
     click(x, y, 3, interval, button, duration, tween, logScreenshot, _pause)
 
 
+def centerMap():
+    windll.user32.mouse_event(0x0003, -2000, -2000, 0, 0)
+    windll.user32.mouse_event(0x0003, 500, 500, 0, 0)
+
+
 # Missing feature: scroll functions
+def mouseScroll(value, x=600, y=400):
+    """Performs a scroll of the mouse scroll wheel.
+    :param value: The amount of scrolling to perform.
+    :return: None.
+    """
+    scroll(value, x, y)
 
 
 # Ignored parameters: duration, tween, logScreenshot

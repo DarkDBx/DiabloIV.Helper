@@ -104,6 +104,23 @@ def combat_rotation(value, x, y):
                 input_helper.press(skill2)
                 info('Use skill 2')
                 sleep(uniform(0.11, 0.13))
+        elif value == 'druid':
+            if image_helper.locate_needle(SKILLPATH+value+'\\04.png', conf=0.6):
+                input_helper.press(skill4)
+                info('Use skill 4')
+                sleep(uniform(0.11, 0.13))
+            elif image_helper.locate_needle(SKILLPATH+value+'\\03.png', conf=0.6):
+                input_helper.press(skill3)
+                info('Use skill 3')
+                sleep(uniform(0.11, 0.13))
+            elif image_helper.locate_needle(SKILLPATH+value+'\\01.png', conf=0.6):
+                input_helper.press(skill1)
+                info('Use skill 1')
+                sleep(uniform(0.11, 0.13))
+            elif image_helper.locate_needle(SKILLPATH+value+'\\02.png', conf=0.96):
+                input_helper.press(skill2)
+                info('Use skill 2')
+                sleep(uniform(0.11, 0.13))
         else:
             if image_helper.locate_needle(SKILLPATH+value+'\\04.png', conf=0.6):
                 input_helper.press(skill4)
