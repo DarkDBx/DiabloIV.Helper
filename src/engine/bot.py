@@ -115,7 +115,7 @@ class Bot:
     
     def get_helltide_loc(self):
         self.key_press('m')
-        input_helper.mouseScroll(-5)
+        input_helper.mouseScroll(-15)
         sleep(uniform(.5, .8))
         input_helper.mouseScroll(2)
         screen_region = (400, 50, 1500, 870)
@@ -131,8 +131,6 @@ class Bot:
             elif x2 != -1 and y2 != -1:
                 self.right_click(x2, y2)
                 info("Found jewellery treasure, moving to map position %d,%d" % (x2, y2))
-            
-            self.key_press('m')
         else:
             input_helper.mouseScroll(-2)
             input_helper.centerMap()
@@ -145,6 +143,9 @@ class Bot:
                     self.left_click(x2,y2, 1,4,1,4)
                     info("Found helltide, moving to map position %d,%d" % (x2, y2))
                     #self.click_teleport()
+        
+        sleep(uniform(1.5, 2.5))
+        self.key_press('m')
                 
     
 

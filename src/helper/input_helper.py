@@ -5,7 +5,7 @@ from time import sleep
 from pytweening import easeOutQuad
 from numpy import int32, int64, float32, float64
 from numpy import random as nprandom
-from random import random, randint
+from random import random, randint, uniform
 from math import dist, factorial
 from pyautogui import scroll
 
@@ -630,13 +630,19 @@ def tripleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=N
     click(x, y, 3, interval, button, duration, tween, logScreenshot, _pause)
 
 
+# Move map to a center position
 def centerMap():
-    windll.user32.mouse_event(0x0003, -2000, -2000, 0, 0)
-    windll.user32.mouse_event(0x0003, 500, 500, 0, 0)
+    windll.user32.mouse_event(0x0003, -2000, 0, 0, 0)
+    sleep(uniform(.5, .8))
+    windll.user32.mouse_event(0x0003, 0, -2000, 0, 0)
+    sleep(uniform(.5, .8))
+    windll.user32.mouse_event(0x0003, 500, 0, 0, 0)
+    sleep(uniform(.5, .8))
+    windll.user32.mouse_event(0x0003, 0, 500, 0, 0)
 
 
 # Missing feature: scroll functions
-def mouseScroll(value, x=600, y=400):
+def mouseScroll(value, x=randint(500, 700), y=randint(300, 500)):
     """Performs a scroll of the mouse scroll wheel.
     :param value: The amount of scrolling to perform.
     :return: None.
