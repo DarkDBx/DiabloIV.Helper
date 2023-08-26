@@ -115,29 +115,32 @@ class Bot:
     
     def get_helltide_loc(self):
         self.key_press('m')
-        input_helper.mouseScroll(-15)
+        sleep(uniform(.5, .8))
+        input_helper.mouseScroll(-10)
         sleep(uniform(.5, .8))
         input_helper.mouseScroll(2)
+        sleep(uniform(.5, .8))
         screen_region = (400, 50, 1500, 870)
         helltide_area = image_helper.locate_needle('.\\assets\\helltide_zoom.png', conf=0.8, region=screen_region)
 
         if helltide_area:
             x, y = image_helper.locate_needle('.\\assets\\treasure1.png', conf=0.8, loctype='c', region=screen_region)
-            x2, y2 = image_helper.locate_needle('.\\assets\\treasure2.png', conf=0.8, loctype='c', region=screen_region)
+            #x2, y2 = image_helper.locate_needle('.\\assets\\treasure2.png', conf=0.8, loctype='c', region=screen_region)
 
             if x != -1 and y != -1:
                 self.right_click(x, y)
                 info("Found armor treasure, moving to map position %d,%d" % (x, y))
+                """
             elif x2 != -1 and y2 != -1:
                 self.right_click(x2, y2)
-                info("Found jewellery treasure, moving to map position %d,%d" % (x2, y2))
+                info("Found jewellery treasure, moving to map position %d,%d" % (x2, y2))"""
         else:
             input_helper.mouseScroll(-2)
             input_helper.centerMap()
             x, y = image_helper.locate_needle('.\\assets\\helltide.png', conf=0.8, loctype='c', region=screen_region)
 
             if x != -1 and y != -1:
-                x2, y2 = image_helper.locate_needle('.\\assets\\waypoint.png', conf=0.8, loctype='c', region=(x-150, y-150, x+150, y+150))
+                x2, y2 = image_helper.locate_needle('.\\assets\\waypoint.png', conf=0.8, loctype='c', region=(x-50, y-250, x+250, y+50))
 
                 if x2 != -1 and y2 != -1:
                     self.left_click(x2,y2, 1,4,1,4)
