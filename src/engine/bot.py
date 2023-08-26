@@ -35,7 +35,7 @@ class Bot:
 
 
     def is_on_loading(self):
-        return self.is_right_color(1,1)
+        return self.is_right_color(1,1, 0,0,0, tol=0)
 
 
     def is_in_game(self):
@@ -116,9 +116,11 @@ class Bot:
     def get_helltide_loc(self):
         self.key_press('m')
         sleep(uniform(.5, .8))
-        input_helper.mouseScroll(-10)
+        input_helper.move_smooth(800,600)
         sleep(uniform(.5, .8))
-        input_helper.mouseScroll(2)
+        input_helper.mouseScroll(-7, 1)
+        sleep(uniform(.5, .8))
+        input_helper.mouseScroll(2, 1)
         sleep(uniform(.5, .8))
         screen_region = (400, 50, 1500, 870)
         helltide_area = image_helper.locate_needle('.\\assets\\helltide_zoom.png', conf=0.8, region=screen_region)
@@ -135,7 +137,8 @@ class Bot:
                 self.right_click(x2, y2)
                 info("Found jewellery treasure, moving to map position %d,%d" % (x2, y2))"""
         else:
-            input_helper.mouseScroll(-2)
+            input_helper.mouseScroll(-2, 1)
+            sleep(uniform(.5, .8))
             input_helper.centerMap()
             x, y = image_helper.locate_needle('.\\assets\\helltide.png', conf=0.8, loctype='c', region=screen_region)
 
@@ -154,12 +157,12 @@ class Bot:
 
     def game_manager(self, move=True, loot=False):
         '''Game handling routine'''
-        if self.is_death():
-            info('Death state')
-            self.click_is_death_ok()
-            self.wait_for_loading()
-        elif self.is_in_game():
+        if self.is_in_game():
             info('Game state')
+            if self.is_death():
+                info('Death state')
+                self.click_is_death_ok()
+                self.wait_for_loading()
             if move == True:
                 move_to = pather.move_to_ref_location()
                 if move_to == False:

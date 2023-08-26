@@ -7,7 +7,8 @@ from numpy import int32, int64, float32, float64
 from numpy import random as nprandom
 from random import random, randint, uniform
 from math import dist, factorial
-from pyautogui import scroll
+from win32con import WHEEL_DELTA, MOUSEEVENTF_WHEEL
+from win32api import mouse_event
 
 
 SendInput = windll.user32.SendInput
@@ -632,22 +633,30 @@ def tripleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=N
 
 # Move map to a center position
 def centerMap():
-    windll.user32.mouse_event(0x0003, -2000, 0, 0, 0)
-    sleep(uniform(.5, .8))
-    windll.user32.mouse_event(0x0003, 0, -2000, 0, 0)
-    sleep(uniform(.5, .8))
-    windll.user32.mouse_event(0x0003, 500, 0, 0, 0)
-    sleep(uniform(.5, .8))
-    windll.user32.mouse_event(0x0003, 0, 500, 0, 0)
+    windll.user32.mouse_event(0x0003, 1910, 0, 0, 0)
+    sleep(uniform(.2, .4))
+    windll.user32.mouse_event(0x0003, 0, 1070, 0, 0)
+    sleep(uniform(.2, .4))
+    windll.user32.mouse_event(0x0003, 960, 0, 0, 0)
+    sleep(uniform(.2, .4))
+    windll.user32.mouse_event(0x0003, 0, 520, 0, 0)
+    sleep(uniform(.2, .4))
 
 
-# Missing feature: scroll functions
-def mouseScroll(value, x=randint(500, 700), y=randint(300, 500)):
-    """Performs a scroll of the mouse scroll wheel.
-    :param value: The amount of scrolling to perform.
-    :return: None.
+def mouseScroll(clicks=0, delta_x=0, delta_y=0, delay_between_ticks=0):
     """
-    scroll(value, x, y)
+    A positive value indicates that the wheel was rotated forward, away from the user;
+    A negative value indicates that the wheel was rotated backward, toward the user.
+    One wheel click is defined as WHEEL_DELTA, which is 120.
+    """
+    if clicks > 0:
+        increment = WHEEL_DELTA
+    else:
+        increment = WHEEL_DELTA * -1
+
+    for _ in range(abs(clicks)):
+        mouse_event(MOUSEEVENTF_WHEEL, delta_x, delta_y, increment, 0)
+        sleep(delay_between_ticks)
 
 
 # Ignored parameters: duration, tween, logScreenshot
