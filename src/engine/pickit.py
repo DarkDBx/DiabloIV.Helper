@@ -1,6 +1,6 @@
 from logging import info
 from time import sleep
-from random import randint
+from random import randint, uniform
 
 from helper import input_helper, image_helper
 
@@ -54,7 +54,7 @@ def pick_it():
     if (x > -1 and y > -1) and color_value == True:
         left_click(x+12,y+3, -2,8,-2,2)
         info('Picked item at coords ' + str(x) + str(y))
-        sleep(2)
+        sleep(uniform(1.5,2.5))
         return True
     return False
 

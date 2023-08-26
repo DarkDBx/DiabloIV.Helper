@@ -1,6 +1,6 @@
 from logging import info
 from time import sleep
-from random import randint
+from random import randint, uniform
 
 from helper import process_helper, input_helper, image_helper, config_helper
 from engine import combat, pather, pickit
@@ -55,14 +55,21 @@ class Bot:
 
 
     def click_is_death_ok(self):
-        sleep(3)
-        self.left_click(904,924)
-        sleep(.5)
+        sleep(uniform(1.5, 2.5))
+        self.left_click(904, 924)
+        sleep(uniform(.5, .8))
 
 
     def click_start_game(self):
-        sleep(1)
-        self.left_click(151,835)
+        sleep(uniform(1.5, 2.5))
+        self.left_click(151, 835)
+        sleep(uniform(.5, .8))
+
+
+    def click_teleport(self):
+        sleep(uniform(1.5, 2.5))
+        self.left_click()
+        sleep(uniform(.5, .8))
 
 
     def left_click(self, x=None, y=None, a=-5,b=35,c=-5,d=5):
@@ -77,6 +84,18 @@ class Bot:
             input_helper.leftClick(fx, fy)
 
 
+    def right_click(self, x=None, y=None, a=1,b=4,c=1,d=4):
+        '''Randomized left click'''
+        if x == None or y == None:
+            input_helper.rightClick()
+        else:
+            ex = randint(a, b)
+            fx = x + ex
+            ey = randint(c, d)
+            fy = y + ey
+            input_helper.rightClick(fx, fy)
+
+
     def key_press(self, keys):
         input_helper.press(keys)
 
@@ -88,25 +107,30 @@ class Bot:
 
 
     def wait_for_loading(self):
-        sleep(1)
+        sleep(uniform(1.5, 2.5))
         while self.is_on_loading():
-            sleep(0.5)
-        sleep(2)
+            sleep(uniform(.5, .8))
+        sleep(uniform(1.5, 2.5))
 
     
     def get_helltide_loc(self):
         self.key_press('m')
-        input_helper.mouseScroll(-7)
+        input_helper.mouseScroll(-5)
+        sleep(uniform(.5, .8))
         input_helper.mouseScroll(2)
         screen_region = (400, 50, 1500, 870)
         helltide_area = image_helper.locate_needle('.\\assets\\helltide_zoom.png', conf=0.8, region=screen_region)
 
         if helltide_area:
             x, y = image_helper.locate_needle('.\\assets\\treasure1.png', conf=0.8, loctype='c', region=screen_region)
+            x2, y2 = image_helper.locate_needle('.\\assets\\treasure2.png', conf=0.8, loctype='c', region=screen_region)
 
             if x != -1 and y != -1:
-                input_helper.rightClick(x, y)
-                info("Found treassure, moving to map position %d,%d" % (x, y))
+                self.right_click(x, y)
+                info("Found armor treasure, moving to map position %d,%d" % (x, y))
+            elif x2 != -1 and y2 != -1:
+                self.right_click(x2, y2)
+                info("Found jewellery treasure, moving to map position %d,%d" % (x2, y2))
             
             self.key_press('m')
         else:
@@ -118,10 +142,10 @@ class Bot:
                 x2, y2 = image_helper.locate_needle('.\\assets\\waypoint.png', conf=0.8, loctype='c', region=(x-150, y-150, x+150, y+150))
 
                 if x2 != -1 and y2 != -1:
-                    self.left_click(x2,y2, 1,3,1,3)
+                    self.left_click(x2,y2, 1,4,1,4)
                     info("Found helltide, moving to map position %d,%d" % (x2, y2))
+                    #self.click_teleport()
                 
-                self.key_press('m')
     
 
     def game_manager(self, move=True, loot=False):
