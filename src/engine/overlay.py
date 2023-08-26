@@ -118,7 +118,7 @@ class Overlay(QMainWindow):
         self.startBox = QGroupBox()
         layout = QHBoxLayout()
 
-        toggleStartButton = QPushButton("ROBOT")
+        toggleStartButton = QPushButton("BOT")
         toggleStartButton.setCheckable(False)
         toggleStartButton.setChecked(False)
         toggleStartButton.clicked.connect(lambda: self.get_rotation_thread(True))

@@ -6,23 +6,28 @@
 
 
 # PARAMETER
+- Set key assignment in config.yml
 - Set windowed fullscreen with 1920x1080 resolution
 - Set monster health bar -> always on
-- Set key assignment in config.yml
 - Set basic skill on left mouse and core skill on right mouse
 - English language required for pickit
 - Python 3.9 interpreter, see requirements.txt
 
 
 # USAGE
-- 'home' hotkey get coordinates and rgb colors at mouse cursor
-- 'insert' hotkey save image per parameters from gui at mouse cursor
-- 'end' hotkey exit process
-- 'delete' hotkey pause process
+- Start the game somewhere in openworld
+- With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor
+- With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor
+- 'end' hotkey exit active process
+- 'delete' hotkey pause active process
 
 
 # CREDITS
 - https://stackoverflow.com/
 - https://github.com/
 - Written in Python by DarkDBx
+
+
+Support me: https://patreon.com/DarkDBx
+
 
