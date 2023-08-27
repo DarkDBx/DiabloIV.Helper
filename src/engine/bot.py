@@ -129,7 +129,9 @@ class Bot:
             self.right_click(x, y)
             info("Found armor treasure, moving to map position %d,%d" % (x, y))
         elif image_helper.locate_needle('.\\assets\\location\\onyxWatchtower.png', conf=0.8, region=screen_region):
-            self.right_click(1400, 680)
+            self.key_press('m')
+        elif image_helper.locate_needle('.\\assets\\location\\rakhatKeep.png', conf=0.8, region=screen_region):
+            self.right_click(1097, 764)
         else:
             for n in range(2):
                 input_helper.mouseScroll(-1)
@@ -139,13 +141,15 @@ class Bot:
             x, y = image_helper.locate_needle('.\\assets\\location\\helltide.png', conf=0.8, loctype='c', region=screen_region)
 
             if x != -1 and y != -1:
-                x2, y2 = image_helper.locate_needle('.\\assets\\location\\waypoint.png', conf=0.8, loctype='c', region=(x-25, y-125, x+25, y+25))
+                x2, y2 = image_helper.locate_needle('.\\assets\\location\\waypoint.png', conf=0.8, loctype='c', region=(x-25, y-75, x+25, y+25))
 
                 if x2 != -1 and y2 != -1:
                     self.left_click(x2,y2, 1,4,1,4)
                     info("Found helltide, moving to map position %d,%d" % (x2, y2))
                     self.click_teleport()
-        
+
+                    return True
+                
         sleep(uniform(1.5, 2.5))
         self.key_press('m')
                 

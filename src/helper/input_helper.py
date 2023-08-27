@@ -701,7 +701,7 @@ move = moveRel
 
 # Missing feature: drag functions
 def centerMap():
-    windll.user32.mouse_event(0x0003, 0, -300, 0, 0)
+    mouse_event(0x0003, 0, 500, 0, 0)
     sleep(uniform(.2, .4))
 
 
