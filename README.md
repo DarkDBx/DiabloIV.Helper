@@ -1,7 +1,7 @@
-# <img src="assets/layout/lilhelpertitle.png" width="700">
+# <img src="assets/layout/lilhelpertitle.png" width="740">
 
 ## DESCRIPTION
-- Diablo 4 pixel bot and toolkit.
+- Diablo 4 combat assistant, pixel bot and toolbox
 - Set up a combat rotation and let the assistant do the combat. 90% accurate
 - Set up a combat rotation and let the helltide-bot do the combat, pathing and looting. 60% accurate
 - Use the macro recorder/player to get a waypoint file and let the robot do the combat, pathing and looting. ??% accurate
