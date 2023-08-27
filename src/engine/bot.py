@@ -137,7 +137,7 @@ class Bot:
                 input_helper.mouseScroll(-1)
                 sleep(uniform(.5, .8))
             
-            input_helper.centerMap()
+            #input_helper.centerMap()
             x, y = image_helper.locate_needle('.\\assets\\location\\helltide.png', conf=0.8, loctype='c', region=screen_region)
 
             if x != -1 and y != -1:
@@ -167,12 +167,22 @@ class Bot:
             info('Player is in-game.')
             if move == True:
                 move_to = pather.move_to_ref_location()
-                for n in range(9):
+                i = 0
+                
+                for n in range(99):
                     move_to
+
+                    if i == 30:
+                        break
+                    elif move_to == False:
+                        i+=1
+
                 if move_to == False:
                     #self.get_treasure()
                     self.get_helltide_loc()
+
             mob = image_helper.line_detection('mob')
+
             if mob != False:
                 x, y = mob
                 combat.rotation(x, y)
