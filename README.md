@@ -15,7 +15,7 @@
 
 
 # USAGE
-- Start the game somewhere in openworld
+- Start the game somewhere in openworld, optimal in kyovashad or a waypoint in the helltide 
 - With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor
 - With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor
 - 'end' hotkey exit active process

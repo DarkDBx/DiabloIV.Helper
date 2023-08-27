@@ -8,7 +8,7 @@ from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QComboBox, QPlainTextEdit, QMainWindow, QGridLayout,
                              QGroupBox, QPushButton, QHBoxLayout, QStyleFactory, QWidget)
 
-from helper import config_helper, logging_helper
+from helper import config_helper, logging_helper, process_helper
 from engine import bot, combat, toolbox
 
 
@@ -34,6 +34,7 @@ class Overlay(QMainWindow):
         self._lock = Lock()
         self.pause_req = False
         self.cfg = config_helper.read_config()
+        self.proc = process_helper.ProcessHelper()
         self.robot = bot.Bot()
 
         self.createDropdownBox()
@@ -192,9 +193,10 @@ class Overlay(QMainWindow):
 
     def get_rotation(self, bot_state):
         info('LittleHelper started')
-
-        self.robot.set_foreground()
+        #self.proc.set_window_pos()
+        self.proc.set_foreground_window()
         self.running = True
+
         while self.running:
             while self.should_pause():
                 sleep(0.25)

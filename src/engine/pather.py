@@ -2,7 +2,7 @@ from logging import info, debug
 from random import randint
 from functools import wraps
 
-from helper import input_helper, image_helper
+from helper import input_helper, image_helper, config_helper
 
 
 PLAYER_X = 960 # Center of the screen coordinate X
@@ -51,6 +51,12 @@ def get_player_ref_location(trans=True):
 
 @stuck_check
 def move_to_ref_location(stuck=False):
+    cfg = config_helper.read_config()
+    evade_var = cfg['evade']
+
+    if image_helper.locate_needle('.\\assets\\skills\\climb.png', conf=0.8, region=(500, 300, 1500, 870)):
+        input_helper.press(evade_var)
+        
     '''Calculate distance to click for moving'''
     x, y = get_player_ref_location()
     

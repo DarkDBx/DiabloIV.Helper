@@ -631,18 +631,6 @@ def tripleClick(x=None, y=None, interval=0.1, button=LEFT, duration=0.0, tween=N
     click(x, y, 3, interval, button, duration, tween, logScreenshot, _pause)
 
 
-# Move map to a center position
-def centerMap():
-    windll.user32.mouse_event(0x0003, 1910, 0, 0, 0)
-    sleep(uniform(.2, .4))
-    windll.user32.mouse_event(0x0003, 0, 1070, 0, 0)
-    sleep(uniform(.2, .4))
-    windll.user32.mouse_event(0x0003, 960, 0, 0, 0)
-    sleep(uniform(.2, .4))
-    windll.user32.mouse_event(0x0003, 0, 520, 0, 0)
-    sleep(uniform(.2, .4))
-
-
 def mouseScroll(clicks=0, delta_x=0, delta_y=0, delay_between_ticks=0):
     """
     A positive value indicates that the wheel was rotated forward, away from the user;
@@ -712,6 +700,9 @@ move = moveRel
 
 
 # Missing feature: drag functions
+def centerMap():
+    windll.user32.mouse_event(0x0003, 0, -300, 0, 0)
+    sleep(uniform(.2, .4))
 
 
 ########################################################################################
