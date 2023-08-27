@@ -1,4 +1,4 @@
-# <img src="assets/layout/lilhelpertitle.png" width="370">
+# <img src="assets/layout/lilhelpertitle.png" width="700">
 
 ## DESCRIPTION
 - Diablo 4 pixel bot and toolkit.
