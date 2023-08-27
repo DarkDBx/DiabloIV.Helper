@@ -17,7 +17,9 @@
 
 
 ## USAGE
-- Start the game somewhere in the openworld, optimal in onyx watchtower or rakhat keep
+- Recomended usage is the assistant in combination with the toolbox to build a custom skill rotation
+- Start the helltide-bot somewhere in the openworld, optimal in onyx watchtower or rakhat keep
+- Use the macro recorder atm for testing purpose
 - With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor
 - With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor
 - 'end' hotkey exit active process
