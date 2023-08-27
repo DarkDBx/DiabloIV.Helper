@@ -1,7 +1,7 @@
 # <img src="assets/layout/lilhelpertitle.png" width="740">
 
 ## DESCRIPTION
-- Diablo 4 combat assistant, pixel bot and toolbox
+- Diablo 4 combat assistant, pixel bot and toolbox.
 - Set up a combat rotation and let the assistant do the combat. 90% accurate
 - Set up a combat rotation and let the helltide-bot do the combat, pathing and looting. 60% accurate
 - Use the macro recorder/player to get a waypoint file and let the robot do the combat, pathing and looting. ??% accurate
@@ -17,13 +17,15 @@
 
 
 ## USAGE
-- Recomended usage is the assistant in combination with the toolbox to build a custom skill rotation
-- Start the helltide-bot somewhere in the openworld, optimal in onyx watchtower or rakhat keep
-- Use the macro recorder atm for testing purpose
-- With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor
-- With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor
-- 'end' hotkey exit active process
-- 'delete' hotkey pause active process
+- Recomended usage is the assistant in combination with the toolbox to build a custom skill rotation,
+    just use folder names, in assets\skills\ like: barb, necro, sorc and assign the proper skill image
+    to the correct number: 01-04 from left to right and 05 for your right mouse button.
+- Start the helltide-bot somewhere in the openworld, optimal in onyx watchtower or rakhat keep.
+- Use the macro recorder atm for testing purpose.
+- With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor.
+- With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor.
+- 'end' hotkey exit active process.
+- 'delete' hotkey pause active process.
 
 
 ## CREDITS
