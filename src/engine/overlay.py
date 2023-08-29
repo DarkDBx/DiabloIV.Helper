@@ -18,7 +18,7 @@ class Overlay(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
-        self.setWindowIcon(QIcon('.\\assets\\layout\\lilhelper.ico'))
+        self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         self.setWindowTitle("LittleHelper")
         self.setGeometry(1425, 925, 470, 170)

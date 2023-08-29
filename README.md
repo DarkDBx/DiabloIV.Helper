@@ -1,4 +1,4 @@
-# <img src="assets/layout/lilhelpertitle.png" width="740">
+# <img src="assets/layout/mmorpg_helper_title.png" width="720">
 
 ## DESCRIPTION
 - Diablo 4 combat assistant, pixel bot and toolbox.
@@ -8,8 +8,9 @@
 
 
 ## PARAMETER
+- Recomended use of windowed fullscreen with 1920x1080 resolution.
+- Recomended use of US/EN or standard keyboard layout.
 - Set key assignment in config.yml
-- Set windowed fullscreen with 1920x1080 resolution
 - Set monster health bar -> always on
 - Set basic skill on left mouse and core skill on right mouse
 - English language required for pickit
@@ -20,6 +21,7 @@
 - Recomended usage is the assistant in combination with the toolbox to build a custom skill rotation,
     just use folder names, in assets\skills\ like: barb, necro, sorc and assign the proper skill image
     to the correct number: 01-04 from left to right and 05 for your right mouse button.
+    Take a look at src\engine\combat.py and expand the function to your needs.
 - Start the helltide-bot somewhere in the openworld, optimal in onyx watchtower or rakhat keep.
 - Use the macro recorder atm for testing purpose.
 - With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor.
@@ -35,5 +37,5 @@
 
 
 Support me: https://patreon.com/DarkDBx
-
+Tips here: https://paypal.me/darkdb?country.x=CH&locale.x=de_DE
 
