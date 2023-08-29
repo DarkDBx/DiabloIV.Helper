@@ -4,12 +4,12 @@ from numpy import array, ndarray, pi
 from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, HoughLinesP
 from PIL import ImageGrab
 
-from helper import input_helper
+from helper import mouse_helper
 
 
 def get_pixel_color_at_cursor():
     """Get the color of per cursor selected pixel"""
-    x, y = input_helper.position()
+    x, y = mouse_helper.position()
     r, g, b = screenshot().getpixel((x, y))
 
     return x, y, r, g, b
@@ -17,7 +17,7 @@ def get_pixel_color_at_cursor():
 
 def get_image_at_cursor(name='default', path='.\\assets\\skills\\', ix=25, iy=25):
     """Get the image of per cursor selected pixel"""
-    x, y = input_helper.position()
+    x, y = mouse_helper.position()
     img = screenshot(region=(x,y, ix, iy))
     img.save(path + name + ".png")
 

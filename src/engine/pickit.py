@@ -1,8 +1,9 @@
 from logging import info
 from time import sleep
 from random import randint, uniform
+from pydirectinput import leftClick
 
-from helper import input_helper, image_helper
+from helper import image_helper
 
 
 IMAGE_DIR = ".\\assets\\pickit\\"
@@ -17,13 +18,13 @@ def get_ref_location(ref_img):
 def left_click(self, x=None, y=None, a=-5,b=35,c=-5,d=5):
     '''Randomized left click'''
     if x == None or y == None:
-        input_helper.leftClick()
+        leftClick()
     else:
         ex = randint(a, b)
         fx = x + ex
         ey = randint(c, d)
         fy = y + ey
-        input_helper.leftClick(fx, fy)
+        leftClick(fx, fy)
 
 
 def pick_it():

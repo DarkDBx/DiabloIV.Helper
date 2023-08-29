@@ -1,8 +1,9 @@
 from logging import info
 from time import sleep
 from random import randint, uniform
+from pydirectinput import leftClick, rightClick, press
 
-from helper import process_helper, input_helper, image_helper, config_helper
+from helper import mouse_helper, image_helper, config_helper
 from engine import combat, pather, pickit
 
 
@@ -54,41 +55,41 @@ class Bot:
     def click_start_game(self):
         sleep(uniform(1.5, 2.5))
         self.left_click(220, 710)
-        sleep(uniform(.5, .8))
+        sleep(uniform(1.5, 2.5))
 
 
     def click_teleport(self):
         sleep(uniform(1.5, 2.5))
         self.left_click(850, 640)
-        sleep(uniform(.5, .8))
+        sleep(uniform(1.5, 2.5))
 
 
     def left_click(self, x=None, y=None, a=-5,b=35,c=-5,d=5):
         '''Randomized left click'''
         if x == None or y == None:
-            input_helper.leftClick()
+            leftClick()
         else:
             ex = randint(a, b)
             fx = x + ex
             ey = randint(c, d)
             fy = y + ey
-            input_helper.leftClick(fx, fy)
+            leftClick(fx, fy)
 
 
     def right_click(self, x=None, y=None, a=1,b=4,c=1,d=4):
-        '''Randomized left click'''
+        '''Randomized right click'''
         if x == None or y == None:
-            input_helper.rightClick()
+            rightClick()
         else:
             ex = randint(a, b)
             fx = x + ex
             ey = randint(c, d)
             fy = y + ey
-            input_helper.rightClick(fx, fy)
+            rightClick(fx, fy)
 
 
     def key_press(self, keys):
-        input_helper.press(keys)
+        press(keys)
 
 
     def loot_process(self, j=30):
@@ -111,15 +112,15 @@ class Bot:
     def get_helltide_loc(self):
         self.key_press('m')
         sleep(uniform(.5, .8))
-        input_helper.move_smooth(800,600)
+        mouse_helper.move_smooth(800,600)
         sleep(uniform(.5, .8))
         
         for n in range(4):
-            input_helper.mouseScroll(-1)
+            mouse_helper.mouseScroll(-1)
             sleep(uniform(.5, .8))
         
         for n in range(2):
-            input_helper.mouseScroll(1)
+            mouse_helper.mouseScroll(1)
             sleep(uniform(.5, .8))
         
         screen_region = (50, 50, 1900, 870)
@@ -134,10 +135,9 @@ class Bot:
             self.right_click(1097, 764)
         else:
             for n in range(2):
-                input_helper.mouseScroll(-1)
+                mouse_helper.mouseScroll(-1)
                 sleep(uniform(.5, .8))
             
-            #input_helper.centerMap()
             x, y = image_helper.locate_needle('.\\assets\\location\\helltide.png', conf=0.8, loctype='c', region=screen_region)
 
             if x != -1 and y != -1:
@@ -166,13 +166,12 @@ class Bot:
         elif self.is_in_game():
             info('Player is in-game.')
             if move == True:
-                move_to = pather.move_to_ref_location()
                 i = 0
                 
-                for n in range(99):
-                    move_to
+                for n in range(199):
+                    move_to = pather.move_to_ref_location()
 
-                    if i == 30:
+                    if i == 99:
                         break
                     elif move_to == False:
                         i+=1

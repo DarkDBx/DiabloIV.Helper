@@ -14,7 +14,7 @@ class Toolbox(QDialog):
         super(Toolbox, self).__init__(parent)
         self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        self.setWindowTitle("LittleHelper - Toolbox")
+        self.setWindowTitle("mmorpgHelper - Toolbox")
         self.setGeometry(700, 300, 600, 250)
         self.setFixedSize(600, 250)
         self.label = QLabel(self)
