@@ -10,8 +10,8 @@ from engine import overlay
 from helper import config_helper
 
 
-APPNAME = 'LittleHelper'
-APPVERSION = 'v1.0.0'
+APPNAME = 'mmorpgHelper'
+APPVERSION = 'v1.0.2'
 
 
 def main():

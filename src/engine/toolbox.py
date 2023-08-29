@@ -12,13 +12,13 @@ from helper import recorder_helper, image_helper
 class Toolbox(QDialog):
     def __init__(self, parent=None):
         super(Toolbox, self).__init__(parent)
-        self.setWindowIcon(QIcon('.\\assets\\layout\\lilhelper.ico'))
+        self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         self.setWindowTitle("LittleHelper - Toolbox")
         self.setGeometry(700, 300, 600, 250)
         self.setFixedSize(600, 250)
         self.label = QLabel(self)
-        self.pixmap = QPixmap('.\\assets\\layout\\lilhelperbp.png') 
+        self.pixmap = QPixmap('.\\assets\\layout\\mmorpg_helper_background.png') 
         self.label.setPixmap(self.pixmap) 
         self.label.resize(self.pixmap.width(), self.pixmap.height())
 
