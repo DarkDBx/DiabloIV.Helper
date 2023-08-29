@@ -14,7 +14,7 @@ class ProcessHelper:
         if hwnd == None:
             hwnd = self.find_window()
             if hwnd == 0:
-                raise Exception("window not found", hwnd)
+                raise Exception(WINDOW_SUBSTRING + " window not found", hwnd)
         else:
             hwnd = hwnd
         return hwnd
