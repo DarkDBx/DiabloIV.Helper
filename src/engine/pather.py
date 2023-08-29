@@ -1,8 +1,9 @@
 from logging import info, debug
 from random import randint
 from functools import wraps
+from pydirectinput import leftClick, press
 
-from helper import input_helper, image_helper, config_helper
+from helper import image_helper, config_helper
 
 
 PLAYER_X = 960 # Center of the screen coordinate X
@@ -55,7 +56,7 @@ def move_to_ref_location(stuck=False):
     evade_var = cfg['evade']
 
     if image_helper.locate_needle('.\\assets\\skills\\climb.png', conf=0.8, region=(500, 300, 1500, 870)):
-        input_helper.press(evade_var)
+        press(evade_var)
         
     '''Calculate distance to click for moving'''
     x, y = get_player_ref_location()
@@ -66,11 +67,11 @@ def move_to_ref_location(stuck=False):
     debug("Relative coords %d, %d, absolute coords %d, %d" % (x, y, PLAYER_X-x, PLAYER_Y-y))
 
     if not stuck:
-        input_helper.leftClick(PLAYER_X-x, PLAYER_Y-y)
+        leftClick(PLAYER_X-x, PLAYER_Y-y)
         info("Moving to %d,%d" % (PLAYER_X-x, PLAYER_Y-y))
         return True
     else:
-        input_helper.leftClick(PLAYER_X-randint(-250, 250), PLAYER_Y-randint(-250, 250))
+        leftClick(PLAYER_X-randint(-250, 250), PLAYER_Y-randint(-250, 250))
         info("Got stuck, do random move")
         return False
 
