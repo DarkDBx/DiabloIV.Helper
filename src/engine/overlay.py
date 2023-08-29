@@ -20,7 +20,7 @@ class Overlay(QMainWindow):
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        self.setWindowTitle("LittleHelper")
+        self.setWindowTitle("mmorpgHelper")
         self.setGeometry(1425, 925, 470, 170)
         self.setFixedSize(470, 170)
         visible_window = QWidget(self)
