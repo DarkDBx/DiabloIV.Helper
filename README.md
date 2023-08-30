@@ -1,4 +1,4 @@
-# <img src="assets/layout/mmorpg_helper_title.png" width="720">
+# <img src="assets/layout/mmorpg_helper_title.png">
 
 ## DESCRIPTION
 - Diablo 4 combat assistant, pixel bot and toolbox.
@@ -37,5 +37,5 @@
 
 
 Support me: https://patreon.com/DarkDBx
-Tips here: https://paypal.me/darkdb?country.x=CH&locale.x=de_DE
+Tips here: https://paypal.me/darkdb
 
