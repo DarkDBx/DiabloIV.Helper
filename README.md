@@ -37,5 +37,5 @@
 
 
 Support me: https://patreon.com/DarkDBx
-Tips here: https://paypal.me/darkdb?country.x=CH&locale.x=de_DE
+Tips here: https://paypal.me/darkdb
 
