@@ -23,11 +23,11 @@
     to the correct number: 01-04 from left to right and 05 for your right mouse button.
     Take a look at src\engine\combat.py and expand the function to your needs.
 - Start the helltide-bot somewhere in the openworld, optimal in onyx watchtower or rakhat keep.
-- Use the macro recorder atm for testing purpose.
+- Use the macro recorder to get a waypoint file, atm for testing purpose.
 - With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor.
 - With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor.
 - 'end' hotkey exit active process.
-- 'delete' hotkey pause active process.
+- 'delete' or 'capslock' hotkey to pause active process. Use to toggle fight on/off
 
 
 ## CREDITS

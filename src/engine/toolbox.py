@@ -22,9 +22,9 @@ class Toolbox(QDialog):
         self.label.setPixmap(self.pixmap) 
         self.label.resize(self.pixmap.width(), self.pixmap.height())
 
-        add_hotkey('insert', lambda: self.on_press('insert'))
-        add_hotkey('home', lambda: self.on_press('home'))
-        add_hotkey('end', lambda: self.on_press('end'))
+        add_hotkey('insert', lambda: self.on_press('image'))
+        add_hotkey('home', lambda: self.on_press('color'))
+        add_hotkey('end', lambda: self.on_press('exit'))
         
         self.running = False
         self.image_name = 'default'
@@ -248,11 +248,11 @@ class Toolbox(QDialog):
 
 
     def on_press(self, key): 
-        if key == 'home':
+        if key == 'image':
             self.get_color_from_pos()
-        elif key == 'insert':
+        elif key == 'color':
             self.get_image_from_pos()
-        elif key == 'end':
+        elif key == 'exit':
             info('_EXIT')
             if self.running:
                 self.running = False

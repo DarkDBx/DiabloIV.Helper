@@ -26,8 +26,9 @@ class Overlay(QMainWindow):
         visible_window = QWidget(self)
         visible_window.setFixedSize(470, 170)
         
-        add_hotkey('end', lambda: self.on_press('end'))
-        add_hotkey('del', lambda: self.on_press('del'))
+        add_hotkey('end', lambda: self.on_press('exit'))
+        add_hotkey('del', lambda: self.on_press('pause'))
+        add_hotkey('capslock', lambda: self.on_press('pause'))
         
         self.running = False
         self.pause = False
@@ -154,13 +155,13 @@ class Overlay(QMainWindow):
 
 
     def on_press(self, key):
-        if key == 'end':
+        if key == 'exit':
             info('_EXIT')
             if self.running:
                 self.running = False
                 self.rotation_thread.join()
                 #self.closeEvent()
-        elif key == 'del':
+        elif key == 'pause':
             self.set_pause(not self.should_pause())
             if self.pause == False:
                 self.pause = True
