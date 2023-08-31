@@ -5,6 +5,7 @@ pillow
 pyqt5
 pyautogui
 pynput
+pydirectinput
 keyboard
 pywin32
 
