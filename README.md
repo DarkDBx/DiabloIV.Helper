@@ -10,7 +10,7 @@
 ## PARAMETER
 - Recomended use of windowed fullscreen with 1920x1080 resolution.
 - Recomended use of US/EN or standard keyboard layout.
-- Set key assignment in config.yml
+- Set a different appname(anticheat) and key assignment in config.yml
 - Set monster health bar -> always on
 - Set basic skill on left mouse and core skill on right mouse
 - English language required for pickit
@@ -23,11 +23,11 @@
     to the correct number: 01-04 from left to right and 05 for your right mouse button.
     Take a look at src\engine\combat.py and expand the function to your needs.
 - Start the helltide-bot somewhere in the openworld, optimal in onyx watchtower or rakhat keep.
-- Use the macro recorder atm for testing purpose.
+- Use the macro recorder to get a waypoint file, atm for testing purpose.
 - With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor.
 - With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor.
 - 'end' hotkey exit active process.
-- 'delete' hotkey pause active process.
+- 'delete' or 'capslock' hotkey to pause active process. Use to toggle fight on/off
 
 
 ## CREDITS

@@ -166,19 +166,17 @@ class Bot:
         elif self.is_in_game():
             info('Player is in-game.')
             if move == True:
-                i = 0
-                
-                for n in range(199):
-                    move_to = pather.move_to_ref_location()
-
-                    if i == 99:
-                        break
-                    elif move_to == False:
-                        i+=1
-
-                if move_to == False:
+                if pather.move_to_ref_location() == False:
                     #self.get_treasure()
                     self.get_helltide_loc()
+                else:
+                    i = 0
+                    
+                    for n in range(199):
+                        if i == 99:
+                            break
+                        elif pather.move_to_ref_location() == False:
+                            i+=1
 
             mob = image_helper.line_detection('mob')
 

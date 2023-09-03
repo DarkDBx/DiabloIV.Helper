@@ -1,4 +1,5 @@
 class: Druid
+name: 'mmorpgHelper'
 evade: 'space'
 pot: 'f'
 skill1: 'q'

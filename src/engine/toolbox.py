@@ -6,26 +6,12 @@ from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem, QIntV
 from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog, QGridLayout, QLineEdit,
                             QGroupBox, QHBoxLayout, QLabel, QPushButton, QStyleFactory)
 
-from helper import recorder_helper, image_helper
+from helper import recorder_helper, image_helper, config_helper
 
 
 class Toolbox(QDialog):
     def __init__(self, parent=None):
         super(Toolbox, self).__init__(parent)
-        self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
-        QApplication.setStyle(QStyleFactory.create('Fusion'))
-        self.setWindowTitle("mmorpgHelper - Toolbox")
-        self.setGeometry(700, 300, 600, 250)
-        self.setFixedSize(600, 250)
-        self.label = QLabel(self)
-        self.pixmap = QPixmap('.\\assets\\layout\\mmorpg_helper_background.png') 
-        self.label.setPixmap(self.pixmap) 
-        self.label.resize(self.pixmap.width(), self.pixmap.height())
-
-        add_hotkey('insert', lambda: self.on_press('insert'))
-        add_hotkey('home', lambda: self.on_press('home'))
-        add_hotkey('end', lambda: self.on_press('end'))
-        
         self.running = False
         self.image_name = 'default'
         self.image_path = '.\\assets\\skills\\'
@@ -36,6 +22,22 @@ class Toolbox(QDialog):
         self.recording = []
         self.started = False
         self.record = recorder_helper.Record()
+        self.cfg = config_helper.read_config()
+        self.name = self.cfg['name']
+        
+        self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
+        QApplication.setStyle(QStyleFactory.create('Fusion'))
+        self.setWindowTitle(self.name)
+        self.setGeometry(700, 300, 600, 250)
+        self.setFixedSize(600, 250)
+        self.label = QLabel(self)
+        self.pixmap = QPixmap('.\\assets\\layout\\mmorpg_helper_background.png') 
+        self.label.setPixmap(self.pixmap) 
+        self.label.resize(self.pixmap.width(), self.pixmap.height())
+
+        add_hotkey('insert', lambda: self.on_press('image'))
+        add_hotkey('home', lambda: self.on_press('color'))
+        add_hotkey('end', lambda: self.on_press('exit'))
         
         self.createImageCrop()
         self.createRecordBox()
@@ -248,11 +250,11 @@ class Toolbox(QDialog):
 
 
     def on_press(self, key): 
-        if key == 'home':
+        if key == 'image':
             self.get_color_from_pos()
-        elif key == 'insert':
+        elif key == 'color':
             self.get_image_from_pos()
-        elif key == 'end':
+        elif key == 'exit':
             info('_EXIT')
             if self.running:
                 self.running = False
