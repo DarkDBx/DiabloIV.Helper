@@ -10,7 +10,7 @@
 ## PARAMETER
 - Recomended use of windowed fullscreen with 1920x1080 resolution.
 - Recomended use of US/EN or standard keyboard layout.
-- Set key assignment in config.yml
+- Set name and key assignment in config.yml
 - Set monster health bar -> always on
 - Set basic skill on left mouse and core skill on right mouse
 - English language required for pickit

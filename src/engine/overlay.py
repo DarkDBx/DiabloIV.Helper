@@ -15,12 +15,21 @@ from engine import bot, combat, toolbox
 class Overlay(QMainWindow):
     def __init__(self, parent=None):
         super(Overlay, self).__init__(parent)
+        self.running = False
+        self.pause = False
+        self._lock = Lock()
+        self.pause_req = False
+        self.cfg = config_helper.read_config()
+        self.name = self.cfg['name']
+        self.proc = process_helper.ProcessHelper()
+        self.robot = bot.Bot()
+
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
-        self.setWindowTitle("mmorpgHelper")
+        self.setWindowTitle(self.name)
         self.setGeometry(1425, 925, 470, 170)
         self.setFixedSize(470, 170)
         visible_window = QWidget(self)
@@ -30,14 +39,6 @@ class Overlay(QMainWindow):
         add_hotkey('del', lambda: self.on_press('pause'))
         add_hotkey('capslock', lambda: self.on_press('pause'))
         
-        self.running = False
-        self.pause = False
-        self._lock = Lock()
-        self.pause_req = False
-        self.cfg = config_helper.read_config()
-        self.proc = process_helper.ProcessHelper()
-        self.robot = bot.Bot()
-
         self.createDropdownBox()
         self.createStartBox()
         self.createToolBox()
