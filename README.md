@@ -10,11 +10,11 @@
 ## PARAMETER
 - Recomended use of windowed fullscreen with 1920x1080 resolution.
 - Recomended use of US/EN or standard keyboard layout.
-- Set a different appname(anticheat) and key assignment in config.yml
-- Set monster health bar -> always on
-- Set basic skill on left mouse and core skill on right mouse
-- English language required for pickit
-- Python 3.9 interpreter, see requirements.txt
+- Set a different appname(anticheat) and adjust the key assignment in config.yml.
+- Set monster health bar -> always on.
+- Set basic skill on left mouse and core skill on right mouse.
+- English language required for pickit.
+- Python 3.9 interpreter, see requirements.txt.
 
 
 ## USAGE
@@ -27,12 +27,12 @@
 - With toolbox open: 'home' hotkey get coordinates and rgb colors at mouse cursor.
 - With toolbox open: 'insert' hotkey save image per parameters from gui at mouse cursor.
 - 'end' hotkey exit active process.
-- 'delete' or 'capslock' hotkey to pause active process. Use to toggle fight on/off
+- 'delete' or 'capslock' hotkey to pause active process. Use to toggle fight on/off.
 
 
 ## CREDITS
-- https://stackoverflow.com/
-- https://github.com/
+- https://stackoverflow.com
+- https://github.com
 - Written in Python by DarkDBx
 
 
