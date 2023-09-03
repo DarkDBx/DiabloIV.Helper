@@ -53,7 +53,7 @@ def pick_it():
                     break
 
     if (x > -1 and y > -1) and color_value == True:
-        left_click(x+12,y+3, -2,8,-2,2)
+        left_click(x+12,y+3, -2,18,-2,2)
         info('Picked item at coords ' + str(x) + str(y))
         sleep(uniform(1.5,2.5))
         return True
