@@ -36,6 +36,4 @@
 - Written in Python by DarkDBx
 
 
-Support me: https://patreon.com/DarkDBx
-Tips here: https://paypal.me/darkdb
-
+Support me: https://paypal.me/darkdb
