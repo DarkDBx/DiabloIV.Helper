@@ -34,7 +34,7 @@ def stuck_check(func):
 
     return decorated
 
-def get_player_ref_location(trans=True):
+def get_player_ref_location(trans=False):
     """
     Ermittelt die Position des Spielers relativ zur Minimap.
     Parameters:
@@ -48,15 +48,9 @@ def get_player_ref_location(trans=True):
         logging_helper.log_debug("Path not found")
         return -1, -1
 
-    if path[5]:
-        x, y, w, h = path[3]
-        x2, y2, w2, h2 = path[5]
-        x = round(((x + w) + (x2 + w2)) / 2)
-        y = round(((y + h) + (y2 + h2)) / 2)
-    else:
-        x, y, w, h = path[0]
-        x = x + w
-        y = y + h
+    x, y, w, h = path
+    x = x + w
+    y = y + h
 
     x = (MAP_X - x) - 1675
     y = (MAP_Y - y) - 75

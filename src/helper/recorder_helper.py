@@ -8,7 +8,7 @@ from pynput.keyboard import Controller as Controller_k, Key
 from pynput.mouse import Controller as Controller_m, Button
 
 from helper import process_helper, mouse_helper
-from engine import bot
+from bot import manager
 
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ class Replay:
         self.dic = dic
         self.keyboard = Controller_k()
         self.mouse = Controller_m()
-        self.robot = bot.Bot()
+        self.robot = manager.Bot()
 
     def replay_run(self):
         proc = process_helper.ProcessHelper()

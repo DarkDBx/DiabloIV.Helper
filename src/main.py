@@ -4,12 +4,12 @@
 from sys import exit, argv
 from PyQt5.QtWidgets import QApplication
 
-from engine import overlay
+from GUI import overlay
 from helper import config_helper, logging_helper
 from helper.logging_helper import DEBUG
 
 APPNAME = 'D4.Helper'
-APPVERSION = '1.2024.1220.0308'
+APPVERSION = '1.2024.1220.1341'
 
 def main():
     """

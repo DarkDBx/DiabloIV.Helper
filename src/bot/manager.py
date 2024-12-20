@@ -3,9 +3,9 @@ from random import randint, uniform
 from pydirectinput import leftClick, rightClick, press
 
 from helper import mouse_helper, image_helper, config_helper, logging_helper
-from engine import combat, pather, pickit
+from bot import pather, pickit, rotation
 
-class Bot:
+class Manager:
     def __init__(self) -> None:
         self.cfg = config_helper.read_config()
 
@@ -132,8 +132,8 @@ class Bot:
             logging_helper.log_info('Player is in-game.')
             mob = image_helper.detect_lines('mob')
             if mob:
-                x, y, w, h = mob[0]
-                combat.rotation(x, y)
+                x, y, w, h = mob
+                rotation.rotation(x, y)
                 self.game_manager(move=False, loot=True)
             elif loot:
                 self.loot_process()

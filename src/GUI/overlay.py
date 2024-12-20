@@ -8,7 +8,8 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QPlainTextEdit, QMainWindo
                              QGroupBox, QPushButton, QHBoxLayout, QStyleFactory, QWidget)
 
 from helper import config_helper, logging_helper, process_helper
-from engine import bot, combat, toolbox
+from bot import manager, rotation
+from GUI import toolbox
 
 class Overlay(QMainWindow):
     def __init__(self, parent=None):
@@ -19,7 +20,7 @@ class Overlay(QMainWindow):
         self.cfg = config_helper.read_config()
         self.name = self.cfg.get('apptitle', 'Overlay')
         self.proc = process_helper.ProcessHelper()
-        self.robot = bot.Bot()
+        self.robot = manager.Manager()
 
         # Window setup
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -176,7 +177,7 @@ class Overlay(QMainWindow):
             if bot_state:
                 self.robot.game_manager()
             else:
-                combat.rotation()
+                rotation.rotation()
 
         logging_helper.log_info("LittleHelper stopped")
 

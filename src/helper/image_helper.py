@@ -1,9 +1,10 @@
 import os
 from pyautogui import screenshot, locate, locateOnScreen, locateCenterOnScreen, ImageNotFoundException
 from numpy import array as npArray
-from cv2 import cvtColor, COLOR_BGR2HSV, inRange, Canny, findContours, rectangle, waitKey, destroyAllWindows, imshow
-from cv2 import RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, arcLength, approxPolyDP, boundingRect, bitwise_and
+from cv2 import cvtColor, inRange, Canny, findContours, arcLength, approxPolyDP, boundingRect
+from cv2 import RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, COLOR_BGR2HSV
 from PIL import ImageGrab
+from math import sqrt
 
 from helper import mouse_helper, logging_helper
 
@@ -97,14 +98,14 @@ def detect_lines(line_type='path'):
     # Define configurations for different line types
     line_config = {
         'path': {
-            'array_min': npArray([95, 95, 95]), # BGR color min for 'path'
-            'array_max' : npArray([125, 125, 125]),  # BGR color max for 'path'
-            'screen_box': (1675, 75, 1825, 225)  # Screen region for 'path' (x, y, w, h)
+            'array_min': npArray([95, 95, 95]),     # Color min for 'path'
+            'array_max' : npArray([125, 125, 125]), # Color max for 'path'
+            'screen_box': (1675, 75, 1825, 225)     # Screen region for 'path' (x, y, w, h)
         },
         'mob': {
-            'array_min': npArray([0, 0, 0]),  # BGR color min for 'mob'
-            'array_max': npArray([5, 5, 5]),  # BGR color max for 'mob'
-            'screen_box': (550, 125, 1350, 825)  # Screen region for 'mob' (x, y, w, h)
+            'array_min': npArray([0, 0, 0]),    # Color min for 'mob'
+            'array_max': npArray([5, 5, 5]),    # Color max for 'mob'
+            'screen_box': (550, 125, 1350, 825) # Screen region for 'mob' (x, y, w, h)
         }
     }
 
@@ -119,9 +120,6 @@ def detect_lines(line_type='path'):
     
     # Create mask based on the defined color range
     mask = inRange(hsv, config['array_min'], config['array_max'])
-
-    # Apply mask to image
-    result = bitwise_and(np_array, np_array, mask=mask)
     
     # Apply Canny edge detection
     edges = Canny(mask, 100, 200)
@@ -129,41 +127,41 @@ def detect_lines(line_type='path'):
     # Find contours in the detected edges
     contours, _ = findContours(edges, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE)
 
-    detected_lines = []
+    screen_center_x = config['screen_box'][0] + (config['screen_box'][2] // 2)
+    screen_center_y = config['screen_box'][1] + (config['screen_box'][3] // 2)
+    min_distance = float('inf')
+    closest_contour = None
 
     for contour in contours:
         # Approximate the contour to reduce noise
         epsilon = 0.01 * arcLength(contour, True)
         approx = approxPolyDP(contour, epsilon, True)
         x, y, w, h = boundingRect(contour)
-        
-        for i in range(len(detected_lines)):
-            if i >= 6:
-                break
+
+        # Calculate the distance from the center of the bounding box to the center of the screen region
+        contour_center_x = x + (w // 2)
+        contour_center_y = y + (h // 2)
+        distance = sqrt((contour_center_x - screen_center_x) ** 2 + (contour_center_y - screen_center_y) ** 2)
 
         # Handle curved lines for 'path'
         if line_type == 'path' and len(approx) > 1:  # Curved line: More than specified number vertices
-            # Filter by aspect ratio (narrow shapes)
-            #if (w / h < 0.6 and h > 15) or (h / w < 0.6 and w > 15):  # Add minimum length filter
-            detected_lines.append((x, y, w, h))
-            logging_helper.log_info(f"Detected curved line ('path') at ({x}, {y}), ({x + w}, {y + h})")
-            #rectangle(result, (x, y), (x + w, y + h), (0, 255, 0), 1)
+            if distance < min_distance:
+                min_distance = distance
+                closest_contour = (x, y, w, h)
+                logging_helper.log_info(f"Detected curved line ('path') at ({x}, {y}), ({x + w}, {y + h})")
 
         # Handle straight lines for 'mob'
-        elif line_type == 'mob':
-            # Filter for straight lines based on size
-            if w >= 20 and h >= 1 and h <= 4:
-                detected_lines.append((x, y, w, h))
+        elif line_type == 'mob' and w >= 20 and h >= 1 and h <= 4: # Straight line: Minimum width and height
+            if distance < min_distance:
+                min_distance = distance
+                closest_contour = (x, y, w, h)
                 logging_helper.log_info(f"Detected straight line ('mob') at {x}, {y}, {w}, {h}")
-                #rectangle(result, (x, y), (x + w, y + h), (0, 255, 0), 1)
-
-    # Show the result if lines are detected
-    """if detected_lines:
-        imshow('Detected Lines '+ line_type, result)
-        waitKey(0)
-        destroyAllWindows()"""
-
-    return detected_lines if detected_lines else None
+    
+    if closest_contour:
+        logging_helper.log_info(f"Closest contour to center: {closest_contour}")
+        return closest_contour
+    else:
+        return None
 
 def locate_needle(
     needle,
