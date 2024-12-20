@@ -3,14 +3,14 @@
 ## DESCRIPTION
 - Diablo 4 combat assistant, pixel bot and toolbox.
 - Set up a combat rotation and let the assistant do the combat.
-- Set up a combat rotation and let the helltide-bot do the combat, pathing and looting.
-- Use the macro recorder/player to get a waypoint file and let the robot do the combat, pathing and looting.
+- Set up a combat rotation and let the helltide-bot do the combat, pathing and looting. (WiP)
+- Use the macro recorder/player to get a waypoint file and let the bot do the combat, pathing and looting. (WiP)
 
 
 ## PARAMETER
 - Recomended use of windowed fullscreen with 1920x1080 resolution.
 - Recomended use of US/EN or standard keyboard layout.
-- Set a different appname(anticheat) and adjust the key assignment in config.yml.
+- Set a different apptitle (anticheat) and adjust the key assignment in .\config\config.yml.
 - Set monster health bar -> always on.
 - Set basic skill on left mouse and core skill on right mouse.
 - Python 3.9 interpreter, see requirements.txt.
@@ -18,9 +18,9 @@
 
 ## USAGE
 - Recomended usage is the assistant in combination with the toolbox to build a custom skill rotation,
-    just use folder names, in assets\skills\ like: barbarian, necromant, sorceress and assign the
+    just use folder names, in .\assets\skills\ like: barbarian, necromant, sorceress and assign the
     proper skill image to the correct number: 01-04 from left to right and 05 for your right mouse button.
-    Take a look at src\engine\combat.py and expand the function to your needs.
+    Take a look at .\src\engine\combat.py and customize the function to your needs.
 - Start the helltide-bot somewhere in the openworld, optimal in onyx watchtower or rakhat keep.
 - Use the macro recorder to get a waypoint file, atm for testing purpose.
 - With toolbox open: 'F10' hotkey get coordinates and rgb colors at mouse cursor.
