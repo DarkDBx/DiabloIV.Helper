@@ -1,47 +1,49 @@
-from logging import debug
 from timeit import default_timer
 
+from helper import logging_helper
 
 TIMER_RUNNING = 1
 TIMER_STOPPED = 0
 
-
 class TimerHelper:
     def __init__(self, ID):
-        self.timerPool = {}
+        """Initialize a new timer with the given ID."""
+        self.timerPool = {
+            ID: {
+                'state': TIMER_STOPPED,
+                'start': 0,
+                'duration': 0,
+                'time': 0
+            }
+        }
         self.timeID = ID
 
-        """Initilialize the timer like below if any new timer to be added"""
-        self.timerPool[self.timeID] = {}
-        self.timerPool[self.timeID]['state'] = TIMER_STOPPED
-        self.timerPool[self.timeID]['start'] = 0
-        self.timerPool[self.timeID]['duration'] = 0
-        self.timerPool[self.timeID]['time'] = 0
+    def start_timer(self, duration):
+        """
+        Start the timer with the specified duration (in seconds).
+        Returns the timer's state after starting.
+        """
+        timer = self.timerPool[self.timeID]
+        timer['time'] = duration
 
-
-    """Interface to start the timer"""
-    def StartTimer(self, time):
-        self.timerPool[self.timeID]['time'] = time
-        self.timerPool[self.timeID]
-        if (self.timerPool[self.timeID]['state'] == TIMER_STOPPED):
-            self.timerPool[self.timeID]['start'] = default_timer()
-            self.timerPool[self.timeID]['state'] = TIMER_RUNNING
-        return self.timerPool[self.timeID]['state']
-
-
-    """
-    Interface to get the timer status.
-    Return "TIMER_STOPPED" when timer completed
-    """
-    def GetTimerState(self):
-        time = self.timerPool[self.timeID]['time']
-        if self.timerPool[self.timeID]['state'] == TIMER_RUNNING:
-            self.timerPool[self.timeID]['duration'] = default_timer() - self.timerPool[self.timeID]['start']
-
-        if  self.timerPool[self.timeID]['duration'] >= time:
-            self.timerPool[self.timeID]['state'] = TIMER_STOPPED
-            self.timerPool[self.timeID]['duration'] = 0
+        if timer['state'] == TIMER_STOPPED:
+            timer['start'] = default_timer()
+            timer['state'] = TIMER_RUNNING
         
-        debug('timer '+str(self.timeID)+' state: '+str(self.timerPool[self.timeID]['state']))
-        return self.timerPool[self.timeID]['state']
+        return timer['state']
 
+    def get_timer_state(self):
+        """
+        Check and update the state of the timer.
+        Returns TIMER_STOPPED when the timer has completed.
+        """
+        timer = self.timerPool[self.timeID]
+        if timer['state'] == TIMER_RUNNING:
+            timer['duration'] = default_timer() - timer['start']
+
+        if timer['duration'] >= timer['time']:
+            timer['state'] = TIMER_STOPPED
+            timer['duration'] = 0  # Reset duration for future use
+        
+        logging_helper.log_debug(f"Timer {self.timeID} state: {timer['state']}")
+        return timer['state']

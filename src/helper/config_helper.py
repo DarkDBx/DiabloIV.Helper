@@ -2,24 +2,31 @@ from yaml import dump, safe_load
 from os import path
 from io import open
 
-
-"""Finds filepath after compiling."""
-def set_file_path():
-    bundle_dir = path.dirname(path.abspath(__file__))
-    bundle_dir = path.dirname(bundle_dir)
-    bundle_dir = path.dirname(bundle_dir)
-    return bundle_dir + '\\config\\config.yml'
-
-
-def save_config(item, value):
-    data = read_config()
-    data[item] = value
-    with open(set_file_path(), 'w', encoding='utf8') as outfile:
-        dump(data, outfile, default_flow_style=False, allow_unicode=True)
-
+def get_file_path():
+    """
+    Determines the absolute path to the configuration file.
+    Assumes the file is located three directories above the script's location in a 'config' folder.
+    """
+    base_dir = path.abspath(path.join(path.dirname(__file__), '..', '..'))
+    return path.join(base_dir, 'config', 'config.yml')
 
 def read_config():
-    with open(set_file_path(), 'r') as outfile:
-        config = safe_load(outfile)
-    return config
+    """
+    Reads the configuration from the YAML file.
+    Returns the configuration as a dictionary.
+    """
+    config_path = get_file_path()
+    if not path.exists(config_path):
+        raise FileNotFoundError(f"Configuration file not found at: {config_path}")
+    with open(config_path, 'r', encoding='utf8') as infile:
+        return safe_load(infile) or {}
 
+def save_config(item, value):
+    """
+    Updates the configuration file with a new key-value pair or updates an existing one.
+    """
+    config_path = get_file_path()
+    data = read_config()
+    data[item] = value
+    with open(config_path, 'w', encoding='utf8') as outfile:
+        dump(data, outfile, default_flow_style=False, allow_unicode=True)

@@ -1,8 +1,8 @@
-class: Druid
-name: 'Notepad'
-evade: 'space'
-pot: 'f'
-skill1: 'q'
-skill2: 'w'
-skill3: 'e'
-skill4: 'r'
+apptitle: xyz
+class: Spiritborn
+evade: space
+pot: f
+skill1: q
+skill2: w
+skill3: e
+skill4: r

@@ -8,7 +8,6 @@ from pydirectinput import position, moveRel, moveTo
 from win32con import WHEEL_DELTA, MOUSEEVENTF_WHEEL
 from win32api import mouse_event
 
-
 def mouseScroll(clicks=0, delta_x=0, delta_y=0, delay_between_ticks=0):
     """
     A positive value indicates that the wheel was rotated forward, away from the user;
@@ -24,10 +23,8 @@ def mouseScroll(clicks=0, delta_x=0, delta_y=0, delay_between_ticks=0):
         mouse_event(MOUSEEVENTF_WHEEL, delta_x, delta_y, increment, 0)
         sleep(delay_between_ticks)
 
-
 def isNumeric(val):
     return isinstance(val, (float, int, int32, int64, float32, float64))
-
 
 def isListOfPoints(l):
     if not isinstance(l, list):
@@ -38,19 +35,16 @@ def isListOfPoints(l):
     except (KeyError, TypeError) as e:
         return False
 
-
 class BezierCurve():
     @staticmethod
     def binomial(n, k):
         """Returns the binomial coefficient "n choose k" """
         return factorial(n) / float(factorial(k) * factorial(n - k))
 
-
     @staticmethod
     def bernsteinPolynomialPoint(x, i, n):
         """Calculate the i-th component of a bernstein polynomial of degree n"""
         return BezierCurve.binomial(n, i) * (x ** i) * ((1 - x) ** (n - i))
-
 
     @staticmethod
     def bernsteinPolynomial(points):
@@ -68,7 +62,6 @@ class BezierCurve():
             return x, y
         return bern
 
-
     @staticmethod
     def curvePoints(n, points):
         """
@@ -82,7 +75,6 @@ class BezierCurve():
             curvePoints += bernstein_polynomial(t),
         return curvePoints
 
-
 class HumanCurve():
     """
     Generates a human-like mouse curve starting at given source point,
@@ -92,7 +84,6 @@ class HumanCurve():
         self.fromPoint = fromPoint
         self.toPoint = toPoint
         self.points = self.generateCurve(**kwargs)
-
 
     def generateCurve(self, **kwargs):
         """
@@ -120,7 +111,6 @@ class HumanCurve():
         points = self.tweenPoints(points, tween, targetPoints)
         return points
 
-
     def generateInternalKnots(self, \
         leftBoundary, rightBoundary, \
         downBoundary, upBoundary,\
@@ -146,7 +136,6 @@ class HumanCurve():
         knots = list(zip(knotsX, knotsY))
         return knots
 
-
     def generatePoints(self, knots):
         """
         Generates bezier curve points on a curve, according to the internal
@@ -161,7 +150,6 @@ class HumanCurve():
             2)
         knots = [self.fromPoint] + knots + [self.toPoint]
         return BezierCurve.curvePoints(midPtsCnt, knots)
-
 
     def distortPoints(self, points, distortionMean, distortionStdev, distortionFrequency):
         """
@@ -187,7 +175,6 @@ class HumanCurve():
         distorted = [points[0]] + distorted + [points[-1]]
         return distorted
 
-
     def tweenPoints(self, points, tween, targetPoints):
         """
         Chooses a number of points(targetPoints) from the list(points)
@@ -205,52 +192,44 @@ class HumanCurve():
             index = int(tween(float(i)/(targetPoints-1)) * (len(points)-1))
             res += points[index],
         return res
-
-
+    
 def move_smooth(x, y, absolute=True, duration=0, randomize=4, delay_factor=[0.4, 0.6]):
     """
-    Moves the mouse. If `absolute`, to position (x, y), otherwise move relative
-    to the current position. If `duration` is non-zero, animates the movement.
+    Smoothly moves the mouse. Supports absolute and relative positions, duration, 
+    and randomization for human-like behavior.
     """
-    x = int(x)
-    y = int(y)
-    from_point = position()
+    # Convert coordinates to integers
+    x, y = int(x), int(y)
+    from_point = position()  # Current mouse position
     distance = dist((x, y), from_point)
+    
+    # Calculate movement parameters
     offsetBoundaryX = max(10, int(0.08 * distance))
     offsetBoundaryY = max(10, int(0.08 * distance))
     targetPoints = min(6, max(3, int(0.004 * distance)))
 
     if not absolute:
-        x = from_point[0] + x
-        y = from_point[1] + y
+        x, y = from_point[0] + x, from_point[1] + y
 
-    if type(randomize) is int:
-        randomize = int(randomize)
-        if randomize > 0:
-            x = int(x) + randint(-randomize, +randomize)
-            y = int(y) + randint(-randomize, +randomize)
-    else:
-        randomize = (int(randomize[0]), int(randomize[1]))
-        if randomize[1] > 0 and randomize[0] > 0:
-            x = int(x) + randint(-randomize[0], +randomize[0])
-            y = int(y) + randint(-randomize[1], +randomize[1])
-            
-    human_curve = HumanCurve(from_point, (x, y), offsetBoundaryX=offsetBoundaryX, offsetBoundaryY=offsetBoundaryY, targetPoints=targetPoints)
-    #duration = min(0.5, max(0.05, distance * 0.0004) * uniform(delay_factor[0], delay_factor[1]))
-    delta = duration / len(human_curve.points)
+    # Apply randomization
+    if isinstance(randomize, int):
+        x += randint(-randomize, randomize)
+        y += randint(-randomize, randomize)
+    elif isinstance(randomize, (tuple, list)) and len(randomize) == 2:
+        x += randint(-randomize[0], randomize[0])
+        y += randint(-randomize[1], randomize[1])
 
-    if duration:
-        start_x = from_point[0]
-        start_y = from_point[1]
-        dx = x - start_x
-        dy = y - start_y
+    # Generate the curve
+    human_curve = HumanCurve(
+        from_point, (x, y),
+        offsetBoundaryX=offsetBoundaryX,
+        offsetBoundaryY=offsetBoundaryY,
+        targetPoints=targetPoints
+    )
+    
+    # Calculate delay per point
+    delta = duration / len(human_curve.points) if duration else 0
 
-        if dx == 0 and dy == 0:
-            sleep(duration)
-        else:
-            for point in human_curve.points:
-                moveRel(int(point[0]), int(point[1]), duration=delta)
-    else:
-        for point in human_curve.points:
-            moveTo(int(point[0]), int(point[1]), duration=delta)
-
+    # Move along the curve
+    for point in human_curve.points:
+        moveTo(int(point[0]), int(point[1]), duration=delta)

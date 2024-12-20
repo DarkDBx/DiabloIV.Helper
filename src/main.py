@@ -1,37 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-from logging import getLogger, info, error, INFO, DEBUG
 from sys import exit, argv
 from PyQt5.QtWidgets import QApplication
 
 from engine import overlay
-from helper import config_helper
+from helper import config_helper, logging_helper
+from helper.logging_helper import DEBUG
 
-
-APPNAME = 'mmorpgHelper'
-APPVERSION = 'v1.0.3.0001-d4'
-
+APPNAME = 'D4.Helper'
+APPVERSION = '1.2024.1220.0308'
 
 def main():
-    app = QApplication(argv)
-    app_gui = overlay.Overlay()
-    app_gui.show()
+    """
+    Entry point for the application.
+    Initializes the GUI and reads configuration.
+    """
+    try:
+        app = QApplication(argv)
+        app_gui = overlay.Overlay()
+        app_gui.show()
 
-    cfg = config_helper.read_config()
-    getLogger().setLevel(DEBUG)
+        cfg = config_helper.read_config()
+        logging_helper.logger.setLevel(DEBUG)
+        logging_helper.log_info(f"====== {APPNAME} {APPVERSION} ======")
+        logging_helper.log_info("Starting up bot engine...")
+        logging_helper.log_info(f"Preset class {cfg['class']} is initialized")
 
-    info(('====== %s %s ======') % (APPNAME, APPVERSION))
-    info('Starting up bot engine...')
-    info('Preset class ' + cfg['class'] + ' is initialized')
-    
-    exit(app.exec_())
-
+        # Execute the QApplication event loop
+        exit(app.exec_())
+    except Exception as e:
+        logging_helper.log_error("Unexpected exception occurred!", exc_info=e)
 
 if __name__ == '__main__':
-    try:
-        main()
-    except Exception as e:
-        error("Unexpected exception! %s", e)
-
+    main()
