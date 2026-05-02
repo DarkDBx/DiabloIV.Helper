@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+*.vs/
+
 # C extensions
 *.so
 

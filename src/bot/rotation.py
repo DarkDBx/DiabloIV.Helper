@@ -1,157 +1,227 @@
 from random import uniform
 from time import sleep
+from typing import Optional
+from pathlib import Path
 from pydirectinput import keyDown, keyUp, press, leftClick, rightClick
 
 from helper import mouse_helper, image_helper, timer_helper, config_helper, logging_helper
 from helper.timer_helper import TIMER_STOPPED
 
-SKILLPATH = ".\\assets\\skills\\"
+# Skill-Assets relativ zum Projekt
+SKILLPATH = Path(__file__).resolve().parents[1] / "assets" / "skills"
 
 # Timer-Instanzen für Abklingzeiten
 timer1 = timer_helper.TimerHelper('timer1')
 timer2 = timer_helper.TimerHelper('timer2')
 timer3 = timer_helper.TimerHelper('timer3')
 
-def press_combo(key):
-    """
-    Drückt eine Tastenkombination, bestehend aus 'Shift' + einer beliebigen Taste.
-    Parameters:
-        key (str): Die Taste, die zusammen mit 'Shift' gedrückt werden soll.
-    """
-    keyDown('shift')
-    press(key)
-    keyUp('shift')
+# Konfigurierbare Werte
+MOVE_OFFSET_N = 25
+POTION_TIMER_SEC = 3
+EVADE_TIMER_SEC = 3
+CLICK_DELAY_MIN = 0.11
+CLICK_DELAY_MAX = 0.14
 
-def rotation(x=None, y=None):
-    """
-    Setzt die Kampfrotation für eine spezifische Klasse auf Basis der Konfigurationswerte.
-    Parameters:
-        x, y (int): Koordinaten eines Ziels (optional).
-    """
-    cfg = config_helper.read_config()
-    class_var = cfg.get('class', '').capitalize()
 
-    if class_var in ['Druid', 'Spiritborn', 'Barbarian', 'Necromancer', 'Sorceress', 'Rogue']:
-        combat_rotation(class_var.lower(), x, y)
+def press_combo(key: str) -> None:
+    """
+    Drückt eine Tastenkombination 'Shift' + key. Stellt sicher, dass Shift wieder losgelassen wird.
+    """
+    try:
+        keyDown('shift')
+        press(key)
+    finally:
+        try:
+            keyUp('shift')
+        except Exception:
+            # KeyUp kann fehlschlagen, aber wir wollen nicht abstürzen
+            pass
+
+
+def rotation(x: Optional[int] = None, y: Optional[int] = None) -> None:
+    """
+    Setzt die Kampfrotation für eine spezifische Klasse basierend auf der Konfiguration.
+    """
+    try:
+        cfg = config_helper.read_config() or {}
+    except Exception as ex:
+        logging_helper.log_error("Failed to read config for rotation: %s" % ex)
+        return
+
+    class_name = str(cfg.get('class', '')).strip().capitalize()
+    valid = {'Druid', 'Spiritborn', 'Barbarian', 'Necromancer', 'Sorceress', 'Rogue'}
+
+    if class_name in valid:
+        combat_rotation(class_name.lower(), x, y)
     else:
-        logging_helper.log_error('No viable class specified in configuration.')
+        logging_helper.log_error("No viable class specified in configuration: %r" % class_name)
 
-def combat_rotation(class_name, x, y):
+
+def combat_rotation(class_name: str, x: Optional[int], y: Optional[int]) -> None:
     """
-    Führt die Kampfrotation für die angegebene Klasse aus.
-    Parameters:
-        class_name (str): Name der Klasse (z. B. 'rogue', 'druid').
-        x, y (int): Koordinaten eines Ziels (optional).
+    Führt die Kampfrotation aus: Health/Evade prüfen und Skills verwenden.
     """
-    cfg = config_helper.read_config()
-    evade = cfg['evade']
-    pot = cfg['pot']
-    skill1, skill2, skill3, skill4 = cfg['skill1'], cfg['skill2'], cfg['skill3'], cfg['skill4']
-    n = 25
+    try:
+        cfg = config_helper.read_config() or {}
+    except Exception as ex:
+        logging_helper.log_error("Failed to read config in combat_rotation: %s" % ex)
+        return
+
+    evade = cfg.get('evade', '')
+    pot = cfg.get('pot', '')
+    skill1 = cfg.get('skill1', '')
+    skill2 = cfg.get('skill2', '')
+    skill3 = cfg.get('skill3', '')
+    skill4 = cfg.get('skill4', '')
+
+    n = MOVE_OFFSET_N
     target_type = check_target_type(x, y, n)
 
     if target_type:
         handle_health_and_evade(evade, pot)
         use_skills(class_name, target_type, x, y, skill1, skill2, skill3, skill4)
 
-def check_target_type(x, y, n):
-    """
-    Überprüft, ob das Ziel ein Normal- oder Elite-Gegner ist.
-    Parameters:
-        x, y (int): Zielkoordinaten.
-        n (int): Offsets zur Zielposition.
-    Returns:
-        str: 'normal', 'elite' oder None.
-    """
-    if image_helper.pixel_matches_color(801, 45, 107, 2, 1, 20) or \
-       image_helper.pixel_matches_color(801, 45, 156, 65, 93, 20) or \
-       image_helper.pixel_matches_color(801, 45, 231, 13, 9, 20) or \
-       image_helper.detect_lines('mob') != None:
-        if x is not None and y is not None:
-            mouse_helper.move_smooth(x + 400 + n, y + 50 + (n * 2), 1)
-        return 'normal'
 
-    if image_helper.pixel_matches_color(710, 45, 162, 4, 4, 20) or \
-       image_helper.pixel_matches_color(710, 45, 124, 71, 98, 20) or \
-       image_helper.detect_lines('mob') != None:
-        if x is not None and y is not None:
-            mouse_helper.move_smooth(x + 400 + (n * 3), y + 50 + (n * 6), 1)
-        return 'elite'
+def check_target_type(x: Optional[int], y: Optional[int], n: int) -> Optional[str]:
+    """
+    Ermittelt ob Ziel 'normal' oder 'elite' ist.
+    Beachtet: reduziert doppelte Aufrufe von detect_lines.
+    """
+    try:
+        detect_mob = image_helper.detect_lines('mob') is not None
+    except Exception as ex:
+        logging_helper.log_debug("detect_lines error in check_target_type: %s" % ex)
+        detect_mob = False
+
+    try:
+        # Normal checks
+        if (image_helper.pixel_matches_color(801, 45, 107, 2, 1, 20) or
+            image_helper.pixel_matches_color(801, 45, 156, 65, 93, 20) or
+            image_helper.pixel_matches_color(801, 45, 231, 13, 9, 20) or
+            detect_mob):
+            if x is not None and y is not None:
+                mouse_helper.move_smooth(x + 400 + n, y + 50 + (n * 2), 1)
+            return 'normal'
+
+        # Elite checks
+        if (image_helper.pixel_matches_color(710, 45, 162, 4, 4, 20) or
+            image_helper.pixel_matches_color(710, 45, 124, 71, 98, 20) or
+            detect_mob):
+            if x is not None and y is not None:
+                mouse_helper.move_smooth(x + 400 + (n * 3), y + 50 + (n * 6), 1)
+            return 'elite'
+    except Exception as ex:
+        logging_helper.log_debug("Error in check_target_type pixel checks: %s" % ex)
 
     return None
 
-def handle_health_and_evade(evade, pot):
-    """
-    Überprüft die Gesundheit und verwendet bei Bedarf Tränke oder Ausweichbewegungen.
-    Parameters:
-        evade (str): Tastenkürzel für Ausweichbewegungen.
-        pot (str): Tastenkürzel für Heiltränke.
-    """
-    if not image_helper.pixel_matches_color(608, 980, 95, 10, 15, 45) and \
-       not image_helper.pixel_matches_color(608, 972, 148, 14, 24, 45) and \
-       not image_helper.pixel_matches_color(607, 978, 97, 29, 82, 45):
-        if locate_and_use_potion(pot):
-            logging_helper.log_info('Used potion')
-        if locate_and_use_evade(evade):
-            logging_helper.log_info('Used evade')
 
-def locate_and_use_potion(pot):
+def handle_health_and_evade(evade: str, pot: str) -> None:
     """
-    Sucht nach Tränken und verwendet sie bei Bedarf.
-    Parameters:
-        pot (str): Tastenkürzel für Heiltränke.
-    Returns:
-        bool: True, wenn ein Trank verwendet wurde, sonst False.
+    Prüft Lebensanzeige und verwendet bei Bedarf Potion / Evade.
+    Hinweis: die Farbe-Checks sind projekt-spezifisch; bei Änderungen der UI anpassen.
     """
-    potion_images = ['pot10.png', 'pot20.png', 'pot30.png', 'pot45.png', 
-                     'pot60.png', 'pot70.png', 'pot_placeholder.png']
-    for img in potion_images:
-        if image_helper.locate_needle(SKILLPATH + img, conf=0.7) and timer1.get_timer_state() == TIMER_STOPPED:
-            timer1.start_timer(3)
-            press(pot)
-            sleep(uniform(0.11, 0.14))
+    try:
+        low_hp = not image_helper.pixel_matches_color(608, 980, 95, 10, 15, 45) and \
+                 not image_helper.pixel_matches_color(608, 972, 148, 14, 24, 45) and \
+                 not image_helper.pixel_matches_color(607, 978, 97, 29, 82, 45)
+
+        if low_hp:
+            if locate_and_use_potion(pot):
+                logging_helper.log_info('Used potion')
+            if locate_and_use_evade(evade):
+                logging_helper.log_info('Used evade')
+    except Exception as ex:
+        logging_helper.log_debug("handle_health_and_evade error: %s" % ex)
+
+
+def locate_and_use_potion(pot: str) -> bool:
+    """
+    Sucht nach Trank-Icons und benutzt den angegebenen Taste für Potion.
+    """
+    potion_images = ['pot.png']
+    try:
+        for img in potion_images:
+            path = str(SKILLPATH / img)
+            try:
+                found = image_helper.locate_needle(path, conf=0.7)
+            except Exception as ex:
+                logging_helper.log_debug("locate_needle error for %s: %s" % (path, ex))
+                found = False
+
+            if found and timer1.get_timer_state() == TIMER_STOPPED:
+                timer1.start_timer(POTION_TIMER_SEC)
+                try:
+                    press(pot)
+                except Exception as ex:
+                    logging_helper.log_debug("press(pot) failed: %s" % ex)
+                sleep(uniform(CLICK_DELAY_MIN, CLICK_DELAY_MAX))
+                return True
+    except Exception as ex:
+        logging_helper.log_debug("locate_and_use_potion error: %s" % ex)
+
+    return False
+
+
+def locate_and_use_evade(evade: str) -> bool:
+    """
+    Sucht nach Evade-Icon und führt Evade-Taste aus (mit Timer).
+    """
+    try:
+        path = str(SKILLPATH / 'evade.png')
+        try:
+            found = image_helper.locate_needle(path, conf=0.7)
+        except Exception as ex:
+            logging_helper.log_debug("locate_needle error for evade: %s" % ex)
+            found = False
+
+        if found and timer2.get_timer_state() == TIMER_STOPPED:
+            timer2.start_timer(EVADE_TIMER_SEC)
+            try:
+                press(evade)
+            except Exception as ex:
+                logging_helper.log_debug("press(evade) failed: %s" % ex)
+            sleep(uniform(CLICK_DELAY_MIN, CLICK_DELAY_MAX))
             return True
+    except Exception as ex:
+        logging_helper.log_debug("locate_and_use_evade error: %s" % ex)
+
     return False
 
-def locate_and_use_evade(evade):
-    """
-    Sucht nach Ausweichmöglichkeiten und verwendet sie bei Bedarf.
-    Parameters:
-        evade (str): Tastenkürzel für Ausweichbewegungen.
-    Returns:
-        bool: True, wenn eine Ausweichbewegung verwendet wurde, sonst False.
-    """
-    if image_helper.locate_needle(SKILLPATH + 'evade.png', conf=0.7) and timer2.get_timer_state() == TIMER_STOPPED:
-        timer2.start_timer(3)
-        press(evade)
-        sleep(uniform(0.11, 0.14))
-        return True
-    return False
 
-def use_skills(class_name, target_type, x, y, skill1, skill2, skill3, skill4):
+def use_skills(class_name: str, target_type: str, x: Optional[int], y: Optional[int],
+               skill1: str, skill2: str, skill3: str, skill4: str) -> None:
     """
-    Verwendet die Klassenskills basierend auf dem Zieltyp.
+    Verwendet die Klassenskills basierend auf Skill-Icons und Ziel-Typ.
+    Reihenfolge der Prüfungen bleibt wie bisher, Logging erweitert.
     """
-    if image_helper.locate_needle(SKILLPATH + class_name + '\\04.png', conf=0.6):
-        press(skill4)
-        logging_helper.log_info('Used skill 4')
-    elif image_helper.locate_needle(SKILLPATH + class_name + '\\03.png', conf=0.6):
-        press(skill3)
-        logging_helper.log_info('Used skill 3')
-    elif image_helper.locate_needle(SKILLPATH + class_name + '\\01.png', conf=0.6):
-        press(skill1)
-        logging_helper.log_info('Used skill 1')
-    elif image_helper.locate_needle(SKILLPATH + class_name + '\\02.png', conf=0.6):
-        press(skill2)
-        logging_helper.log_info('Used skill 2')
+    try:
+        # Standardisierte Pfade für Skill-Icons
+        def skill_icon(idx: str) -> str:
+            return str(SKILLPATH / class_name / (idx + '.png'))
 
-    sleep(uniform(0.21, 0.24))
+        if image_helper.locate_needle(skill_icon('04'), conf=0.6):
+            press(skill4)
+            logging_helper.log_info('Used skill 4')
+        elif image_helper.locate_needle(skill_icon('03'), conf=0.6):
+            press(skill3)
+            logging_helper.log_info('Used skill 3')
+        elif image_helper.locate_needle(skill_icon('01'), conf=0.6):
+            press(skill1)
+            logging_helper.log_info('Used skill 1')
+        elif image_helper.locate_needle(skill_icon('02'), conf=0.6):
+            press(skill2)
+            logging_helper.log_info('Used skill 2')
 
-    if image_helper.locate_needle(SKILLPATH + class_name + '\\05.png', conf=0.9):
-        rightClick()
-        logging_helper.log_info('Used right mouse skill')
-    elif x is not None and y is not None:
-        leftClick()
-        logging_helper.log_info('Used left mouse skill')
+        sleep(uniform(0.21, 0.24))
 
-    sleep(uniform(0.21, 0.24))
+        if image_helper.locate_needle(skill_icon('05'), conf=0.9):
+            rightClick()
+            logging_helper.log_info('Used right mouse skill')
+        elif x is not None and y is not None:
+            leftClick()
+            logging_helper.log_info('Used left mouse skill')
+
+        sleep(uniform(0.21, 0.24))
+    except Exception as ex:
+        logging_helper.log_debug("use_skills error: %s" % ex)

@@ -1,7 +1,6 @@
 from keyboard import add_hotkey
 from threading import Thread, Lock
 from time import sleep
-from sys import exit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (QApplication, QComboBox, QPlainTextEdit, QMainWindow, QGridLayout,
@@ -11,32 +10,34 @@ from helper import config_helper, logging_helper, process_helper
 from bot import manager, rotation
 from GUI import toolbox
 
+WINDOW_X = 1425
+WINDOW_Y = 825
+WINDOW_WIDTH = 470
+WINDOW_HEIGHT = 170
+ICON_PATH = './assets/layout/mmorpg_helper.ico'
+
 class Overlay(QMainWindow):
     def __init__(self, parent=None):
         super(Overlay, self).__init__(parent)
         self.running = False
         self._lock = Lock()
         self.pause_req = False
+        self._log_handler = None
         self.cfg = config_helper.read_config()
-        self.name = self.cfg.get('apptitle', 'Overlay')
+        self.name = self.cfg.get('apptitle', 'notepad')
         self.proc = process_helper.ProcessHelper()
         self.robot = manager.Manager()
 
         # Window setup
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.setWindowIcon(QIcon('./assets/layout/mmorpg_helper.ico'))
+        self.setWindowIcon(QIcon(ICON_PATH))
         QApplication.setStyle(QStyleFactory.create('Fusion'))
         self.setWindowTitle(self.name)
-        self.setGeometry(1425, 825, 470, 170)
-        self.setFixedSize(470, 170)
+        self.setGeometry(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
         visible_window = QWidget(self)
-        visible_window.setFixedSize(470, 170)
-
-        # Hotkey setup
-        add_hotkey('end', lambda: self.on_press('exit'))
-        add_hotkey('del', lambda: self.on_press('pause'))
-        add_hotkey('capslock', lambda: self.on_press('pause'))
+        visible_window.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
         # UI setup
         self.createDropdownBox()
@@ -53,6 +54,11 @@ class Overlay(QMainWindow):
         mainLayout.setColumnStretch(1, 1)
         self.setCentralWidget(visible_window)
         visible_window.setLayout(mainLayout)
+
+        # Hotkey setup
+        add_hotkey('end', lambda: self.on_press('exit'))
+        add_hotkey('del', lambda: self.on_press('pause'))
+        add_hotkey('capslock', lambda: self.on_press('pause'))
 
     # Dropdown box
     def update_class(self, item, value=None):
@@ -96,15 +102,18 @@ class Overlay(QMainWindow):
 
         logging_helper.logger.addHandler(handler)
         handler.new_record.connect(log_text_box.appendPlainText)
+        self._log_handler = handler
 
         layout.addWidget(log_text_box)
         self.loggerConsole.setLayout(layout)
 
     def closeEvent(self, event):
+        self.stop_rotation()
         root_logger = logging_helper.logger
-        handler = logging_helper.LogHandler(self)
-        root_logger.removeHandler(handler)
-        exit(0)
+        if self._log_handler:
+            root_logger.removeHandler(self._log_handler)
+            self._log_handler = None
+        event.accept()
 
     # Start box
     def createStartBox(self):
@@ -141,15 +150,19 @@ class Overlay(QMainWindow):
     def on_press(self, key):
         if key == 'exit':
             logging_helper.log_info('_EXIT')
-            if self.running:
-                self.running = False
-                self.rotation_thread.join()
+            self.stop_rotation()
         elif key == 'pause':
             self.set_pause(not self.should_pause())
-            if self.pause_req:
+            if self.should_pause():
                 logging_helper.log_info('_PAUSE')
             else:
                 logging_helper.log_info('_RUN')
+
+    def stop_rotation(self):
+        if self.running:
+            self.running = False
+        if hasattr(self, 'rotation_thread') and self.rotation_thread.is_alive():
+            self.rotation_thread.join(timeout=2)
 
     # Thread-safe pause handling
     def should_pause(self):

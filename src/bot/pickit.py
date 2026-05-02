@@ -1,68 +1,115 @@
 from time import sleep
 from random import randint, uniform
+from typing import Tuple, List, Sequence
 from pydirectinput import leftClick
+from pathlib import Path
+import os
+import logging
 
 from helper import image_helper, logging_helper
 
+# Assets-Pfad (relativ zum Repo-Root, berechnet aus Dateiposition)
+ASSETS_DIR = Path(__file__).resolve().parents[1] / "assets" / "pickit"
+IMAGE_DIR = str(ASSETS_DIR)
 
-IMAGE_DIR = ".\\assets\\pickit\\"
+# Konstante Einstellungen
+DEFAULT_REGION = (400, 50, 1500, 870)
+CLICK_PRE_DELAY = (0.05, 0.18)  # Wartezeit vor Klick (sek.)
+PICK_COOLDOWN = (1.5, 2.5)  # Wartezeit nach erfolgreichem Aufheben
+RANDOM_OFFSET = (-2, 18, -2, 2)  # Standard-Offsets für zufälligen Klick
+
+# Farbprüfungen: [offset_x, offset_y, r, g, b, tolerance]
+DEFAULT_ITEM_COLORS: Sequence[Sequence[int]] = [
+    [1, 4, 248, 128, 5, 50],
+    [1, 4, 216, 166, 120, 50],
+    [1, 4, 234, 236, 10, 50],
+    [1, 4, 215, 164, 198, 50],
+]
 
 
-def get_ref_location(ref_img):
+def get_ref_location(ref_img: str, region: Tuple[int, int, int, int] = DEFAULT_REGION) -> Tuple[int, int]:
     """
-    Sucht ein Referenzbild und gibt die x, y-Koordinaten zurück.
-    Parameters:
-        ref_img (str): Der Dateiname des Referenzbildes.
-    Returns:
-        tuple: Die x, y-Koordinaten des Bildes, oder (-1, -1) bei Nichtauffindbarkeit.
+    Suche ein Referenzbild in `IMAGE_DIR` und gebe (x, y) zurück.
+    Bei Fehler oder Nicht-Fund wird (-1, -1) zurückgegeben.
     """
-    x, y = image_helper.locate_needle(IMAGE_DIR + ref_img, loctype='c', region=(400, 50, 1500, 870))
-    return x, y
+    try:
+        img_path = os.path.join(IMAGE_DIR, ref_img)
+        x, y = image_helper.locate_needle(img_path, loctype='c', region=region)
+        if x is None or y is None:
+            return -1, -1
+        return int(x), int(y)
+    except Exception as ex:
+        logging_helper.log_debug(f"get_ref_location('{ref_img}') failed: {ex}")
+        return -1, -1
 
 
-def randomized_left_click(x=None, y=None, a=-5, b=35, c=-5, d=5):
+def randomized_left_click(x: int = None, y: int = None, a: int = -5, b: int = 35, c: int = -5, d: int = 5) -> None:
     """
-    Führt einen zufälligen Linksklick durch, um menschliches Verhalten zu simulieren.
-    Parameters:
-        x (int): x-Koordinate des Klicks (optional).
-        y (int): y-Koordinate des Klicks (optional).
-        a, b, c, d (int): Zufallsspanne für den Offset des Klicks.
+    Führe einen Linksklick aus. Wenn x/y angegeben, verwende leichte zufällige Offsets.
+    Warte vor dem Klick einen kleinen zufälligen Zeitraum, um menschlicher zu wirken.
     """
-    if x is None or y is None:
-        leftClick()
-    else:
-        fx = x + randint(a, b)
-        fy = y + randint(c, d)
-        leftClick(fx, fy)
+    # kurze zufällige Pause vor Klick
+    sleep(uniform(CLICK_PRE_DELAY[0], CLICK_PRE_DELAY[1]))
+
+    try:
+        if x is None or y is None:
+            leftClick()
+            logging_helper.log_debug("randomized_left_click: clicking at current cursor position")
+        else:
+            fx = int(x + randint(a, b))
+            fy = int(y + randint(c, d))
+            leftClick(fx, fy)
+            logging_helper.log_debug(f"randomized_left_click: clicking at {fx},{fy} (base {x},{y})")
+    except Exception as ex:
+        logging_helper.log_debug(f"randomized_left_click failed: {ex}")
 
 
-def pick_it():
+def pick_it() -> bool:
     """
-    Sucht nach Beute und versucht, diese aufzuheben.
-    Returns:
-        bool: True, wenn ein Item erfolgreich aufgehoben wurde, False andernfalls.
+    Suche nach Loot-Items und versuche, sie aufzuheben.
+    Gibt True zurück, wenn ein Item aufgesammelt wurde, sonst False.
     """
     item_images = ["a.png", "e.png", "i.png", "o.png", "u.png", "ancestral.png", "cinder.png"]
-    item_colors = [
-        [1, 4, 248, 128, 5, 50],  # Farbe für Item 1
-        [1, 4, 216, 166, 120, 50],  # Farbe für Item 2
-        [1, 4, 234, 236, 10, 50],  # Farbe für Item 3
-        [1, 4, 215, 164, 198, 50]  # Farbe für Item 4
-    ]
 
-    for i, item_image in enumerate(item_images):
-        x, y = get_ref_location(item_image)
+    try:
+        for i, item_image in enumerate(item_images):
+            x, y = get_ref_location(item_image)
+            if x <= -1 or y <= -1:
+                continue
 
-        if x > -1 and y > -1:
-            # Definiere den Farbbereich für das Item basierend auf dem Index
-            color_checks = item_colors if i < len(item_colors) else []
+            logging_helper.log_debug(f"Found candidate '{item_image}' at {x},{y}")
 
-            for color in color_checks:
+            # Wähle passende Farbchecks (für nicht definierte Items wird DEFAULT_ITEM_COLORS benutzt)
+            if i < len(DEFAULT_ITEM_COLORS):
+                checks = [DEFAULT_ITEM_COLORS[i]]
+            else:
+                checks = list(DEFAULT_ITEM_COLORS)
+
+            matched = False
+            for color in checks:
+                if len(color) != 6:
+                    continue
                 offset_x, offset_y, r, g, b, tolerance = color
-                if image_helper.pixel_matches_color(x + offset_x, y + offset_y, r, g, b, tolerance):
-                    randomized_left_click(x + 12, y + 3, -2, 18, -2, 2)
-                    logging_helper.log_info(f"Picked item at coords {x}, {y}")
-                    sleep(uniform(1.5, 2.5))
-                    return True
+                try:
+                    px = x + offset_x
+                    py = y + offset_y
+                    if image_helper.pixel_matches_color(px, py, r, g, b, tolerance):
+                        matched = True
+                        break
+                except Exception as ex:
+                    logging_helper.log_debug(f"pixel check failed for {item_image} at {px},{py}: {ex}")
+
+            if matched:
+                # Klick leicht versetzt auf das Item
+                a, b, c, d = RANDOM_OFFSET
+                randomized_left_click(x + 12, y + 3, a, b, c, d)
+                logging_helper.log_info(f"Picked item '{item_image}' at coords {x}, {y}")
+                sleep(uniform(PICK_COOLDOWN[0], PICK_COOLDOWN[1]))
+                return True
+            else:
+                logging_helper.log_debug(f"No color match for '{item_image}' at {x},{y}")
+
+    except Exception as ex:
+        logging_helper.log_debug(f"pick_it unexpected error: {ex}")
 
     return False

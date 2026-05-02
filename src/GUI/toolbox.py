@@ -1,4 +1,4 @@
-from os import listdir, path
+from os import listdir, path, makedirs
 from threading import Thread
 from keyboard import add_hotkey
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem, QIntValidator
@@ -12,7 +12,7 @@ class Toolbox(QDialog):
         super(Toolbox, self).__init__(parent)
         self.running = False
         self.image_name = 'default'
-        self.image_path = '.\\assets\\skills\\'
+        self.image_path = '.\\src\\assets\\skills\\'
         self.abs_x_coord = 0
         self.abs_y_coord = 0
         self.x_coord = 10
@@ -24,11 +24,11 @@ class Toolbox(QDialog):
         self.replay_thread = None
         self.record = recorder_helper.Record()
         self.cfg = config_helper.read_config()
-        self.name = self.cfg.get('apptitle', 'MMORPG Helper')
+        self.name = self.cfg.get('apptitle', 'notepad')
 
         try:
-            self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
-            self.pixmap = QPixmap('.\\assets\\layout\\mmorpg_helper_background.png')
+            self.setWindowIcon(QIcon('.\\src\\assets\\layout\\mmorpg_helper.ico'))
+            self.pixmap = QPixmap('.\\src\\assets\\layout\\mmorpg_helper_background.png')
         except Exception as e:
             logging_helper.log_error(f"Error loading resources: {e}")
             self.pixmap = QPixmap()
@@ -61,27 +61,29 @@ class Toolbox(QDialog):
 
     def set_image_name(self):
         self.image_name = str(self.text_box1.text())
-        self.text_box1.setText(str(self.image_name))
 
     def set_image_path(self):
         self.image_path = str(self.text_box2.text())
-        self.text_box2.setText(str(self.image_path))
 
     def get_x_coord(self):
-        self.abs_x_coord = int(self.text_box5.text())
-        self.text_box5.setText(str(self.abs_x_coord))
+        text = self.text_box5.text().strip()
+        if text:
+            self.abs_x_coord = int(text)
 
     def get_y_coord(self):
-        self.abs_y_coord = int(self.text_box6.text())
-        self.text_box6.setText(str(self.abs_y_coord))
+        text = self.text_box6.text().strip()
+        if text:
+            self.abs_y_coord = int(text)
 
     def set_x_coord(self):
-        self.x_coord = int(self.text_box3.text())
-        self.text_box3.setText(str(self.x_coord))
+        text = self.text_box3.text().strip()
+        if text:
+            self.x_coord = int(text)
 
     def set_y_coord(self):
-        self.y_coord = int(self.text_box4.text())
-        self.text_box4.setText(str(self.y_coord))
+        text = self.text_box4.text().strip()
+        if text:
+            self.y_coord = int(text)
 
     def set_file_name(self):
         self.file_name = str(self.saveTextBox.text())
@@ -89,15 +91,25 @@ class Toolbox(QDialog):
     def set_file_name_replay(self, index):
         self.file_name_replay = str(self.replayComboBox.itemText(index))
 
+    def get_image_file_path(self):
+        file_name = self.image_name
+        if not file_name.lower().endswith('.png'):
+            file_name = f"{file_name}.png"
+        return path.join(self.image_path, file_name)
+
     def check_folder(self):
         self.model.clear()
+        if not path.exists("record"):
+            return
         for p in listdir("record"):
             if p.endswith(".txt"):
                 self.model.appendRow(QStandardItem(p))
-        self.replayComboBox.setCurrentIndex(0)
+        if self.model.rowCount() > 0:
+            self.replayComboBox.setCurrentIndex(0)
 
     def save_as(self):
         if self.recording:
+            makedirs("record", exist_ok=True)
             file_path = f".\\record\\{self.file_name}.txt"
             if path.exists(file_path):
                 logging_helper.log_error("Filename already taken")
@@ -126,12 +138,14 @@ class Toolbox(QDialog):
         try:
             logging_helper.log_info("Replaying...")
             rec = recorder_helper.Replay(f".\\record\\{self.file_name_replay}")
-            self.replay_thread = Thread(target=rec.replay_run, daemon=True)
-            self.running = True
+            def run_replay():
+                self.running = True
+                rec.replay_run()
+                self.running = False
+                logging_helper.log_info("Replay stopped")
 
+            self.replay_thread = Thread(target=run_replay, daemon=True)
             self.replay_thread.start()
-            self.replay_thread.join()
-            logging_helper.log_info("Replay stopped")
         except FileNotFoundError as e:
             logging_helper.log_error(f"File not found: {e}")
         except SyntaxError as e:
@@ -139,7 +153,7 @@ class Toolbox(QDialog):
 
     def createImageCrop(self):
         self.imageCrop = QGroupBox('Image Crop')
-        self.imageCrop.setStyleSheet('QGroupBox:title {color: rgb(255,255,0);}')
+        self.imageCrop.setStyleSheet('QGroupBox:title {color: rgb(0,255,0);}')
         layout = QHBoxLayout()
 
         common_style = 'background:rgb(204,153,51);'
@@ -183,7 +197,7 @@ class Toolbox(QDialog):
         self.text_box4.textChanged.connect(self.set_y_coord)
 
         self.imageLabel = QLabel(self)
-        pixmap = QPixmap(self.image_path + self.image_name)
+        pixmap = QPixmap(self.get_image_file_path())
         self.imageLabel.setPixmap(pixmap)
         self.imageLabel.resize(pixmap.width(), pixmap.height())
 
@@ -205,7 +219,7 @@ class Toolbox(QDialog):
 
     def createRecordBox(self):
         self.recordBox = QGroupBox('Recorder')
-        self.recordBox.setStyleSheet('QGroupBox:title {color: rgb(255,255,0);}')
+        self.recordBox.setStyleSheet('QGroupBox:title {color: rgb(0,255,0);}')
         layout = QHBoxLayout()
 
         toggleStartButton = QPushButton("Start")
@@ -237,7 +251,7 @@ class Toolbox(QDialog):
 
     def createReplayBox(self):
         self.replayBox = QGroupBox('Player')
-        self.replayBox.setStyleSheet('QGroupBox:title {color: rgb(255,255,0);}')
+        self.replayBox.setStyleSheet('QGroupBox:title {color: rgb(0,255,0);}')
         layout = QHBoxLayout()
 
         self.model = QStandardItemModel()
@@ -276,7 +290,7 @@ class Toolbox(QDialog):
         logging_helper.log_info(f"Position and color: x,y, r,g,b={x},{y}, {r},{g},{b}")
 
     def get_image_from_pos(self):
-        if path.exists(self.image_path + self.image_name + '.png'):
+        if path.exists(self.get_image_file_path()):
             logging_helper.log_error("Filename already taken")
         else:
             x, y = image_helper.get_image_at_cursor(self.x_coord, self.y_coord, self.image_name, self.image_path)
@@ -284,7 +298,7 @@ class Toolbox(QDialog):
             self.update_image_label()
 
     def get_image_from_coord(self):
-        if path.exists(self.image_path + self.image_name + '.png'):
+        if path.exists(self.get_image_file_path()):
             logging_helper.log_error("Filename already taken")
         else:
             x, y = image_helper.get_image_from_coordinates(self.abs_x_coord, self.abs_y_coord, self.image_name, self.image_path)
@@ -292,7 +306,7 @@ class Toolbox(QDialog):
             self.update_image_label()
 
     def update_image_label(self):
-        pixmap = QPixmap(self.image_path + self.image_name)
+        pixmap = QPixmap(self.get_image_file_path())
         self.imageLabel.setPixmap(pixmap)
         self.imageLabel.resize(pixmap.width(), pixmap.height())
 
