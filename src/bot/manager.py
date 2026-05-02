@@ -8,7 +8,7 @@ from pydirectinput import leftClick, rightClick, press
 from helper import mouse_helper, image_helper, config_helper, logging_helper
 from bot import pather, pickit, rotation
 
-ASSETS_DIR = Path(__file__).resolve().parents[1] / "src/assets"
+ASSETS_DIR = Path(__file__).resolve().parents[1] / "assets"
 LOCATION_DIR = str(ASSETS_DIR / "location")
 
 class Manager:

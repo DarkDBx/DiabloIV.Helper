@@ -56,7 +56,7 @@ def save_image(region: Tuple[int, int, int, int], name: str, path: str) -> None:
         logging_helper.log_debug(f"save_image failed for {name} @ {path}: {ex}")
 
 
-def get_image_at_cursor(ix: int = 10, iy: int = 10, name: str = 'default', path: str = './src/assets/skills/') -> Tuple[int, int]:
+def get_image_at_cursor(ix: int = 10, iy: int = 10, name: str = 'default', path: str = './assets/skills/') -> Tuple[int, int]:
     """
     Capture an image centered around the cursor position.
     Returns cursor coordinates.
@@ -66,14 +66,14 @@ def get_image_at_cursor(ix: int = 10, iy: int = 10, name: str = 'default', path:
     return x, y
 
 
-def get_image_from_coordinates(x: int, y: int, name: str = 'default', path: str = './src/assets/skills/') -> Tuple[int, int]:
+def get_image_from_coordinates(x: int, y: int, name: str = 'default', path: str = './assets/skills/') -> Tuple[int, int]:
     """
     Backward-compatible wrapper for the toolbox API.
     """
     return get_image_at_coords(x, y, name=name, path=path)
 
 
-def get_image_at_coords(x: int, y: int, ix: int = 10, iy: int = 10, name: str = 'default', path: str = './src/assets/skills/') -> Tuple[int, int]:
+def get_image_at_coords(x: int, y: int, ix: int = 10, iy: int = 10, name: str = 'default', path: str = './assets/skills/') -> Tuple[int, int]:
     """
     Capture an image at specified coordinates (centered on x,y).
     Returns the provided coordinates.

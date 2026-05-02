@@ -12,7 +12,7 @@ class Toolbox(QDialog):
         super(Toolbox, self).__init__(parent)
         self.running = False
         self.image_name = 'default'
-        self.image_path = '.\\src\\assets\\skills\\'
+        self.image_path = '.\\assets\\skills\\'
         self.abs_x_coord = 0
         self.abs_y_coord = 0
         self.x_coord = 10
@@ -27,8 +27,8 @@ class Toolbox(QDialog):
         self.name = self.cfg.get('apptitle', 'notepad')
 
         try:
-            self.setWindowIcon(QIcon('.\\src\\assets\\layout\\mmorpg_helper.ico'))
-            self.pixmap = QPixmap('.\\src\\assets\\layout\\mmorpg_helper_background.png')
+            self.setWindowIcon(QIcon('.\\assets\\layout\\mmorpg_helper.ico'))
+            self.pixmap = QPixmap('.\\assets\\layout\\mmorpg_helper_background.png')
         except Exception as e:
             logging_helper.log_error(f"Error loading resources: {e}")
             self.pixmap = QPixmap()
