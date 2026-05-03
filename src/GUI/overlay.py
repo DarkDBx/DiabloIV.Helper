@@ -69,7 +69,7 @@ class Overlay(QMainWindow):
         self.update_class('class', self.ComboBox.currentText())
 
     def get_class(self):
-        class_array = ['Druid', 'Spiritborn', 'Barbarian', 'Necromancer', 'Sorceress', 'Rogue']
+        class_array = ['Druid', 'Spiritborn', 'Barbarian', 'Necromancer', 'Sorceress', 'Rogue', 'Warlock']
         for class_var in class_array:
             item = QStandardItem(class_var)
             self.model.appendRow(item)

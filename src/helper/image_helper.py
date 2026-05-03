@@ -82,7 +82,7 @@ def get_image_at_coords(x: int, y: int, ix: int = 10, iy: int = 10, name: str = 
     return x, y
 
 
-def pixel_matches_color(x: int, y: int, exR: int, exG: int, exB: int, tolerance: int = 75) -> bool:
+def pixel_matches_color(x: int, y: int, exR: int, exG: int, exB: int, tolerance: int = 25) -> bool:
     """
     Check if a pixel matches the expected RGB color within a tolerance.
     """
@@ -97,20 +97,20 @@ def pixel_matches_color(x: int, y: int, exR: int, exG: int, exB: int, tolerance:
     
 def detect_lines(line_type: str = 'path') -> Optional[Tuple[int, int, int, int]]:
     """
-    Detect narrow, curved lines of a given type ('path' or 'mob') by specified color on the screen.
+    Detect narrow, curved lines of a given type ('path' or 'mob') by specified RGB color on the screen.
     Returns absolute bounding box (x, y, w, h) of the closest matching contour or None.
     """
-    # Config f�r verschiedene Typen (Werte k�nnen weiter kalibriert werden)
+    # RGB color ranges for different line types
     line_config = {
         'path': {
-            'lower': np.array([9, 110, 95], dtype=np.uint8),
-            'upper': np.array([11, 120, 115], dtype=np.uint8),
-            'screen_box': (1675, 75, 150, 150)  # left, top, width, height
+            'lower': np.array([254, 254, 254], dtype=np.uint8),
+            'upper': np.array([255, 255, 255], dtype=np.uint8),
+            'screen_box': (600, 100, 1400, 900)  # left, top, width, height
         },
         'mob': {
-            'lower': np.array([11, 80, 66], dtype=np.uint8),
-            'upper': np.array([15, 120, 68], dtype=np.uint8),
-            'screen_box': (550, 125, 800, 700)  # left, top, width, height
+            'lower': np.array([155, 37, 1], dtype=np.uint8),
+            'upper': np.array([168, 38, 1], dtype=np.uint8),
+            'screen_box': (600, 100, 1400, 900)  # left, top, width, height
         }
     }
 
@@ -122,16 +122,12 @@ def detect_lines(line_type: str = 'path') -> Optional[Tuple[int, int, int, int]]
     left, top, width, height = cfg['screen_box']
 
     try:
-        # Grab region and convert to HSV (ImageGrab returns RGB)
-        img = ImageGrab.grab(bbox=(left, top, left + width, top + height))
-        np_img = np.array(img)  # RGB
-        hsv = cv2.cvtColor(np_img, cv2.COLOR_RGB2HSV)  # Convert to HSV for better color segmentation
-        mask = cv2.inRange(hsv, cfg['lower'], cfg['upper'])
+        # Grab region and convert to RGB for processing
+        img = ImageGrab.grab(bbox=(left, top, width, height))
+        np_img = np.array(img)
+        rgb = cv2.cvtColor(np_img, cv2.COLOR_BGR2RGB)
+        mask = cv2.inRange(rgb, cfg['lower'], cfg['upper'])
         edges = cv2.Canny(mask, 50, 150)
-
-        #cv2.imwrite("saved_image.jpg", hsv)  # Debug: Speichert die Kantenbilddatei
-        #cv2.imwrite("saved_image_edges.jpg", edges)
-        #logging_helper.log_debug(f"detect_lines: saved hsv image for '{line_type}' detection")
 
         # findContours: robust gegen verschiedene cv2-Versionen
         contours_info = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -162,12 +158,16 @@ def detect_lines(line_type: str = 'path') -> Optional[Tuple[int, int, int, int]]
                 if len(approx) > 2 and distance < min_distance:
                     min_distance = distance
                     closest_contour = (abs_x, abs_y, w, h)
-                    logging_helper.log_debug(f"Detected curved line ('{line_type}') bbox {(abs_x, abs_y, w, h)}")
+                    #cv2.imwrite(f"debug_{line_type}_hsv.png", rgb)  # Debug: save rgb image
+                    #cv2.imwrite(f"debug_{line_type}_edges.png", edges)  # Debug: save edge image
+                    logging_helper.log_debug(f"Detected curved line ('path') bbox {(abs_x, abs_y, w, h)}")
             elif line_type == 'mob':
                 # Mob-Linien sind oft sehr schmal und lang; Filter nach minimaler Breite/H�he
                 if w >= 20 and 1 <= h <= 6 and distance < min_distance:
                     min_distance = distance
                     closest_contour = (abs_x, abs_y, w, h)
+                    #cv2.imwrite(f"debug_{line_type}_hsv.png", rgb)  # Debug: save rgb image
+                    #cv2.imwrite(f"debug_{line_type}_edges.png", edges)  # Debug: save edge image
                     logging_helper.log_debug(f"Detected straight line ('mob') bbox {(abs_x, abs_y, w, h)}")
 
         if closest_contour:

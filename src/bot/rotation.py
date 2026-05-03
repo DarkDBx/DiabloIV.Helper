@@ -8,7 +8,7 @@ from helper import mouse_helper, image_helper, timer_helper, config_helper, logg
 from helper.timer_helper import TIMER_STOPPED
 
 # Skill-Assets relativ zum Projekt
-SKILLPATH = Path(__file__).resolve().parents[1] / "assets" / "skills"
+SKILLPATH = Path(__file__).resolve().parents[2] / "assets" / "skills"
 
 # Timer-Instanzen für Abklingzeiten
 timer1 = timer_helper.TimerHelper('timer1')
@@ -49,7 +49,7 @@ def rotation(x: Optional[int] = None, y: Optional[int] = None) -> None:
         return
 
     class_name = str(cfg.get('class', '')).strip().capitalize()
-    valid = {'Druid', 'Spiritborn', 'Barbarian', 'Necromancer', 'Sorceress', 'Rogue'}
+    valid = {'Druid', 'Spiritborn', 'Barbarian', 'Necromancer', 'Sorceress', 'Rogue', 'Warlock'}
 
     if class_name in valid:
         combat_rotation(class_name.lower(), x, y)

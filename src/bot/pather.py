@@ -63,7 +63,7 @@ def stuck_check(func):
 
     return decorated
 
-def get_player_ref_location(trans=True):
+def get_player_ref_location(trans=False):
     """
     Ermittelt die Position des Spielers relativ zur Minimap.
     Parameters:
@@ -89,12 +89,14 @@ def get_player_ref_location(trans=True):
 
     x, y, w, h = path
     # Verwende Rechtecksuntergrenze/rechts als Referenzpunkt
+    """
     x = x + w
     y = y + h
 
     # Anpassung an Map-Offsets (beibehalten, da projekt-spezifisch)
-    x = (MAP_X - x) #- 1675
-    y = (MAP_Y - y) #- 75
+    x = (MAP_X - x) - 1675
+    y = (MAP_Y - y) - 75
+    """
 
     if trans:
         return int(x * 10), int(y * 10)
@@ -139,9 +141,9 @@ def move_to_ref_location(stuck=False):
 
     try:
         if not stuck:
-            leftClick(int(abs_x), int(abs_y))
+            leftClick(int(x), int(y))
             time.sleep(CLICK_DELAY)
-            logging_helper.log_info("Moving to %d,%d" % (abs_x, abs_y))
+            logging_helper.log_info("Moving to %d,%d" % (x, y))
             return True
         else:
             # Zufällige Bewegung bei Blockierung

@@ -9,7 +9,7 @@ import logging
 from helper import image_helper, logging_helper
 
 # Assets-Pfad (relativ zum Repo-Root, berechnet aus Dateiposition)
-ASSETS_DIR = Path(__file__).resolve().parents[1] / "assets" / "pickit"
+ASSETS_DIR = Path(__file__).resolve().parents[2] / "assets" / "pickit"
 IMAGE_DIR = str(ASSETS_DIR)
 
 # Konstante Einstellungen

@@ -12,6 +12,7 @@
 - Recomended use of US/EN or standard keyboard layout.
 - Set a different apptitle (anticheat) and adjust the key assignment in .\config\config.yml.
 - Set monster health bar -> always on.
+- Set pathfinder -> on.
 - Set basic skill on left mouse and core skill on right mouse.
 - Python 3.9 interpreter, see requirements.txt.
 

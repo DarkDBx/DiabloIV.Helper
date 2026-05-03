@@ -8,7 +8,7 @@ from pydirectinput import leftClick, rightClick, press
 from helper import mouse_helper, image_helper, config_helper, logging_helper
 from bot import pather, pickit, rotation
 
-ASSETS_DIR = Path(__file__).resolve().parents[1] / "assets"
+ASSETS_DIR = Path(__file__).resolve().parents[2] / "assets"
 LOCATION_DIR = str(ASSETS_DIR / "location")
 
 class Manager:
@@ -71,8 +71,8 @@ class Manager:
         conditions = [(718, 984, 59, 75, 84), (1209, 966, 56, 76, 81)]
         return self.pixel_match_check(conditions)
 
-    def is_death(self) -> bool:
-        conditions = [(831, 859, 147, 81, 32), (846, 898, 47, 1, 1)]
+    def is_dead(self) -> bool:
+        conditions = [(861, 941, 81, 15, 15), (1, 1, 0, 0, 0)]
         return self.pixel_match_check(conditions)
 
     def click_randomized(self, x: Optional[int] = None, y: Optional[int] = None,
@@ -211,7 +211,7 @@ class Manager:
             return None
 
     def game_manager(self, move: bool = True, loot: bool = False) -> None:
-        """Main game handling routine - fuehrt genau einen Zyklus aus (keine Rekursion)."""
+        """Main game handling routine."""
         try:
             # Aktualisiere ggf. die Konfiguration
             self.cfg = self.reload_config()
@@ -221,9 +221,9 @@ class Manager:
                 self.click_randomized(220, 710, button='left')
                 return
 
-            if self.is_death():
+            if self.is_dead():
                 logging_helper.log_info("Player is dead. Reviving.")
-                self.click_randomized(904, 924, button='left')
+                self.click_randomized(927, 948, button='left')
                 self.wait_for_loading()
                 return
 
@@ -236,13 +236,13 @@ class Manager:
                     mob = None
 
                 if mob:
-                    # mob zur�ckgeben kann (x,y,w,h)
+                    # mob gefunden (x,y,w,h)
                     try:
                         x, y, w, h = mob
                         rotation.rotation(x, y)
                     except Exception as ex:
                         logging_helper.log_debug("rotation call failed: %s" % ex)
-                    # nach Kampf evtl Loot verarbeiten, aber keinen rekursiven Aufruf
+                    # nach Kampf evtl Loot verarbeiten
                     if loot:
                         self.loot_process()
                     return
