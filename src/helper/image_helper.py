@@ -158,19 +158,17 @@ def detect_lines(line_type: str = 'path') -> Optional[Tuple[int, int, int, int]]
                 if len(approx) > 2 and distance < min_distance:
                     min_distance = distance
                     closest_contour = (abs_x, abs_y, w, h)
-                    #cv2.imwrite(f"debug_{line_type}_hsv.png", rgb)  # Debug: save rgb image
-                    #cv2.imwrite(f"debug_{line_type}_edges.png", edges)  # Debug: save edge image
                     logging_helper.log_debug(f"Detected curved line ('path') bbox {(abs_x, abs_y, w, h)}")
             elif line_type == 'mob':
                 # Mob-Linien sind oft sehr schmal und lang; Filter nach minimaler Breite/H�he
                 if w >= 20 and 1 <= h <= 6 and distance < min_distance:
                     min_distance = distance
                     closest_contour = (abs_x, abs_y, w, h)
-                    #cv2.imwrite(f"debug_{line_type}_hsv.png", rgb)  # Debug: save rgb image
-                    #cv2.imwrite(f"debug_{line_type}_edges.png", edges)  # Debug: save edge image
                     logging_helper.log_debug(f"Detected straight line ('mob') bbox {(abs_x, abs_y, w, h)}")
 
         if closest_contour:
+            #cv2.imwrite(f"debug_{line_type}_hsv.png", rgb)  # Debug: save rgb image
+            #cv2.imwrite(f"debug_{line_type}_edges.png", edges)  # Debug: save edge image
             logging_helper.log_info(f"Closest contour to center: {closest_contour}")
             return closest_contour
 
