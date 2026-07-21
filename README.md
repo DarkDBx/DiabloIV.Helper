@@ -34,7 +34,6 @@
 ## CREDITS
 - https://stackoverflow.com
 - https://github.com
-- https://chatgpt.com
 - Written in Python by DarkDBx
 
 
